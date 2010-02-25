@@ -1,0 +1,17 @@
+#!/usr/local/bin/perl6
+
+
+BEGIN {
+    @*INC.push: './lib';
+}
+
+use Webtoo;
+
+my $datadir = './data';
+my $config  = '/config.wtdl';
+
+my $wt = Webtoo.new;
+$wt.datadir = './data';
+$wt.loadMetadataFile($datadir~$config); # The global config.
+say $wt.processContent;
+

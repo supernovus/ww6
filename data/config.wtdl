@@ -1,0 +1,49 @@
+# A comment
+test: This is a test
+content:
+  index: default
+  handler: /handler
+another:
+  what: is going on
+  here: this is weird
+  GONE: This should not show up
+  GONE2: This also should not show up
+anarray:
+  - First
+  - Second
+  - Third
+
+atestofsorts: [1,2,3]
+atestofsorts: +[0]
+atestofsorts: -[2]
+another: -[GONE]
+another:
+  ADD: This will be added
+  GONE2: ~
+
+nesthash:
+  embed:
+    one: 1
+    two: 2
+    three: 3
+    four:
+      five: fourty five
+    six:
+      - embedded 7
+      - embedded 8
+
+# Another comment
+
+nestarray:
+  -
+    in1: Again
+    in2: More
+  -
+    in3: So what
+    in4: This is messed up
+    in5:
+      - And this is
+      - Even more messed up
+
+# A final comment
+

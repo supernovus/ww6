@@ -1,0 +1,18 @@
+wwSix: Web Application Framework for Perl 6
+
+In the beginning was Webtoo Websight, and it was good.
+Based on the Perlite libraries it was, and they were good.
+
+Both had reached a mighty version number of 5, but both had also
+reached a point where a complete rewrite was in order.
+
+It could have been done in Perl 5, as both were already written in
+said language. It could have been done with magical tools such as
+Moose, to make it stronger and easier to debug.
+
+But then, the Great Architect said, "no."
+
+And proceeded to rewrite the whole thing, in Perl 6.
+
+This is the result.
+

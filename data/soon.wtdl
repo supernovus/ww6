@@ -1,0 +1,16 @@
+## The default dispatch file for ww6
+#
+# If a data file called 'redirect.wtdl' is found,
+# then the rules will be chained from it.
+# This is a faster method than using the handler to do it.
+plugins: [ Content, Metadata, Template, Plugins ]
+content:
+  index: default
+  handler: /handler
+dispatch:
+  >
+    autoroot: 1
+  >
+    hasfile: redirect
+    @include: redirect
+
