@@ -11,22 +11,37 @@ method getRootPath (@path=%.metadata<root>) {
     return $.datadir ~ '/' ~ @path.join('/') ~ '/';
 }
 
-method parseDataFile($file, $data is copy, @path=%.metadata<root>) {
+method parseDataFile(
+    $file, 
+    $data is copy, 
+    :@path=%.metadata<root>,
+    :@cache,
+) {
     my $config = self.getRootPath(@path) ~ $file ~ '.' ~ $.dlext;
     if $config ~~ :e {
         my @definition = lines $config;
-        return self.parseData(@definition, $data);
+        return self.parseData(@definition, $data, 0, @cache);
     }
     else {
         die "Config file not found: $config";
     }
 }
 
-method parseData (@definition is rw, $data is copy, $level=0, @cache?) {
+method parseData (
+    @definition is rw, 
+    $data is copy, 
+    $level=0, 
+    @cache?,
+    $multiline is rw =0,
+) {
     my $element   = '_';
     my $arrayop   = '';
 
     say "We are in parseData" if $.debug;
+
+    if $multiline == 2 {
+        $data = '';        ## Replace $data with an empty string.
+    }
 
     while defined (my $line = @definition.shift) {
         say "Parsing line: $line" if $.debug;
@@ -43,7 +58,9 @@ method parseData (@definition is rw, $data is copy, $level=0, @cache?) {
                 @definition.unshift: $line;
                 return $data;
             }
-            elsif $level < $space {
+            elsif $level < $space && $multiline < 2 {
+                ## Advance to next level of multiline.
+                if $multiline == 1 { $multiline = 2; }
                 say "Found a nested level $space" if $.debug;
                 ## Re-add the line we're on, for nested processing.
                 @definition.unshift: $line;
@@ -52,7 +69,7 @@ method parseData (@definition is rw, $data is copy, $level=0, @cache?) {
                     my @localcache = @cache;
                     @localcache.push: $data;
                     my @arraydata = self.parseData(
-                        @definition, $data, $space, @localcache,
+                        @definition, $data, $space, @localcache, $multiline,
                     );
                     if $arrayop eq '+' | '<' {
                         $data.unshift: @arraydata;
@@ -65,15 +82,25 @@ method parseData (@definition is rw, $data is copy, $level=0, @cache?) {
                     my @localcache = @cache;
                     @localcache.push: $data;
                     $data{$element} = self.parseData(
-                        @definition, $data{$element}, $space, @localcache, 
+                        @definition, 
+                        $data{$element}, 
+                        $space, 
+                        @localcache, 
+                        $multiline,
                     );
                 }
+                ## Remove multiline setting if it had been set.
+                $multiline=0;
                 next;
             }
             else {
                 ## Any further processing should be done with shortened
                 #  lines, with no extra space on them.
-                $line.=substr($space);
+                $line.=substr($level);
+                if $multiline == 2 {
+                    $data ~= $line ~ "\n";
+                    next;
+                }
             }
         }
         given $line {
@@ -83,8 +110,12 @@ method parseData (@definition is rw, $data is copy, $level=0, @cache?) {
                 if @cache && @cache[0] ~~ Hash && @cache[0]<root> {
                     @path = @cache[0]<root>;
                 }
+                my @localcache = @cache;
+                @localcache.push: $data;
                 for @includes -> $include {
-                    $data = self.parseDataFile($include, $data, @path);
+                    $data = self.parseDataFile(
+                        $include, $data, :path(@path), :cache(@localcache),
+                    );
                 }
             }
             when /:s ^ (\+|\-|\<|\>) (.*?) $/ { ## Array assignment
@@ -99,6 +130,10 @@ method parseData (@definition is rw, $data is copy, $level=0, @cache?) {
                 $arrayop = $0;
                 if ~$1 {
                     my $value = ~$1;
+                    if $value ~~ /:s \| $/ {
+                        $multiline = 1;
+                        next; ## Let's gather lines.
+                    }
                     if $value ~~ /:s \@ref\: (.+?) $/ {
                         $value = self!getDataRef(
                             ~$0, self!localCache($data, @cache),
@@ -120,6 +155,10 @@ method parseData (@definition is rw, $data is copy, $level=0, @cache?) {
                     $data = {};
                 }
                 continue; ## Make sure it continues!
+            }
+            when /:s <hashKey> \| $/ {
+                $multiline = 1;
+                next; ## Breakout!
             }
             when /:s <hashKey> \@ref\: (.+?) $/ {
                 $data{$element} = self!getDataRef(

@@ -1,4 +1,12 @@
 # A comment
+multiline: |
+  So, about that multiline text.
+  It's pretty crazy stuff really.
+    It can even have inner layers.
+    or: look like WTDL defintitions.
+    - like this, which is invalid.
+  But eventually it will come to and end
+
 Okay, so this is a weird key!: I know it is, but what can you do?
 Again, a test: This time: With More! http://huri.net/
 test: This is a test
