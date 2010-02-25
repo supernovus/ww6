@@ -7,12 +7,22 @@ role Webtoo::Data;
 #
 # It supports various forms of appending/merging/deleting, etc.
 
-method parseDataFile($file, $data is copy) {
-    my @definition = lines $file;
-    return self.parseData(@definition, $data);
+method getRootPath (@path=%.metadata<root>) {
+    return $.datadir ~ '/' ~ @path.join('/') ~ '/';
 }
 
-method parseData (@definition is rw, $data is copy, $level=0, @cache) {
+method parseDataFile($file, $data is copy, @path=%.metadata<root>) {
+    my $config = self.getRootPath(@path) ~ $file ~ '.' ~ $.dlext;
+    if $config ~~ :e {
+        my @definition = lines $config;
+        return self.parseData(@definition, $data);
+    }
+    else {
+        die "Config file not found: $config";
+    }
+}
+
+method parseData (@definition is rw, $data is copy, $level=0, @cache?) {
     my $element   = '_';
     my $arrayop   = '';
    
@@ -50,9 +60,6 @@ method parseData (@definition is rw, $data is copy, $level=0, @cache) {
                     }
                 }
                 else {
-                    if not $data{$element} ~~ Hash {
-                        $data{$element} = {};
-                    }
                     my @localcache = @cache;
                     @localcache.push: $data;
                     $data{$element} = self.parseData(
@@ -67,15 +74,20 @@ method parseData (@definition is rw, $data is copy, $level=0, @cache) {
                 $line.=substr($space);
             }
         }
-        if $line ~~ /:s (\w+)\: / { ## Any hash assignment
-            $element = $0;
-            if not $data ~~ Hash {
-                $data = {};
-            }
-        }
         given $line {
+            when /:s ^ \@include\: (.*?) $/ {
+                my @includes = ~$0.split(',');
+                my @path = %.metadata<root>;
+                if @cache && @cache[0] ~~ Hash && @cache[0]<root> {
+                    @path = @cache[0]<root>;
+                }
+                for @includes -> $include {
+                    $data = self.parseDataFile($include, $data, @path);
+                }
+            }
             when /:s ^ (\+|\-|\<|\>) (.*?) $/ { ## Array assignment
                 if not $data ~~ Array {
+                    say "Data is not an array: " ~ $data.WHAT if $.debug;
                     my @subarray;
                     if defined $data && not $data ~~ Hash {
                         @subarray.push: $data;
@@ -94,17 +106,17 @@ method parseData (@definition is rw, $data is copy, $level=0, @cache) {
                     }
                 }
             }
-            when /:s (\w+)\: $/ {
-                $element = $0;
+            regex hashKey { ^ (\w+)\: }
+            when /:s <hashKey> / { ## Any hash assignment
+                $element = $/<hashKey>[0];
+                if not $data ~~ Hash {
+                    $data = {};
+                }
+                continue; ## Make sure it continues!
             }
-            when /:s (\w+)\: \~ $/ {
-                $element = $0;
-                $data.delete($element); # Death to element.
-            }
-            when /:s (\w+)\: (.?)\[(.+?)\] $/ {
-                $element = $0;
-                my $comp = $1;
-                my $arraystring = $2;
+            when /:s ^ \w+\: (.?)\[(.+?)\] $/ {
+                my $comp = $0;
+                my $arraystring = $1;
                 say "Setting array '$element', to '$arraystring', using '$comp'." if $.debug;
                 my @array = $arraystring.split(',');
                 #@array>>.=chomp;
@@ -152,9 +164,11 @@ method parseData (@definition is rw, $data is copy, $level=0, @cache) {
                     }
                 }
             }
-            when /:s (\w+)\: (.+?) $/ {
-                $element = $0;
-                $data{$element} = ~$1;
+            when /:s ^ \w+\: \~ $/ {
+                $data.delete($element); # Death to element.
+            }
+            when /:s ^ \w+\: (.+?) $/ {
+                $data{$element} = ~$0;
             }
         }
     }

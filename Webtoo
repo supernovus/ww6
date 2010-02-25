@@ -8,10 +8,9 @@ BEGIN {
 use Webtoo;
 
 my $datadir = './data';
-my $config  = '/config.wtdl';
+my $config  = 'config';
 
-my $wt = Webtoo.new;
-$wt.datadir = './data';
-$wt.loadMetadataFile($datadir~$config); # The global config.
+my $wt = Webtoo.new( :datadir($datadir) );
+$wt.loadMetadataFile($config); # The global config.
 say $wt.processContent;
 

@@ -6,10 +6,6 @@ class Webtoo does Webtoo::Data does Webtoo::CGI;
 constant PLUGINS  = "Websight::";
 
 has %!headers = { Status => 200, 'Content-type' => 'text/html' };
-has %.metadata is rw = {
-    :plugins( [ 'Dispatch' ] ),
-    :root('/'),
-};
 has $.content is rw = '';
 has $!redirect;
 has $.page = %*ENV{'PATH_INFO'} // %*ENV{'REQUEST_URI'} // @*ARGS[0];
@@ -18,7 +14,16 @@ has $.host = %*ENV{'HTTP_HOST'} // %*ENV{'HOSTNAME'};
 has $.debug = %*ENV{'DEBUG'};
 has $.mlext = 'wtml';
 has $.dlext = 'wtdl';
-has $.datadir is rw;
+has $.datadir = './';
+has %.metadata is rw = {
+    :plugins( [ 'Dispatch' ] ),
+    :root( [] ),
+    'webtoo' => {
+        :host($.host),
+        :proto($.proto),
+        :page($.page),
+    },
+};
 
 method setStatus ($code?) {
     if $code {
