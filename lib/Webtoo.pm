@@ -103,31 +103,29 @@ method callPlugin ($plugin is copy, $command, *%opts) {
 
     say "<def> $plugin" if $.debug;
     my $namespace = $plugin.lc;
-    if $plugin.match(/<nsStart>/) {
+    if $plugin ~~ /<nsStart>/ {
         $plugin.=subst(/<nsStart>/, '', :global);
         $namespace.=subst(/<nsStart>/, '', :global);
     }
     else {
         $plugin = PLUGINS ~ $plugin;
     }
-    $namespace.=subst(/<nsSep>/, '.', :global); # Convert :: to . for NS.
-    if $plugin.match(/ \+ /) {
+    $namespace.=subst(/<nsSep>/, '-', :global); # Convert :: to - for NS.
+    if $plugin ~~ / \+ / {
         $plugin.=subst(/ \+ .* /, '');
-        $namespace.=subst(/ \+ /, '.'); # Convert + to . for subspaces.
     }
-    elsif $plugin.match(/ \= /) {
+    elsif $plugin ~~ / \= / {
         $namespace = $plugin.split(/\=/)[1];
         $plugin.=subst(/ \= .* /, '');
     }
 
     say "<class> $plugin" if $.debug;
     say "<namespace> $namespace" if $.debug;
-    ## This is hackery, but needed at the moment.
-    my $classfile = $plugin.subst(/<nsSep>/, '/');
+    my $classfile = $plugin.subst(/<nsSep>/, '/'); # Needed hackery.
     $classfile ~= '.pm';
     require $classfile;
     say "We got past require" if $.debug;
-    my $plug = eval("$plugin.new()");
+    my $plug = eval("$plugin.new()"); # More needed hackery.
     $plug.parent = self;
     $plug.namespace = $namespace;
     $plug."$command"(%opts);

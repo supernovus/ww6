@@ -25,7 +25,7 @@ method parseDataFile($file, $data is copy, @path=%.metadata<root>) {
 method parseData (@definition is rw, $data is copy, $level=0, @cache?) {
     my $element   = '_';
     my $arrayop   = '';
-   
+
     say "We are in parseData" if $.debug;
 
     while defined (my $line = @definition.shift) {
@@ -49,8 +49,10 @@ method parseData (@definition is rw, $data is copy, $level=0, @cache?) {
                 @definition.unshift: $line;
                 if $data ~~ Array {
                     say "Processing nested array" if $.debug;
+                    my @localcache = @cache;
+                    @localcache.push: $data;
                     my @arraydata = self.parseData(
-                        @definition, $data, $space, @cache,
+                        @definition, $data, $space, @localcache,
                     );
                     if $arrayop eq '+' | '<' {
                         $data.unshift: @arraydata;
@@ -63,7 +65,7 @@ method parseData (@definition is rw, $data is copy, $level=0, @cache?) {
                     my @localcache = @cache;
                     @localcache.push: $data;
                     $data{$element} = self.parseData(
-                        @definition, $data{$element}, $space, @localcache,
+                        @definition, $data{$element}, $space, @localcache, 
                     );
                 }
                 next;
@@ -75,7 +77,7 @@ method parseData (@definition is rw, $data is copy, $level=0, @cache?) {
             }
         }
         given $line {
-            when /:s ^ \@include\: (.*?) $/ {
+            when /:s ^ \@include\: (.+?) $/ {
                 my @includes = ~$0.split(',');
                 my @path = %.metadata<root>;
                 if @cache && @cache[0] ~~ Hash && @cache[0]<root> {
@@ -96,7 +98,12 @@ method parseData (@definition is rw, $data is copy, $level=0, @cache?) {
                 }
                 $arrayop = $0;
                 if ~$1 {
-                    my $value = $1;
+                    my $value = ~$1;
+                    if $value ~~ /:s \@ref\: (.+?) $/ {
+                        $value = self!getDataRef(
+                            ~$0, self!localCache($data, @cache),
+                        );
+                    }
                     say "Array assignment: '$value' using '$arrayop'" if $.debug;
                     if $arrayop eq '+' | '<' {
                         $data.unshift: ~$value;
@@ -106,20 +113,24 @@ method parseData (@definition is rw, $data is copy, $level=0, @cache?) {
                     }
                 }
             }
-            regex hashKey { ^ (\w+)\: }
+            regex hashKey { ^ ( .*? ) \: }
             when /:s <hashKey> / { ## Any hash assignment
-                $element = $/<hashKey>[0];
+                $element = ~$/<hashKey>[0];
                 if not $data ~~ Hash {
                     $data = {};
                 }
                 continue; ## Make sure it continues!
             }
-            when /:s ^ \w+\: (.?)\[(.+?)\] $/ {
+            when /:s <hashKey> \@ref\: (.+?) $/ {
+                $data{$element} = self!getDataRef(
+                    ~$0, self!localCache($data, @cache),
+                );
+            }
+            when /:s <hashKey> (.?)\[(.+?)\] $/ {
                 my $comp = $0;
                 my $arraystring = $1;
                 say "Setting array '$element', to '$arraystring', using '$comp'." if $.debug;
                 my @array = $arraystring.split(',');
-                #@array>>.=chomp;
                 if $comp eq '~' {
                     $data{$element} = @array;
                 }
@@ -164,16 +175,55 @@ method parseData (@definition is rw, $data is copy, $level=0, @cache?) {
                     }
                 }
             }
-            when /:s ^ \w+\: \~ $/ {
+            when /:s <hashKey> \~ $/ {
                 $data.delete($element); # Death to element.
             }
-            when /:s ^ \w+\: (.+?) $/ {
+            when /:s <hashKey> (.+?) $/ {
                 $data{$element} = ~$0;
             }
         }
     }
     say "End of data with {$data.perl}" if $.debug;
     return $data;
+}
+
+method !localCache ($data, @cache) {
+    my @localcache;
+    if @cache { 
+        @localcache = @cache;
+        if not @cache[*-1] ~~ $data {
+            @localcache.push: $data;
+        }
+    }
+    else { 
+        @localcache.push: $data 
+    }
+    return @localcache;
+}
+
+method !getDataRef ($refs, @cache) {
+    my $idata;
+    if $refs ~~ /^(\.+)/ {
+        my $back = $0.chars;
+        $refs.=subst(/^\.+/, ''); ## Kill dots.
+        $idata = @cache[*-$back];
+    }
+    else {
+        $idata = @cache[0];
+    }
+    my @refs = $refs.split('.');
+    for @refs -> $ref {
+        print "- $ref " if $.debug;
+        if $idata ~~ Array {
+            say "is an Array" if $.debug;
+            $idata = $idata[+$ref];
+        }
+        elsif $idata ~~ Hash {
+            say "is a Hash" if $.debug;
+            $idata = $idata{~$ref};
+        }
+    }
+    return $idata;
 }
 
 method loadMetadataFile ($file) {

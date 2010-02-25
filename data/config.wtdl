@@ -1,4 +1,6 @@
 # A comment
+Okay, so this is a weird key!: I know it is, but what can you do?
+Again, a test: This time: With More! http://huri.net/
 test: This is a test
 content:
   index: default
@@ -60,6 +62,23 @@ nestarray:
     in5:
       - And this is
       - Even more messed up
+      -
+        in6: @ref: ...in3
+
+nestinside:
+  outside: Good Day
+  inside:
+    - Alpha
+    - Beta
+    -
+      Gamma: Quadrant
+    - @ref: .1
+    - @ref: ..outside
+    - @ref: nestarray.0.in1
+
+nesttest: @ref: nesthash.embed.six.1
+nesttest2: @ref: nestarray.0
+nesttest3: @ref: nestinside.inside.2.Gamma
 
 # A final comment
 
