@@ -5,12 +5,14 @@ class Webtoo does Webtoo::Data does Webtoo::CGI;
 
 constant PLUGINS  = "Websight::";
 
-has %!headers = { Status => 200, 'Content-type' => 'text/html' };
+has %.env = %*ENV; # Override this if using SCGI or FastCGI.
+has %!headers = { Status => 200, 'Content-Type' => 'text/html' };
 has $.content is rw = '';
 has $!redirect;
-has $.page = %*ENV{'PATH_INFO'} // %*ENV{'REQUEST_URI'} // @*ARGS[0];
-has $.proto is rw = %*ENV{'HTTPS'} ?? 'https' !! 'http';
-has $.host = %*ENV{'HTTP_HOST'} // %*ENV{'HOSTNAME'};
+#has $.req = Webtoo::CGI.new( :env(%.env) );
+has $.page = %.env{'PATH_INFO'} // %.env{'REQUEST_URI'} // @*ARGS[0];
+has $.proto is rw = %.env{'HTTPS'} ?? 'https' !! 'http';
+has $.host = %.env{'HTTP_HOST'} // %*ENV{'HOSTNAME'};
 has $.debug = %*ENV{'DEBUG'};
 has $.mlext = 'wtml';
 has $.dlext = 'wtdl';
@@ -36,10 +38,10 @@ method setStatus ($code?) {
 
 method mimeType ($type?) {
     if $type {
-        %!headers<Content-type> = $type;
+        %!headers<Content-Type> = $type;
     }
     else {
-        return %!headers<Content-type>;
+        return %!headers<Content-Type>;
     }
 }
 
@@ -66,7 +68,9 @@ method delHeader ($name) {
 method !buildHeaders {
     say "Entered buildHeaders" if $.debug;
     my $eol = "\r\n";
-    my $headers = "Status: " ~ %!headers.delete('Status') ~ $eol;
+    my $status = %!headers.delete: 'Status';
+    if $status == 204 | 304 { %!header.delete: 'Content-Type'; }
+    my $headers = "Status: " ~ $status ~ $eol;
     for %!headers.kv -> $key, $value {
         if $value ~~ Array {
             for @($value) -> $header {
