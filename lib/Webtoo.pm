@@ -1,7 +1,10 @@
-use Webtoo::Data;
-use Webtoo::CGI;
+## Webtoo: The Core Engine for ww6.
 
-class Webtoo does Webtoo::Data does Webtoo::CGI;
+use v6;
+use Webtoo::Data;
+use Webtoo::Request;
+
+class Webtoo does Webtoo::Data;
 
 constant PLUGINS  = "Websight::";
 
@@ -9,16 +12,18 @@ has %.env = %*ENV; # Override this if using SCGI or FastCGI.
 has %!headers = { Status => 200, 'Content-Type' => 'text/html' };
 has $.content is rw = '';
 has $!redirect;
-#has $.req = Webtoo::CGI.new( :env(%.env) );
+has $.req = Webtoo::Request.new( :env(%.env) );
 has $.page = %.env{'PATH_INFO'} // %.env{'REQUEST_URI'} // @*ARGS[0];
-has $.proto is rw = %.env{'HTTPS'} ?? 'https' !! 'http';
+has $.proto = %.env{'HTTPS'} ?? 'https' !! 'http';
+has $.port = %.env{'SERVER_PORT'};
 has $.host = %.env{'HTTP_HOST'} // %*ENV{'HOSTNAME'};
 has $.debug = %*ENV{'DEBUG'};
 has $.mlext = 'wtml';
 has $.dlext = 'wtdl';
 has $.datadir = './';
+has @.plugins = 'Dispatch';  # The default plugins.
 has %.metadata is rw = {
-    :plugins( [ 'Dispatch' ] ),
+    :plugins( @.plugins ),
     :root( [] ),
     'webtoo' => {
         :host($.host),
@@ -144,7 +149,7 @@ method processContent (Bool :$noheaders, Bool :$noplugins) {
     say "About to add the content" if $.debug;
     $output ~= $.content;
     say "Built output" if $.debug;
-    say %.metadata.perl;
+    say %.metadata.perl if $.debug;
     return $output;
 }
 

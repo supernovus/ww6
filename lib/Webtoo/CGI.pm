@@ -1,4 +1,0 @@
-role Webtoo::CGI;
-
-# TODO
-

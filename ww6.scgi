@@ -1,0 +1,28 @@
+#!/usr/local/bin/perl6
+#
+# This requires the SCGI library to be put into the 'lib' folder.
+# You can get SCGI from http://github.com/supernovus/SCGI
+#
+
+BEGIN {
+    @*INC.push: './lib';
+    print "Initializing System... ";
+}
+
+use SCGI;
+use Webtoo;
+
+my $datadir = './data';
+my $config  = 'config';
+
+my $scgi = SCGI.new( :port(8118), :strict );
+
+my $handler = sub (%env) {
+    my $wt = Webtoo.new( :datadir($datadir), :env(%env) );
+    $wt.loadMetadataFile($config); # The global config.
+    return $wt.processContent;
+}
+
+say "done.";
+$scgi.handle: $handler;
+
