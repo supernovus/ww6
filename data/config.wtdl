@@ -3,6 +3,12 @@
 # If a data file called 'redirect.wtdl' is found,
 # then the rules will be chained from it.
 # This is a faster method than using the handler to do it.
+# Note: We are using the conditional include: directive, which is
+# defined in the Dispatch handler rather than the usual @include statement.
+# This is so that the include is processed ONLY if the file exists.
+# Dispatch also supports 'chain' which directly defines rules to be
+# followed if conditions match, and 'dispatch', which takes a text block
+# which will be parsed as rules ONLY if the conditions match.
 
 #plugins: ~[ Dispatch, Content, Metadata, Template ]
 content:
@@ -13,5 +19,5 @@ dispatch:
     autoroot: 1
   >
     hasfile: redirect
-    @include: redirect
+    include: redirect
 

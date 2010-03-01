@@ -18,7 +18,7 @@ submethod BUILD (:%env!) {
     my $cmdline = 0;
 
     # First, set the query string. Command line use allowed.
-    if defined %env<QUERY_STRING> {
+    if %env.has('QUERY_STRING', :defined) {
         $.query = %env<QUERY_STRING>;
     }
     elsif defined @*ARGS[1] {
@@ -32,13 +32,13 @@ submethod BUILD (:%env!) {
     # Now, parse the QUERY_STRING.
     self.parse_params($.query);
 
-    if %.params<DEBUG> { $.debug = 1; }
+    if %.params.has('DEBUG', :true) { $.debug = 1; }
 
     # Next up, a couple common items.
-    $.type = %env<CONTENT_TYPE> || '';
-    $.method = %env<REQUEST_METHOD> || 'GET';
+    $.type = %env.has('CONTENT_TYPE', :true, :return) || '';
+    $.method = %env.has('REQUEST_METHOD', :true, :return) || 'GET';
 
-    if $cmdline && %.params<FAKEPOST> {
+    if $cmdline && %.params.has('FAKEPOST', :true) {
         $.method = 'POST';
         if %.params<FAKEPOST> eq '1' {
             $.type = 'application/x-www-form-urlencoded';
@@ -54,12 +54,12 @@ submethod BUILD (:%env!) {
     # Now for POST requests.
     if $.method eq 'POST' {
         # First, build the body.
-        if %env<MODPERL6> {
+        if %env.has('MODPERL6', :true) {
             say "Using mod_perl6." if $.debug;
             my $r = Apache::Requestrec.new();
             my $len = $r.read($.body, %env<CONTENT_LENGTH>);
         }
-        elsif defined %env<SCGI.Body> {
+        elsif %env.has('SCGI.Body', :defined) {
             say "Using SCGI interface" if $.debug;
             $.body = %env<SCGI.Body>;
         }
@@ -82,7 +82,7 @@ submethod BUILD (:%env!) {
     }
 
     # Now add cookies
-    self.eat_cookie( %env<HTTP_COOKIE> ) if %env<HTTP_COOKIE>;
+    self.eat_cookie( %env<HTTP_COOKIE> ) if %env.has('HTTP_COOKIE', :true);
 }
 
 method parse_params($string) {

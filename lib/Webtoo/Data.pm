@@ -7,12 +7,6 @@ role Webtoo::Data;
 #
 # It supports various forms of appending/merging/deleting, etc.
 
-method getRootPath (@path=%.metadata<root>) {
-    for @path -> $path {
-        if 
-    return $.datadir ~ '/' ~ @path.join('/') ~ '/';
-}
-
 method parseDataFile(
     $file, 
     $data is copy, 
@@ -27,7 +21,7 @@ method parseDataFile(
             return self.parseData(@definition, $data, 0, @cache);
         }
     }
-    $*ERR.say: 'Data file '$file' not found in any root path.';
+    $*ERR.say: "Data file '$file' not found in any root path.";
     return {};
 }
 

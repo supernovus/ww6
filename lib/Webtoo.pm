@@ -4,6 +4,23 @@ use v6;
 use Webtoo::Data;
 use Webtoo::Request;
 
+class Hash is also {
+    method has ($what, :$true, :$defined is rw, :$notempty, :$return) {
+        if $notempty || $true { $defined = 1; }
+        if self.exists($what) 
+          && ( !$defined || defined self{$what} )
+          && ( !$notempty || self{$what} ne '' )
+          && ( !$true || self{$what} )
+        {
+            if $return { return self{$what}; }
+            else { return True; }
+        }
+        else {
+            return;
+        }
+    }
+}
+
 class Webtoo does Webtoo::Data;
 
 constant PLUGINS  = "Websight::";
@@ -13,17 +30,20 @@ has %!headers = { Status => 200, 'Content-Type' => 'text/html' };
 has $.content is rw = '';
 has $!redirect;
 has $.req = Webtoo::Request.new( :env(%.env) );
-has $.path = %.env{'PATH_INFO'} // %.env{'REQUEST_URI'} // @*ARGS[0];
-has $.proto = %.env{'HTTPS'} ?? 'https' !! 'http';
-has $.port = %.env{'SERVER_PORT'};
-has $.host = %.env{'HTTP_HOST'} // %*ENV{'HOSTNAME'};
-has $.debug = %*ENV{'DEBUG'};
+has $.path = %.env.has('PATH_INFO', :notempty, :return) 
+    // %.env.has('REQUEST_URI', :defined, :return) 
+    // @*ARGS[0] // '';
+has $.proto = %.env.has('HTTPS', :true) ?? 'https' !! 'http';
+has $.port = %.env.has('SERVER_PORT', :true, :return) // 0;
+has $.host = %.env.has('HTTP_HOST', :return) 
+    // %*ENV.has('HOSTNAME', :return);
+has $.debug = %*ENV.has('DEBUG', :return);
 has $.mlext = 'wtml';
 has $.dlext = 'wtdl';
 has $.datadir = './';
 has %.metadata is rw = {
-    :plugins( 'Example' ),
-    :root( '' ),
+    :plugins( [ 'Example' ] ),
+    :root( [ '' ] ),
     'request' => {
         :host($.host),
         :proto($.proto),
