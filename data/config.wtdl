@@ -10,14 +10,24 @@
 # followed if conditions match, and 'dispatch', which takes a text block
 # which will be parsed as rules ONLY if the conditions match.
 
-#plugins: ~[ Dispatch, Content, Metadata, Template ]
+#plugins: ~[Autoroot,Dispatch,Content,Metadata,Template]
+plugins: ~[Dispatch]
 content:
   index: default
   handler: /handler
 dispatch:
   >
-    autoroot: 1
-  >
     hasfile: redirect
     include: redirect
+  >
+    path: ^\/test
+    redirect: http://huri.net/
+  >
+    path: ^\/poof
+    redirect: test/page/
+  >
+    ## Uncomment the following line once the #plugins are ready.
+    #path: ^\/example
+    set: |
+      plugins: [Example]
 

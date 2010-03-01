@@ -10,6 +10,8 @@ method processPlugin (%opts?) {
         $content = "Hello $name, from Webtoo Websight 6.\n\n";
         $content ~= "== The Environment ==\n\n";
         $content ~= $.parent.env.fmt("%s: %s", "\n");
+        $content ~= "\n\n== The Parameters ==\n\n";
+        $content ~= $.parent.req.params.fmt("%s: %s", "\n");
     }
     else {
         $content = "<html><head><title>Hello $name</title></head>\n";
@@ -18,6 +20,8 @@ method processPlugin (%opts?) {
         $content ~= "<p>Please read the documentation to configure it.</p>";
         $content ~= "<h2>The Environment</h2><dl>\n";
         $content ~= $.parent.env.fmt("<dt>%s</dt><dd>%s</dd>", "\n");
+        $content ~= "</dl><h2>The Request Parameters</h2><dl>\n";
+        $content ~= $.parent.req.params.fmt("<dt>%s</dt><dd>%s</dd>", "\n");
         $content ~= "</dl><form method=\"POST\"><input type=\"submit\" />\n";
         $content ~= "</form></body></html>\n";
     }

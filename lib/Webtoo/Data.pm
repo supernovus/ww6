@@ -13,16 +13,15 @@ method parseDataFile(
     :@path=%.metadata<root>,
     :@cache,
 ) {
-    my $config;
-    for @path -> $path {
-        my $config = $.datadir ~ '/' ~ $path ~ '/' ~ $file ~ '.' ~ $.dlext;
-        if $config ~~ :f {
-            my @definition = lines $config;
-            return self.parseData(@definition, $data, 0, @cache);
-        }
+    my $config = self.findFile($file, :path(@path));
+    if $config {
+        my @definition = lines $config;
+        return self.parseData(@definition, $data, 0, @cache);
     }
-    $*ERR.say: "Data file '$file' not found in any root path.";
-    return {};
+    else {
+        $*ERR.say: "Data file '$file' not found in any root path.";
+        return {};
+    }
 }
 
 method parseData (
@@ -269,7 +268,12 @@ method loadMetadataFile ($file) {
     say "loadMetadataFile Ended" if $.debug;
 }
 
-method loadMetadata (@definition is rw) {
+multi method loadMetadata (@definition is rw) {
     %.metadata = self.parseData(@definition, %.metadata);
+}
+
+multi method loadMetadata (Str $definition) {
+    my @definition = $definition.split("\n");
+    self.loadMetadata(@definition);
 }
 

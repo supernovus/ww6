@@ -5,12 +5,15 @@ use Webtoo::Data;
 use Webtoo::Request;
 
 class Hash is also {
-    method has ($what, :$true, :$defined is rw, :$notempty, :$return) {
+    method has (
+        $what, :$true, :$defined is rw, :$notempty, :$return, :$type,
+    ) {
         if $notempty || $true { $defined = 1; }
         if self.exists($what) 
-          && ( !$defined || defined self{$what} )
-          && ( !$notempty || self{$what} ne '' )
-          && ( !$true || self{$what} )
+          && ( !$defined  || defined self{$what} )
+          && ( !$type     || self{what} ~~ $type )
+          && ( !$notempty || self{$what} ne ''   )
+          && ( !$true     || self{$what}         )
         {
             if $return { return self{$what}; }
             else { return True; }
@@ -28,7 +31,6 @@ constant PLUGINS  = "Websight::";
 has %.env = %*ENV; # Override this if using SCGI or FastCGI.
 has %!headers = { Status => 200, 'Content-Type' => 'text/html' };
 has $.content is rw = '';
-has $!redirect;
 has $.req = Webtoo::Request.new( :env(%.env) );
 has $.path = %.env.has('PATH_INFO', :notempty, :return) 
     // %.env.has('REQUEST_URI', :defined, :return) 
@@ -93,6 +95,17 @@ method delHeader ($name) {
     return %!headers.delete($name);
 }
 
+method redirect ($url is copy, $status=302, :$nostop) {
+    if not $url ~~ /^\w+\:\/\// {
+        $url = $.proto ~ '://' ~ $.host ~ '/' ~ $url;
+    }
+    self.addHeader('Status', $status);
+    self.addHeader('Location', $url);
+    if !$nostop {
+        %.metadata<plugins>.splice;
+    }
+}
+
 method !buildHeaders {
     say "Entered buildHeaders" if $.debug;
     my $eol = "\r\n";
@@ -113,7 +126,6 @@ method !buildHeaders {
     say "Leaving buildHeaders" if $.debug;
     return $headers;
 }
-
 
 method processPlugins {
 
@@ -174,5 +186,14 @@ method processContent (Bool :$noheaders, Bool :$noplugins) {
     say "Built output" if $.debug;
     say %.metadata.perl if $.debug;
     return $output;
+}
+
+method findFile ($file, :@path=%.metadata<root>) {
+    for @path -> $path {
+        my $config = $.datadir ~ '/' ~ $path ~ '/' ~ $file ~ '.' ~ $.dlext;
+        if $config ~~ :f {
+            return $config;
+        }
+    }
 }
 
