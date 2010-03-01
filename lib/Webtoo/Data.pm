@@ -8,6 +8,8 @@ role Webtoo::Data;
 # It supports various forms of appending/merging/deleting, etc.
 
 method getRootPath (@path=%.metadata<root>) {
+    for @path -> $path {
+        if 
     return $.datadir ~ '/' ~ @path.join('/') ~ '/';
 }
 
@@ -17,14 +19,16 @@ method parseDataFile(
     :@path=%.metadata<root>,
     :@cache,
 ) {
-    my $config = self.getRootPath(@path) ~ $file ~ '.' ~ $.dlext;
-    if $config ~~ :e {
-        my @definition = lines $config;
-        return self.parseData(@definition, $data, 0, @cache);
+    my $config;
+    for @path -> $path {
+        my $config = $.datadir ~ '/' ~ $path ~ '/' ~ $file ~ '.' ~ $.dlext;
+        if $config ~~ :f {
+            my @definition = lines $config;
+            return self.parseData(@definition, $data, 0, @cache);
+        }
     }
-    else {
-        die "Config file not found: $config";
-    }
+    $*ERR.say: 'Data file '$file' not found in any root path.';
+    return {};
 }
 
 method parseData (

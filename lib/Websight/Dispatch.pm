@@ -3,21 +3,43 @@ use Websight;
 class Websight::Dispatch does Websight;
 
 method processPlugin (%opts?) {
-    my $name = $.parent.req.get('name') || 'World';
-    my $content;
-    if $.parent.req.get('text') {
-        $.parent.mimeType: 'text/plain';
-        $content = "Hello $name\n\n";
-        $content ~= "== The Environment ==\n\n";
-        $content ~= $.parent.env.fmt("%s: %s", "\n");
+    my @rules = self.getConfig; ## TODO: Add optional type check to getConfig.
+    self!matchRule(@rules);
+}
+
+method matchRules (@rules) {
+    for @rules -> $rule {
+        my $continue = 1;
+        my &checkContinue = -> $check, $value {
+            if $continue == 1 { $continue = 0 }
+            if not $check ~~ self.matcher($rule{$value}) {
+                next;
+            }
+            else {
+                if !$continue { last; }
+            }
+        }
+        if not $rule ~~ Hash { next; } ## Skip non-hashes, they are invalid.
+
+        if $rule<continue> {
+            $continue = 2;
+        }
+        if $rule<host> {
+            checkContinue($.parent.host, 'host');
+        }
+        if $rule<path> {
+            checkContinue($.parent.path, 'path');
+        }
+        if $rule<root> {
+            $.parent.metadata<root>.unshift: $rule<root>;
+        }
+        if $rule<set> {
+            $.parent.loadMetadata($rule<set>);
+        }
+        if $rule<redirect> {
+            $.parent.redirect($rule<redirect>);
+        }
+
     }
-    else {
-        $content = "<html><head><title>Hello $name</title></head>\n";
-        $content ~= "<body><h1>Hello $name</h1><h2>The Environment</h2><dl>\n";
-        $content ~= $.parent.env.fmt("<dt>%s</dt><dd>%s</dd>", "\n");
-        $content ~= "</dl><form method=\"POST\"><input type=\"submit\" />\n";
-        $content ~= "</form></body></html>\n";
-    }
-    $.parent.content =  $content;
 }
 

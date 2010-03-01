@@ -13,7 +13,7 @@ has %!headers = { Status => 200, 'Content-Type' => 'text/html' };
 has $.content is rw = '';
 has $!redirect;
 has $.req = Webtoo::Request.new( :env(%.env) );
-has $.page = %.env{'PATH_INFO'} // %.env{'REQUEST_URI'} // @*ARGS[0];
+has $.path = %.env{'PATH_INFO'} // %.env{'REQUEST_URI'} // @*ARGS[0];
 has $.proto = %.env{'HTTPS'} ?? 'https' !! 'http';
 has $.port = %.env{'SERVER_PORT'};
 has $.host = %.env{'HTTP_HOST'} // %*ENV{'HOSTNAME'};
@@ -21,14 +21,17 @@ has $.debug = %*ENV{'DEBUG'};
 has $.mlext = 'wtml';
 has $.dlext = 'wtdl';
 has $.datadir = './';
-has @.plugins = 'Dispatch';  # The default plugins.
 has %.metadata is rw = {
-    :plugins( @.plugins ),
-    :root( [] ),
-    'webtoo' => {
+    :plugins( 'Example' ),
+    :root( '' ),
+    'request' => {
         :host($.host),
         :proto($.proto),
-        :page($.page),
+        :path($.path),
+        :type($.req.type),
+        :method($.req.method),
+        :query($.req.query),
+        :params($.req.params),
     },
 };
 

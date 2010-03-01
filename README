@@ -47,23 +47,59 @@ library, but I don't see the point right now.
 
  = WTML =
 
-Even more specialized is the template markup language (WTML) which is
-based off of the WTML from Webtoo Websight 5, but now offers two syntax
-formats, and the ability to plug in more.
+The pages are stored in .wtml files, which do not specify a format.
+Plugins can parse the .wtml files in any way they wish.
 
- - WTML::Classic is most based on the syntax as used by ww5, but with a few
-   changes for internal consistency. It is not XML compliant.
-   <a.replacement.tag/>       (was <a.replacement.tag> in ww5)
-   <nested.tag>
-     <nested.tag.example/>
-   </nested.tag>             (was <recurse "nested.tag"> in ww5)
-   <if some.key = "value">
-     Show this text
-   <else/>                   ( the closing slash is optional. )
-     Show this instead
-   </if>                     ( =, !=, gt, lt, gt=, lt= are comparisons.)
+The default Metadata plugin looks for a section of WTDL formatted text
+in a block of <metadata>...</metadata>.
 
- - WTML::Petal is based on the Perl 5 "Petal" markup language.
+There is a template parser called WTML that supports Tags and If statements, 
+similar to the Perlite parsers from ww5. 
+The format has changed slightly since the ww5 days, 
+making it more streamlined, and including changes from integrating
+the Tags and If parsers together.
+
+Where in ww5 a template may look like:
+
+<if "<page.type>"~="admin">
+<andif "<auth.user>"="<page.owner>">
+  Hi bob, you are on a <page.type> page.
+<elsif "<page.ooya>">
+  Booga!
+<else>
+  Never mind
+</if>
+<recurse page.links>
+  <a href="<page.links.url>"><page.links.title></a>
+</recurse>
+
+A ww6 template would have instead:
+
+<if page.type ~~ "admin" && auth.user = page.owner>
+  Hi bob, you are on a <page.type/> page.
+<else if page.booya />
+  Booga!
+<else/>
+  Never mind
+</if>
+<page.links>
+  <a href="<page.links.url/>"><page.links.title/></a>
+</page.links>
+
+The closing slashes are optional, but recommended for clarity.
+The if statements also support () grouping of tests.
+
+Also, the following comparisons have changed their names:
+
+Old name => New name
+   >     =>  gt
+   <     =>  lt
+   >=    =>  gt=
+   <=    =>  lt=
+   ~=    =>  ~~
+
+As before = and == are synonyms, and use '==' if both
+values consist only of numbers, or 'eq' if they are strings.
 
 === Not yet finished ===
 
