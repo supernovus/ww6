@@ -35,6 +35,8 @@ has $.req = Webtoo::Request.new( :env(%.env) );
 has $.path = %.env.has('PATH_INFO', :notempty, :return) 
     // %.env.has('REQUEST_URI', :defined, :return) 
     // @*ARGS[0] // '';
+has $.uri = %.env.has('REQUEST_URI', :defined, :return)
+    // $.path;
 has $.proto = %.env.has('HTTPS', :true) ?? 'https' !! 'http';
 has $.port = %.env.has('SERVER_PORT', :true, :return) // 0;
 has $.host = %.env.has('HTTP_HOST', :return) 
@@ -54,6 +56,12 @@ has %.metadata is rw = {
         :method($.req.method),
         :query($.req.query),
         :params($.req.params),
+        :userip($.req.remoteAddr),
+        :browser($.req.userAgent),
+        :uri($.uri),
+        :url($.proto ~ '://' ~ $.host);
+        :urlhttp('http://' ~ $.host);
+        :urlhttps('https://' ~ $.host);
     },
 };
 
@@ -91,8 +99,26 @@ method addHeader ($name, $value, Bool $append=False) {
     }
 }
 
+## Does NOT support appending. Use addHeader for special cases.
+method addHeaders (%headers) {
+    for %headers.kv -> $name, $value {
+        self.addHeader($name, $value);
+    }
+}
+
 method delHeader ($name) {
-    return %!headers.delete($name);
+    if %!headers.exists($name) {
+        return %!headers.delete($name);
+    }
+    else {
+        return;
+    }
+}
+
+method delHeaders (@headers) {
+    for @headers -> $name {
+        self.delHeader($name);
+    }
 }
 
 method redirect ($url is copy, $status=302, :$nostop) {
@@ -104,6 +130,13 @@ method redirect ($url is copy, $status=302, :$nostop) {
     if !$nostop {
         %.metadata<plugins>.splice;
     }
+}
+
+## To force 'https', you can use redirectProto('https');
+method redirectProto ($proto, $status=302, :$nostop) {
+    if $.proto eq $proto { return; }
+    my $url = $proto ~ '://' ~ $.host ~ $.uri;
+    self.redirect($url, :status($status), :nostop($nostop));
 }
 
 method !buildHeaders {
@@ -188,9 +221,9 @@ method processContent (Bool :$noheaders, Bool :$noplugins) {
     return $output;
 }
 
-method findFile ($file, :@path=%.metadata<root>) {
+method findFile ($file, :@path=%.metadata<root>, :$ext=$.dlext) {
     for @path -> $path {
-        my $config = $.datadir ~ '/' ~ $path ~ '/' ~ $file ~ '.' ~ $.dlext;
+        my $config = $.datadir ~ '/' ~ $path ~ '/' ~ $file ~ '.' ~ $ext;
         if $config ~~ :f {
             return $config;
         }

@@ -11,6 +11,8 @@ has $.method is rw;
 has %.params is rw;
 has %.cookies is rw;
 has $.query is rw;
+has $.userAgent is rw;
+has $.remoteAddr is rw;
 has $.debug is rw = 0;
 
 submethod BUILD (:%env!) {
@@ -37,6 +39,8 @@ submethod BUILD (:%env!) {
     # Next up, a couple common items.
     $.type = %env.has('CONTENT_TYPE', :true, :return) || '';
     $.method = %env.has('REQUEST_METHOD', :true, :return) || 'GET';
+    $.remoteAddr = %env.has('REMOTE_ADDR', :true, :return) || '127.0.0.1';
+    $.userAgent = %env.has('HTTP_USER_AGENT', :true, :return) || 'unknown';
 
     if $cmdline && %.params.has('FAKEPOST', :true) {
         $.method = 'POST';

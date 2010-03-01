@@ -6,25 +6,28 @@
 # Note: We are using the conditional include: directive, which is
 # defined in the Dispatch handler rather than the usual @include statement.
 # This is so that the include is processed ONLY if the file exists.
-# Dispatch also supports 'chain' which directly defines rules to be
-# followed if conditions match, and 'dispatch', which takes a text block
-# which will be parsed as rules ONLY if the conditions match.
 
-#plugins: ~[Autoroot,Dispatch,Content,Metadata,Template]
+#plugins: ~[Dispatch,Autoroot,Content,Metadata,Template]
 plugins: ~[Dispatch]
 content:
   index: default
   handler: /handler
 dispatch:
   >
-    hasfile: redirect
+    datafile: redirect
     include: redirect
+
+## All of the following rules should be removed prior to release.
   >
     path: ^\/test
     redirect: http://huri.net/
   >
     path: ^\/poof
     redirect: test/page/
+  >
+    path: secure
+    proto: http
+    redirect-proto: https
   >
     ## Uncomment the following line once the #plugins are ready.
     #path: ^\/example

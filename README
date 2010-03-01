@@ -75,7 +75,7 @@ Where in ww5 a template may look like:
 
 A ww6 template would have instead:
 
-<if page.type ~~ "admin" && auth.user = page.owner>
+<if page.type ~~ "admin" and auth.user = page.owner>
   Hi bob, you are on a <page.type/> page.
 <else if page.booya />
   Booga!
@@ -88,6 +88,7 @@ A ww6 template would have instead:
 
 The closing slashes are optional, but recommended for clarity.
 The if statements also support () grouping of tests.
+In addition to 'and' there is also 'or'.
 
 Also, the following comparisons have changed their names:
 
