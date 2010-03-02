@@ -1,5 +1,5 @@
 use Websight;
-use Webtoo::Time;
+use Perlite::Time;
 
 class Websight::Headers does Websight;
 

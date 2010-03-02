@@ -91,6 +91,11 @@ method !matchRules (@rules) {
             $.parent.loadMetadata($rule<set>);
         }
 
+        ## Plugin Processing
+        if $rule.has('plugin', :defined) {
+            self.callPlugin($rule<plugin>);
+        }
+
         ## Include files must be either a direct Array
         #  Or include a hash element called 'dispatch' which is said array.
         if $rule.has('include', :notempty, :type(Str)) {
