@@ -3,6 +3,7 @@ use Websight;
 class Websight::Example does Websight;
 
 method processPlugin (%opts?) {
+    my $config = self.getConfig(:type(Hash));
     my $name = $.parent.req.get('name') || 'World';
     my $content;
     if $.parent.req.get('text') {
@@ -12,6 +13,10 @@ method processPlugin (%opts?) {
         $content ~= $.parent.env.fmt("%s: %s", "\n");
         $content ~= "\n\n== The Parameters ==\n\n";
         $content ~= $.parent.req.params.fmt("%s: %s", "\n");
+        if $config {
+            $content ~= "\n\n== The Config ==\n\n";
+            $content ~= $config.fmt("%s: %s", "\n");
+        }
     }
     else {
         $content = "<html><head><title>Hello $name</title></head>\n";
@@ -22,6 +27,10 @@ method processPlugin (%opts?) {
         $content ~= $.parent.env.fmt("<dt>%s</dt><dd>%s</dd>", "\n");
         $content ~= "</dl><h2>The Request Parameters</h2><dl>\n";
         $content ~= $.parent.req.params.fmt("<dt>%s</dt><dd>%s</dd>", "\n");
+        if $config {
+            $content ~= "</dl><h2>The Plugin Config</h2><dl>\n";
+            $content ~= $config.fmt("<dt>%s</dt><dd>%s</dd>", "\n");
+        }
         $content ~= "</dl><form method=\"POST\"><input type=\"submit\" />\n";
         $content ~= "</form></body></html>\n";
     }

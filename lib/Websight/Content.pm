@@ -5,7 +5,7 @@ class Websight::Content does Websight;
 has $.config is rw;
 
 method processPlugin (%opts?) {
-    my $.config = self.getConfig(:type(Hash));
+    my $.config = self.getConfig(:type(Hash)) // {};
     my $handler = $.config.has('handler', :notempty, :return) || 'handler';
     my $page = $.parent.page;
     my $file;

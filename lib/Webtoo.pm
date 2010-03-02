@@ -121,11 +121,15 @@ method delHeaders (@headers) {
     }
 }
 
+method status ($status) {
+    self.addHeader('Status', $status);
+}
+
 method redirect ($url is copy, $status=302, :$nostop) {
     if not $url ~~ /^\w+\:\/\// {
         $url = $.proto ~ '://' ~ $.host ~ '/' ~ $url;
     }
-    self.addHeader('Status', $status);
+    self.status($status);
     self.addHeader('Location', $url);
     if !$nostop {
         %.metadata<plugins>.splice;
