@@ -40,9 +40,8 @@ has $.uri = %.env.has('REQUEST_URI', :defined, :return)
 has $.proto = %.env.has('HTTPS', :true) ?? 'https' !! 'http';
 has $.port = %.env.has('SERVER_PORT', :true, :return) // 0;
 has $.host = %.env.has('HTTP_HOST', :return) 
-    // %*ENV.has('HOSTNAME', :return);
+    // %*ENV.has('HOSTNAME', :return) // 'localhost';
 has $.debug = %*ENV.has('DEBUG', :return);
-has $.mlext = 'wtml';
 has $.dlext = 'wtdl';
 has $.datadir = './';
 has %.metadata is rw = {

@@ -7,30 +7,28 @@
 # defined in the Dispatch handler rather than the usual @include statement.
 # This is so that the include is processed ONLY if the file exists.
 
-#plugins: ~[Dispatch,Autoroot,Content,Metadata,Headers,Template]
-plugins: ~[Dispatch]
+plugins: ~[Dispatch,Content,Metadata,Headers,Template]
 content:
   index: default
   handler: /handler
 dispatch:
   >
-    datafile: redirect
-    include: redirect
-
-## All of the following rules should be removed prior to release.
-  >
-    path: ^\/test
-    redirect: http://huri.net/
-  >
-    path: ^\/poof
-    redirect: test/page/
-  >
     path: secure
-    proto: http
     redirect-proto: https
   >
-    ## Uncomment the following line once the #plugins are ready.
-    #path: ^\/example
+    path: ^\/author
+    redirect: http://huri.net/
+  >
+    path: ^\/example
     set: |
       plugins: [Example]
+  >
+    root: domains
+    set:
+      plugins: +[Autoroot]
+      autoroot:
+        nest: 1
+  >
+    file: redirect
+    include: redirect
 

@@ -34,6 +34,6 @@ method processPlugin (%opts?) {
         $content ~= "</dl><form method=\"POST\"><input type=\"submit\" />\n";
         $content ~= "</form></body></html>\n";
     }
-    $.parent.content =  $content;
+    $.parent.content = $content;
 }
 

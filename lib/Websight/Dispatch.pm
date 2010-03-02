@@ -45,15 +45,15 @@ method !matchRules (@rules) {
                 next;
             }
         }
-        if $rule.has('datafile', :notempty, :type(Str)) {
+        if $rule.has('file', :notempty, :type(Str)) {
             if $continue == 1 { $continue = 0 }
-            if not $.parent.findFile($rule<datafile>) {
-                next;
+            my $file = $rule<file>;
+            my $ext = $.parent.dlext;
+            if $file ~~ /\.(\w+)$/ {
+                $ext = $0;
+                $file.=subst(/\.\w+$/, '');
             }
-        }
-        if $rule.has('pagefile', :notempty, :type(Str)) {
-            if $continue == 1 { $continue = 0 }
-            if not $.parent.findFile($rule<pagefile>, :ext($.parent.mlext)) {
+            if not $.parent.findFile($file, :ext($ext)) {
                 next;
             }
         }

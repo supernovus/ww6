@@ -93,8 +93,9 @@ method parse_params($string) {
     if $string ~~ / '=' | '&' | ';' / {
         my @params = $string.split(/ '&' | ';' /);
         for @params -> $param {
-            my @kv = unescape($param).split('=', 2);
-            self.add_param( @kv[0], @kv[1] );
+            my ($key, $value) = unescape($param).split('=', 2);
+            if not defined $value { $value = ''; }
+            self.add_param( $key, $value );
         }
     }
 }
