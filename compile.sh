@@ -18,7 +18,10 @@ pir2pbc() {
 
 pushd lib
 for file in `find . -name '*.pm'`; do
-    p6pir $file
+    src=`noext $file`
+    if [ ! -f "$src.pir" ]; then
+        p6pir $file
+    fi
 done
 popd
 

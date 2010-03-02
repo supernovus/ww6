@@ -16,7 +16,7 @@ method processPlugin (%opts?) {
         $file = self!findPage($page) // self!findFolder($page, :slash) // self!findPage($handler);
     }
     if $file {
-        $content = lines $file;
+        my $content = lines $file;
         $.parent.content = $content;
     }
 }

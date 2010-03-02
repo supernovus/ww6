@@ -1,7 +1,7 @@
 use Websight;
 use Webtoo::Time;
 
-class Websight::Headers does Websight does Webtoo::Time;
+class Websight::Headers does Websight;
 
 method processPlugin (%opts?) {
     my $config = self.getConfig(:type(Hash));
@@ -27,7 +27,7 @@ method processPlugin (%opts?) {
     }
     if $config.has('expires') {
         my $expire = time + $config<expires>;
-        my $expiry = self.formatTime($expire, 'RFC');
+        my $expiry = formatTime($expire, 'RFC');
         $.parent.addHeader('Expires', $expiry);
     }
     if $config.has('nocache', :true) {
