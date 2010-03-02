@@ -228,5 +228,6 @@ method findFile ($file, :@path=%.metadata<root>, :$ext=$.dlext) {
             return $config;
         }
     }
+    return;
 }
 

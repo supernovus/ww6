@@ -90,11 +90,11 @@ submethod BUILD (:%env!) {
 }
 
 method parse_params($string) {
-    if $string ~~ / '=' / {
+    if $string ~~ / '=' | '&' | ';' / {
         my @params = $string.split(/ '&' | ';' /);
         for @params -> $param {
-            my ($key, $value) = unescape($param).split('=', 2);
-            self.add_param( $key, $value );
+            my @kv = unescape($param).split('=', 2);
+            self.add_param( @kv[0], @kv[1] );
         }
     }
 }
