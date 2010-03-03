@@ -14,33 +14,15 @@ method matcher ($regex_string) {
 }
 
 ## A method to call plugins from plugins using a spec from rules.
-method callPlugin ($spec, $command='processPlugin', *%opts) {
-    my $plugin;
+method callPlugin ($spec, $command='processPlugin', :%opts is copy) {
     if $spec ~~ Array {
         for $spec -> $subspec {
-            self!callPlugin($subspec, $command, %opts);
+            $.parent.callPlugin($subspec, $command, :opts(%opts));
         }
         return;
-    }
-    elsif $spec ~~ Hash {
-        if $spec.has('name', :notempty) {
-            $plugin = $spec<name>;
-        }
-        if $spec.has('opts', :defined, :type(Hash)) {
-            %opts = $spec<opts>;
-        }
-        if $spec.has('command', :notempty) {
-            $command = $spec<command>;
-        }
-    }
-    elsif $spec ~~ Str {
-        $plugin = $spec;
     }
     else {
-        $*ERR.say: "Plugin name was not specified in Websight.callPlugin.";
-        return;
+        $.parent.callPlugin($spec, $command, :opts(%opts));
     }
-
-    $.parent.callPlugin($plugin, $command, %opts);
 }
 

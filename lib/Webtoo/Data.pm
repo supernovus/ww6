@@ -19,7 +19,7 @@ method parseDataFile(
         return self.parseData(@definition, $data, 0, @cache);
     }
     else {
-        $*ERR.say: "Data file '$file' not found in any root path.";
+        self.err: "Data file '$file' not found in any root path.";
         return {};
     }
 }

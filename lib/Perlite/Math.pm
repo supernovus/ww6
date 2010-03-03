@@ -1,25 +1,6 @@
-class Int is also {
-    method even {
-        if (self-2*(self.Int/2) == 0) {
-            return 1;
-        }
-        else {
-            return 0;
-        }
-    }
-    method odd {
-        if (abs(self-2*(self.Int/2)) == 1) {
-            return 1;
-        }
-        else {
-            return 0;
-        }
-    }
-}
-
 module Perlite::Math;
 
-sub convertBytes ($num, :$from='B', :$to!, :$round, :$floor, :$ceiling) is export(:ALL) {
+sub convertBytes ($num, :$from='B', :$to!, :$round, :$floor, :$ceiling) is export(:comp) {
 	my ($by,$kb,$mb,$gb,$tb,$pb,$return);
     given $from {
 	    when 'B' {
@@ -100,3 +81,8 @@ sub convertBytes ($num, :$from='B', :$to!, :$round, :$floor, :$ceiling) is expor
 
     return $return;
 }
+
+sub numType (Num $num) is export(:num) {
+    return $num % 2 ?? 'odd' !! 'even';
+}
+

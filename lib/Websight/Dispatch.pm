@@ -6,6 +6,7 @@ method processPlugin (%opts?) {
     my $rules = self.getConfig(:type(Array));
     if defined $rules {
         self!matchRules($rules);
+        $.parent.metadata.delete($.namespace);
     }
 }
 
@@ -81,9 +82,10 @@ method !matchRules (@rules) {
             if !$continue { last; }
         }
 
-        ## Adding 'root' paths.
-        if $rule.has('root', :defined, :type(Str)) {
-            $.parent.metadata<root>.unshift: $rule<root>;
+        ## Adding 'root' paths. This just adds to the beginning of the
+        #  list. If you need more control use a 'set' statement.
+        if $rule.has('root', :defined) {
+            $.parent.metadata<root>.unshift: $rule<root>
         }
 
         ## Metadata Processing

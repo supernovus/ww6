@@ -8,6 +8,8 @@ has $.ext is rw;
 has $.append is rw = '';
 
 method processPlugin (%opts?) {
+    my $debug = $.parent.debug;
+    say "We're in Content" if $debug;
     $.config   = self.getConfig(:type(Hash)) // {};
     my $pageExt  = $.config.has('page-ext',  :notempty, :return) || 'wtml';
     my $cacheExt = $.config.has('cache-ext', :notempty, :return) || 'cache';
@@ -22,10 +24,15 @@ method processPlugin (%opts?) {
         }
     }
 
+    say "We made it past all those settings" if $debug;
+
     my $file;
 
+    say "We shoul do the loop {$.cache+1} time(s)." if $debug;
+
     for 0..$.cache {
-        my $page = $.parent.page;
+        say "Doing the loop, iteration: {$.cache+1}" if $debug;
+        my $page = $.parent.path;
         if $.cache { 
             $.ext = $cacheExt;
         }
@@ -33,9 +40,11 @@ method processPlugin (%opts?) {
             $.ext = $pageExt;
         }
         if $page ~~ /\/$/ {
+            say "Page ended in a slash" if $debug;
             $file = self!findFolder($page) // self!findPage($page, :slash);   
         }
         else {
+            say "Page didn't end in a slash" if $debug;
             $file = self!findPage($page) // self!findFolder($page, :slash);
         }
         if $file && $.cache {
@@ -51,23 +60,30 @@ method processPlugin (%opts?) {
     }
     ## Finally, if we found a page, show it!
     if $file {
-        my $content = lines $file;
+        my $content = slurp $file;
         $.parent.content = $content;
+    }
+    else {
+        $.parent.err: "No page found for {$.parent.path}";
     }
 }
 
 method !findFolder ($page is copy, :$slash) {
+    my $debug = $.parent.debug;
     my $default = $.config.has('default', :notempty, :return) || 'default';
     if $slash {
         $page ~= '/';
     }
-    return $.parent.findFile($page ~ $default ~ $.append, $.ext);
+    my $find = $page ~ $default ~ $.append;
+    return $.parent.findFile($find, :ext($.ext));
 }
 
 method !findPage ($page is copy, :$slash) {
+    my $debug = $.parent.debug;
     if $slash {
         $page.=subst(/\/$/,'');
     }
-    return $.parent.findFile($page ~ $.append, $.ext);
+    my $find = $page ~ $.append;
+    return $.parent.findFile($find, :ext($.ext));
 }
 

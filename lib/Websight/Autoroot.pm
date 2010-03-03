@@ -7,7 +7,7 @@ class Websight::Autoroot does Websight;
 #  By default, if this finds a path, that path
 #  will REPLACE all other roots.
 #  If you want to change this behavior,
-#  specify 'merge: 1' in the 'autoroot' config.
+#  specify 'keep: 1' in the 'autoroot' config.
 #
 #  Also, by default, the processing stops when
 #  it finds the first matching directory.
@@ -16,29 +16,38 @@ class Websight::Autoroot does Websight;
 #  and files would be found in them in that order.
 
 method processPlugin (%opts?) {
-    my $config = self.getConfig(:type(Hash));
+    my $debug = $.parent.debug;
+    my %config = self.getConfig(:type(Hash)) // %opts;
     my $replace = 1;
     my $nest    = 0;
-    if $config && $config.has('merge', :true) {
+    my $found   = 0;
+    if %config.has('keep', :true) {
         $replace = 0;
     }
+    if %config.has('nest', :true) {
+        $nest = %config<nest>;
+    }
     my @host = $.parent.host.split('.');
+    say "Host: {@host}" if $debug;
     my @roots;
-    HUNT: while my $check = @host.join('.') {
-        for $.parent.metadata<root> -> $root {
+    while my $check = @host.join('.') {
+        for @($.parent.metadata<root>) -> $root {
+            say "Checking '$root' for '$check'." if $debug;
             my $path = $.parent.datadir ~ '/' ~ $root ~ '/' ~ $check;
+            say "Lookng for $path" if $debug;
             if $path ~~ :d {
                 @roots.push: $root ~ '/' ~ $check;
-                if !$nest { HUNT.last; }
+                if !$nest { $found = 1; last; }
             }
         }
+        if ($found && !$nest) { last; }
         @host.shift;
     }
     if @roots {
         if $replace { 
             $.parent.metadata<root> = @roots;
         }
-        $parent.metadata<root>.unshift: @roots;
+        $.parent.metadata<root>.unshift: @roots;
     }
 }
 

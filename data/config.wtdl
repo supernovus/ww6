@@ -21,12 +21,13 @@ dispatch:
   >
     path: ^\/example
     set: |
-      plugins: [Example]
+      plugins: ~[Example]
   >
+    ## This rule sets the defaults for all rules below it.
     root: domains
-    set:
-      plugins: +[Autoroot]
-      autoroot:
+    plugin: 
+      name: Autoroot
+      opts:
         nest: 1
   >
     file: redirect

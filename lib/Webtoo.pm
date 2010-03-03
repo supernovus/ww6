@@ -64,6 +64,11 @@ has %.metadata is rw = {
     },
 };
 
+method err ($message) {
+    $*ERR.say: $message;
+    return;
+}
+
 method setStatus ($code?) {
     if $code {
         %!headers<Status> = $code;
@@ -176,7 +181,35 @@ method processPlugins {
 
 }
 
-method callPlugin ($plugin is copy, $command, *%opts) {
+method callPlugin ($spec, $command is copy, :%opts is copy) {
+
+    my $plugin;
+
+    if $spec ~~ Hash {
+        ## For Hash based specs, the 'name' value is required.
+        if $spec.has('name', :notempty) {
+            $plugin = $spec<name>;
+        }
+        else {
+            return self.err: "No plugin name specified.";
+        }
+
+        ## The others are optional, and just overide the defaults.
+        if $spec.has('opts', :defined, :type(Hash)) {
+            %opts = $spec<opts>;
+        }
+        if $spec.has('command', :notempty) {
+            $command = $spec<command>;
+        }
+    }
+    elsif $spec ~~ Str {
+        $plugin = $spec;
+    }
+    else {
+        return self.err: "Invalid callPlugin specification passed.";
+    }
+
+    ## Okay, now continue processing.
 
     regex nsSep    { \: \: }
     regex nsStart  { ^^ <nsSep> }
