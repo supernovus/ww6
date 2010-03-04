@@ -3,7 +3,7 @@ use Perlite::Math :num;
 
 module Perlite::Parser;
 
-sub parseTags ($content is copy, $data, :$name is copy) is export(:DEFAULT) {
+sub parseTags ($content is copy, $data, :$name is copy, :$clean) is export(:DEFAULT) {
     my $debug = 0; 
     say "Entered parseTags" if $debug;
     if $data ~~ Hash {
@@ -38,6 +38,10 @@ sub parseTags ($content is copy, $data, :$name is copy) is export(:DEFAULT) {
             }
             $content.=subst($block, $newcontent, :global);
         }
+    }
+    if $clean {
+        my $clean = matcher("\\<$name..*?\\>");
+        $content.=subst($clean, '', :global);
     }
     return $content;
 }

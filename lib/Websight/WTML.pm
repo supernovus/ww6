@@ -24,9 +24,7 @@ method processPlugin (%opts?) {
             my $tags = $.parent.metadata.has($tagset, :defined, :return);
             say "Tags is " ~ $tags.WHAT if $debug;
             if not defined $tags { next; }
-            $content = parseTags($content, $tags, :name($tagset));
-            my $clean = matcher("\\<$tagset..*?\\>");
-            $content.=subst($clean, '', :global);
+            $content = parseTags($content, $tags, :name($tagset), :clean(1));
         }
     }
     if %config.has('if', :true) {

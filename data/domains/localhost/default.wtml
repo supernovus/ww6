@@ -19,8 +19,10 @@ The help tag is <page.types.help>, which is really helpful.
 </page.users>
 </table>
 
-<if page.testif.first = page.testif.second/>
+<if page.testif.first = page.testif.second>
  Hi there.
+<else/>
+  Goodbye.
 </if>
 
 <metadata>
