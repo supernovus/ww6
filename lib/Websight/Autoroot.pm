@@ -36,8 +36,9 @@ method processPlugin (%opts?) {
             my $path = $.parent.datadir ~ '/' ~ $root ~ '/' ~ $check;
             say "Lookng for $path" if $debug;
             if $path ~~ :d {
+                say "Found it!" if $debug;
                 @roots.push: $root ~ '/' ~ $check;
-                if !$nest { $found = 1; last; }
+                if $nest < 2 { $found = 1; last; }
             }
         }
         if ($found && !$nest) { last; }
@@ -47,7 +48,9 @@ method processPlugin (%opts?) {
         if $replace { 
             $.parent.metadata<root> = @roots;
         }
-        $.parent.metadata<root>.unshift: @roots;
+        else {
+            $.parent.metadata<root>.unshift: @roots;
+        }
     }
 }
 

@@ -1,13 +1,11 @@
-<html>
-<head>
-<title>
-A Test Page
-</title>
-<head>
-<body>
-<h1>A Test Page</h1>
 <p>
-It's pretty boring at the moment. Sorry.
+There's not much to see here yet.
+But, this page is being served by Webtoo Websight 6!
 </p>
-</body>
-</html>
+
+<metadata>
+@include: default
+page:
+  title: A Test Page
+</metadata>
+

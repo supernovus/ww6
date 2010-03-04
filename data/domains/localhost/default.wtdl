@@ -1,0 +1,5 @@
+plugins: [WTML]
+template: default
+wtml:
+  tags: [page]
+

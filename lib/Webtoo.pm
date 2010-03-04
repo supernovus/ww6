@@ -258,8 +258,10 @@ method processContent (Bool :$noheaders, Bool :$noplugins) {
 }
 
 method findFile ($file, :@path=%.metadata<root>, :$ext=$.dlext) {
+    say "We're in findFile" if $.debug;
     for @path -> $path {
         my $config = $.datadir ~ '/' ~ $path ~ '/' ~ $file ~ '.' ~ $ext;
+        say "Looking for $config" if $.debug;
         if $config ~~ :f {
             return $config;
         }
