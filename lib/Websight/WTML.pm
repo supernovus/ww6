@@ -1,4 +1,5 @@
 use Websight;
+use Perlite::Math :num;
 
 class Websight::WTML does Websight;
 
@@ -31,8 +32,10 @@ method processPlugin (%opts?) {
 }
 
 method !parseTags ($content is copy, $data, :$name is copy) {
+    my $debug = 1; #$.parent.debug;
+    say "Entered parseTags" if $debug;
     if $data ~~ Hash {
-        while $data.kv -> $key, $val {
+        for $data.kv -> $key, $val {
             if $val ~~ Array | Hash {
                 $content = self!parseTags($content, $val, :name("$name.$key"));
                 if $val ~~ Array {
