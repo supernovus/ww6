@@ -12,7 +12,7 @@ method processPlugin (%opts?) {
         for $config<mime> -> $mime {
             my $accept = $.parent.env.has('HTTP_ACCEPT', :return);
             if $accept {
-                if $accept ~~ self.matcher($mime) {
+                if $accept ~~ matcher($mime) {
                     $.parent.mimeType($mime);
                     last;
                 }

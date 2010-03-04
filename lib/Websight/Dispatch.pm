@@ -28,21 +28,21 @@ method !matchRules (@rules) {
         ## Conditions, if they don't match, skip this rule.
         if $rule.has('host', :notempty, :type(Str)) {
             if $continue == 1 { $continue = 0 }
-            if not $.parent.host ~~ self.matcher($rule<host>) {
+            if not $.parent.host ~~ matcher($rule<host>) {
                 next;
             }
         }
         if $rule.has('path', :notempty, :type(Str)) {
             say "Parsing 'path' rule: "~$rule<path> if $debug;
             if $continue == 1 { $continue = 0 }
-            if not $.parent.path ~~ self.matcher($rule<path>) {
+            if not $.parent.path ~~ matcher($rule<path>) {
                 say "Which did not match." if $debug;
                 next;
             }
         }
         if $rule.has('proto', :notempty, :type(Str)) {
             if $continue == 1 { $continue = 0 }
-            if not $.parent.proto ~~ self.matcher($rule<proto>) {
+            if not $.parent.proto ~~ matcher($rule<proto>) {
                 next;
             }
         }

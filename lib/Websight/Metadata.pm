@@ -7,7 +7,7 @@ method processPlugin (%opts?) {
     my $content = $.parent.content;
     my $name = $.namespace;
     my $string = "\\<$name\\>(.*?)\\<\\/$name\\>";
-    my $block = self.matcher($string);
+    my $block = matcher($string);
     say "We're going to look for '$string'" if $debug;
     if $content ~~ $block {
         say "It matched!" if $debug;
