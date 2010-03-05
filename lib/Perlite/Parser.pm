@@ -41,14 +41,15 @@ sub parseTags ($content is copy, $data, :$name is copy, :$clean) is export(:DEFA
     }
     if $clean {
         say "We've gone to the cleaners.";
+        #my $recurseclean = matcher("\\<$name\\.(.*?)\\>.*?\\<\\/$name\\.$0\\>");
+        #say "recurseclean: " ~ $recurseclean.WHAT;
+        #$content.=subst($recurseclean, '', :global);
         my $clean = matcher("\\<$name\\..*?\\>");
         say "clean: " ~ $clean.WHAT;
         $content.=subst($clean, '', :global);
         my $ifclean = matcher("(\\<[if|else] .*?)$name\\..*?\\>");
         say "Ifclean: " ~ $ifclean.WHAT;
         $content.=subst($ifclean, { $_[0] ~ '"">' }, :global);
-        my $recurseclean = matcher("\\<$name\\.(.*?)\\>.*?\\<\\/$name\\$0\\>");
-        $content.=subst($recurseclean, '', :global);
     }
     return $content;
 }
