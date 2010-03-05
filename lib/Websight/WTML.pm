@@ -15,7 +15,7 @@ method processPlugin (%opts?) {
     my %config = self.getConfig(:type(Hash)) // %opts;
     my $content = $.parent.content;
     if %config.has('comments', :true) {
-        $content.=subst(/^^#.*?$$/, '', :global);
+        $content.=subst(/^^\#.*?\n/, '', :global);
     }
     if %config.has('tags') && %config<tags> ~~ Array {
         say "We've got tags!" if $debug;

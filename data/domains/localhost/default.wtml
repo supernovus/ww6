@@ -19,11 +19,15 @@ The help tag is <page.types.help>, which is really helpful.
 </page.users>
 </table>
 
+<p>
 <if page.testif.first = page.testif.second>
  Hi there.
 <else/>
-  Goodbye.
+ Goodbye.
+# This line should not show up.
+# Not this one.
 </if>
+</p>
 
 <metadata>
 @include: default

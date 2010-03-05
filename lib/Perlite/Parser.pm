@@ -17,14 +17,14 @@ sub parseTags ($content is copy, $data, :$name is copy, :$clean) is export(:DEFA
                     $val = '_HASH_';
                 }
             }
-            my $block = matcher("\\<$name.$key\\/*\\>");
+            my $block = matcher("\\<$name\\.$key\\/*\\>");
             $content.=subst($block, $val, :global);
-            my $ifblock = matcher("(\\<[else ]?if .*?)$name\\.$key(.*?\\>)");
+            my $ifblock = matcher("(\\<[if|else] .*?)$name\\.$key(.*?\\>)");
             $content.=subst($ifblock, { $_[0] ~ "\"$val\"" ~ $_[1] }, :global);
         }
     }
     elsif $data ~~ Array {
-        my $block = matcher("\\<$name\\>(.*?)\\<\\/$name\\>");
+        my $block = matcher("\\<$name\\>(.*?)\\<\\/$name\\>\n?");
         if $content ~~ $block {
             my $newcontent = '';
             my $snippet = ~$0;
@@ -40,8 +40,15 @@ sub parseTags ($content is copy, $data, :$name is copy, :$clean) is export(:DEFA
         }
     }
     if $clean {
-        my $clean = matcher("\\<$name..*?\\>");
+        say "We've gone to the cleaners.";
+        my $clean = matcher("\\<$name\\..*?\\>");
+        say "clean: " ~ $clean.WHAT;
         $content.=subst($clean, '', :global);
+        my $ifclean = matcher("(\\<[if|else] .*?)$name\\..*?\\>");
+        say "Ifclean: " ~ $ifclean.WHAT;
+        $content.=subst($ifclean, { $_[0] ~ '"">' }, :global);
+        my $recurseclean = matcher("\\<$name\\.(.*?)\\>.*?\\<\\/$name\\$0\\>");
+        $content.=subst($recurseclean, '', :global);
     }
     return $content;
 }
