@@ -14,7 +14,7 @@ Moose, to make it stronger and easier to debug.
 
 But then, the Great Architect said, "no."
 
-And proceeded to rewrite the whole thing, in Perl 6/
+And proceeded to rewrite the whole thing, in Perl 6.
 
 This is the result.
 
@@ -77,7 +77,7 @@ A ww6 template would have instead:
 
 <if page.type ~~ "admin" and auth.user = page.owner>
   Hi bob, you are on a <page.type/> page.
-<else if page.booya />
+<else page.booya />
   Booga!
 <else/>
   Never mind
@@ -87,7 +87,6 @@ A ww6 template would have instead:
 </page.links>
 
 The closing slashes are optional, but recommended for clarity.
-The if statements also support () grouping of tests.
 In addition to 'and' there is also 'or'.
 
 Also, the following comparisons have changed their names:
@@ -99,8 +98,9 @@ Old name => New name
    <=    =>  lt=
    ~=    =>  ~~
 
-As before = and == are synonyms, and use '==' if both
-values consist only of numbers, or 'eq' if they are strings.
+The '=' comparison always uses string comparison.
+The '==' comparison will use numeric comparison if both values are numbers,
+otherwise it will use string comparison.
 
 === Not yet finished ===
 
