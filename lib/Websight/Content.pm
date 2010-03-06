@@ -12,7 +12,7 @@ method processPlugin (%opts?) {
     say "We're in Content" if $debug;
     $.config   = self.getConfig(:type(Hash)) // {};
     my $pageExt  = $.config.has('page-ext',  :notempty, :return) || 'wtml';
-    my $cacheExt = $.config.has('cache-ext', :notempty, :return) || 'cache';
+    my $cacheExt = $.config.has('cache-ext', :notempty, :return) || 'html';
     my $handler  = $.config.has('handler',   :notempty, :return) || 'handler';
     if not defined $.parent.req.get('REBUILD', 'NOCACHE') {
         $.cache = $.config.has('use-cache', :true, :return) || 0;
@@ -60,6 +60,8 @@ method processPlugin (%opts?) {
     }
     ## Finally, if we found a page, show it!
     if $file {
+        $.config<path>;
+        self.saveConfig($.config);
         my $content = slurp $file;
         $.parent.content = $content;
     }

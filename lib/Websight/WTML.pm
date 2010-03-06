@@ -10,7 +10,7 @@ class Websight::WTML does Websight;
 # from ww5, any if statements using tags, must have been parsed already.
 
 method processPlugin (%opts?) {
-    my $debug = 1; #$.parent.debug;
+    my $debug = $.parent.debug;
     say "Entered WTML plugin" if $debug;
     my %config = self.getConfig(:type(Hash)) // %opts;
     my $content = $.parent.content;

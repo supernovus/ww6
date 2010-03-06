@@ -9,6 +9,10 @@ method getConfig (:$type) {
     return $.parent.metadata.has($.namespace, :type($type), :return);
 }
 
+method saveConfig ($config) {
+    $.parent.metadata{$.namespace} = $config;
+}
+
 ## A method to call plugins from plugins using a spec from rules.
 method callPlugin ($spec, $command='processPlugin', :%opts is copy) {
     if $spec ~~ Array {
