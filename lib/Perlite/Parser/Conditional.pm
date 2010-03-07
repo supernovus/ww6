@@ -31,7 +31,8 @@ grammar Perlite::Parser::Conditional::Grammar {
         '"'
     }
     token ifOption {
-        | '!'
+        | '!'          #= negate the match.
+        | '?'          #= reserved for future use.
     }
     token ifComp { 
         | \=+
@@ -55,6 +56,8 @@ class Perlite::Parser::Conditional::Parser {
     method parseIf ($/) {
         ## Implement the actual parser.
         my $keep = self.parseTest($/<ifStat><ifCond>);
+        my $count = +@($/<ifStat>);
+        say "Count: $count";
         for @($/<ifStat>) -> $test {
             my $chain = ~$test<ifChain>;
             my $def   = $test<ifCond>;
@@ -68,8 +71,10 @@ class Perlite::Parser::Conditional::Parser {
         my $debug = 0;
         my $success = 1;
         my $failure = 0;
-        my $options = $test<ifOptions>;
+        my $options = $test<ifOption>;
+        say "Options: $options";
         if $options && $options eq '!' {
+            say "We found the negation";
             $success = 0;
             $failure = 1;
         }
@@ -84,9 +89,11 @@ class Perlite::Parser::Conditional::Parser {
         }
         if $testvar eq '' { return 0 } # Always fail on empty strings.
         my $pass = $success;
+        say $compDef.perl;
         for @($compDef) -> $comps {
             my $comp = ~$comps<ifComp>;
             my $var  = ~$comps<ifVar>.subst('"', '', :global);
+            my &fails = sub { $pass = $failure; if !$pass { last; } };
             say "** var: $var {$var.WHAT}" if $debug;
             given $comp {
                 when '~~' {
