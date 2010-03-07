@@ -4,18 +4,18 @@ use Perlite::Parser;
 class Websight::Index does Websight;
 
 method processPlugin (%opts?) {
-    my $debug = $.parent.debug;
+    my $debug = 1; #$.parent.debug;
     say "We're in Index::View" if $debug;
     my $config   = self.getConfig(:type(Hash));
     if !$config { return; } ## We must have a config.
-    my $data  = $.config.has('data',  :defined, :return);
+    my $data  = $config.has('data',  :defined, :return);
     if !$data { return; }
     if $data ~~ Str {
-        $data = $.parent.parseMetadataFile($data);
+        $data = $.parent.parseDataFile($data, []);
     }
     if not $data ~~ Array { return; } ## Data must be an array.
     my @showdata;
-    my $keys = $config.has('keys', :defined, :type(Array));
+    my $keys = $config.has('keys', :defined, :type(Array), :return);
     my $reqkeys = $.parent.req.get('key','keys');
     if $reqkeys {
         $keys = $reqkeys.split(',');
