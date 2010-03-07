@@ -93,50 +93,43 @@ class Perlite::Parser::Conditional::Parser {
         for @($test) -> $comps {
             my $comp = ~$comps<ifComp>;
             my $var  = ~$comps<ifVar>.subst('"', '', :global);
-            my &fails = -> { $pass = $failure; if !$pass { last; } };
+            my &fails = -> { $pass = $failure; if $success { last; } };
             say "** var: $var {$var.WHAT}" if $debug;
             given $comp {
                 when '~~' {
                     my $match = matcher($var);
                     if not $testvar ~~ $match {
-                       $pass = $failure;
-                       last;
+                        fails;
                     }
                 }
                 when 'gt' {
                     if not $testvar > $var {
-                        $pass = $failure;
-                        last;
+                        fails;
                     }
                 }
                 when 'lt' {
                     if not $testvar < $var {
-                        $pass = $failure;
-                        last;
+                        fails;
                     }
                 }
                 when 'gt=' {
                     if not $testvar >= $var {
-                        $pass = $failure;
-                        last;
+                        fails;
                     }
                 }
                 when 'lt=' {
                     if not $testvar <= $var {
-                        $pass = $failure;
-                        last;
+                        fails;
                     }
                 }
                 when '!=' {
                     if $testvar eq $var {
-                        $pass = $failure;
-                        last;
+                        fails;
                     }
                 }
                 when '=' {
                     if not $testvar eq $var {
-                        $pass = $failure;
-                        last;
+                        fails;
                     }
                 }
                 when '==' {
@@ -145,21 +138,18 @@ class Perlite::Parser::Conditional::Parser {
                     if $testvar ~~ $num && $var ~~ $num {
                         say "They are both numbers" if $debug;
                         if not $testvar == $var {
-                            $pass = $failure;
-                            last;
+                            fails;
                         }
                     }
                     else {
                         if not $testvar eq $var {
-                            $pass = $failure;
-                            last;
+                            fails;
                         }
                     }
                 }
                 default {
                     if not $testvar ~~ $var {
-                        $pass = $failure;
-                        last;
+                        fails;
                     }
                 }
             }
