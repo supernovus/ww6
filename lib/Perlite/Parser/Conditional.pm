@@ -8,7 +8,7 @@ grammar Perlite::Parser::Conditional::Grammar {
         | <closeIf> {*}   #= endif
     }
     rule ifTag { 
-        \<if <ifStat>\> {*}
+        \<if <ifStat> \> {*}
     }
     rule elseIf { 
         \<else <ifStat> \/*\> {*}
@@ -23,12 +23,10 @@ grammar Perlite::Parser::Conditional::Grammar {
         <ifCond> (<ifChain> <ifCond>)*
     }
     rule ifCond { 
-        <ifOption>? <ifVar> $<comp>=(<ifComp> <ifVar>)*
+        <ifOption>? <ifVar> ( <ifComp> <ifVar> )*
     }
     token ifVar { 
-        '"'
-        .*?
-        '"'
+        '"'.*?'"'
     }
     token ifOption {
         | '!'          #= negate the match.
@@ -44,8 +42,8 @@ grammar Perlite::Parser::Conditional::Grammar {
         | 'lt='
     }
     token ifChain {
-        | and
-        | or
+        | 'and'
+        | 'or'
     }
 }
 
@@ -80,8 +78,10 @@ class Perlite::Parser::Conditional::Parser {
         }
         my $testvar = ~$test<ifVar>.subst('"', '', :global);
         say "** testvar: $testvar {$testvar.WHAT}" if $debug;
-        my $compDef = $test<comp>;
-        if ! $compDef {
+        my $hasComps = +@($test);
+        say "Has comps: $hasComps";
+        #my $compDef = $test<comp>;
+        if ! $hasComps {
             # No comparisons were used. Check if the value is True.
             # False is an empty string or the number 0.
             if $testvar { return $success }
@@ -89,11 +89,11 @@ class Perlite::Parser::Conditional::Parser {
         }
         if $testvar eq '' { return 0 } # Always fail on empty strings.
         my $pass = $success;
-        say $compDef.perl;
-        for @($compDef) -> $comps {
+        say @($test).perl;
+        for @($test) -> $comps {
             my $comp = ~$comps<ifComp>;
             my $var  = ~$comps<ifVar>.subst('"', '', :global);
-            my &fails = sub { $pass = $failure; if !$pass { last; } };
+            my &fails = -> { $pass = $failure; if !$pass { last; } };
             say "** var: $var {$var.WHAT}" if $debug;
             given $comp {
                 when '~~' {
