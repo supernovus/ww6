@@ -23,12 +23,15 @@ grammar Perlite::Parser::Conditional::Grammar {
         <ifCond> (<ifChain> <ifCond>)*
     }
     rule ifCond { 
-        <ifVar> $<comp>=(<ifComp> <ifVar>)*
+        <ifOption>? <ifVar> $<comp>=(<ifComp> <ifVar>)*
     }
     token ifVar { 
         '"'
         .*?
         '"'
+    }
+    token ifOption {
+        | '!'
     }
     token ifComp { 
         | \=+
@@ -63,17 +66,24 @@ class Perlite::Parser::Conditional::Parser {
 
     method parseTest ($test) {
         my $debug = 0;
+        my $success = 1;
+        my $failure = 0;
+        my $options = $test<ifOptions>;
+        if $options && $options eq '!' {
+            $success = 0;
+            $failure = 1;
+        }
         my $testvar = ~$test<ifVar>.subst('"', '', :global);
         say "** testvar: $testvar {$testvar.WHAT}" if $debug;
         my $compDef = $test<comp>;
         if ! $compDef {
             # No comparisons were used. Check if the value is True.
             # False is an empty string or the number 0.
-            if $testvar { return 1 }
-            else { return 0 } 
+            if $testvar { return $success }
+            else { return $failure } 
         }
         if $testvar eq '' { return 0 } # Always fail on empty strings.
-        my $pass = 1;
+        my $pass = $success;
         for @($compDef) -> $comps {
             my $comp = ~$comps<ifComp>;
             my $var  = ~$comps<ifVar>.subst('"', '', :global);
@@ -82,43 +92,43 @@ class Perlite::Parser::Conditional::Parser {
                 when '~~' {
                     my $match = matcher($var);
                     if not $testvar ~~ $match {
-                       $pass = 0;
+                       $pass = $failure;
                        last;
                     }
                 }
                 when 'gt' {
                     if not $testvar > $var {
-                        $pass = 0;
+                        $pass = $failure;
                         last;
                     }
                 }
                 when 'lt' {
                     if not $testvar < $var {
-                        $pass = 0;
+                        $pass = $failure;
                         last;
                     }
                 }
                 when 'gt=' {
                     if not $testvar >= $var {
-                        $pass = 0;
+                        $pass = $failure;
                         last;
                     }
                 }
                 when 'lt=' {
                     if not $testvar <= $var {
-                        $pass = 0;
+                        $pass = $failure;
                         last;
                     }
                 }
                 when '!=' {
                     if $testvar eq $var {
-                        $pass = 0;
+                        $pass = $failure;
                         last;
                     }
                 }
                 when '=' {
                     if not $testvar eq $var {
-                        $pass = 0;
+                        $pass = $failure;
                         last;
                     }
                 }
@@ -128,20 +138,20 @@ class Perlite::Parser::Conditional::Parser {
                     if $testvar ~~ $num && $var ~~ $num {
                         say "They are both numbers" if $debug;
                         if not $testvar == $var {
-                            $pass = 0;
+                            $pass = $failure;
                             last;
                         }
                     }
                     else {
                         if not $testvar eq $var {
-                            $pass = 0;
+                            $pass = $failure;
                             last;
                         }
                     }
                 }
                 default {
                     if not $testvar ~~ $var {
-                        $pass = 0;
+                        $pass = $failure;
                         last;
                     }
                 }

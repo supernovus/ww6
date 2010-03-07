@@ -25,7 +25,7 @@ sub parseTags (
                     $val = +@($val);
                 }
                 elsif $val ~~ Hash {
-                    $val = '_HASH_';
+                    $val = 'HASH{}';
                 }
             }
             my $block = matcher("\\<$name\\.$key\\/*\\>");
@@ -55,7 +55,11 @@ sub parseTags (
             }
             my $count = 0;
             for @($data) -> $repl is copy {
-                if not $repl ~~ Hash { next; } ## We only accept hashes.
+                if not $repl ~~ Hash { ## Recurse items MUST be hashes. 
+                    my %hash;
+                    %hash<ITEM> = $repl;
+                    $repl = %hash;
+                }
                 my $rowtype = Perlite::Math::numType $count;
                 $repl<ROW> = $rowtype;
                 $repl<ID> = $count++;
