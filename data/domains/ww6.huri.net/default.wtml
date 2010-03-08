@@ -1,0 +1,18 @@
+<p>
+Welcome to ww6!
+</p>
+
+<metadata>
+plugins: [Index]
+@include: theme/huri2009
+#plugins: -[Index::Update]
+page:
+  title: Webtoo Websight 6
+  author: Huri Omnique
+  tags: [projects,perl6]
+  noarticle: 1
+index:
+  data: index
+  show: 10
+</metadata>
+

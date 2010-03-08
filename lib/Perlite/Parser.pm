@@ -9,6 +9,7 @@ sub parseTags (
     :$name is copy, 
     :$clean,
     :$trim=0,
+    :$sep=",",
 ) is export(:DEFAULT) {
     my $debug = 0; 
     say "Entered parseTags, name: '$name'" if $debug;
@@ -19,7 +20,7 @@ sub parseTags (
             if $val ~~ Array | Hash {
                 $content = parseTags(
                     $content, $val, 
-                    :name("$name.$key"), :trim($trim),
+                    :name("$name.$key"), :trim($trim), :sep($sep),
                 );
                 if $val ~~ Array {
                     $val = +@($val);
@@ -28,10 +29,14 @@ sub parseTags (
                     $val = 'HASH{}';
                 }
             }
-            my $block = matcher("\\<$name\\.$key\\/*\\>");
+            #my $block = matcher("\\<$name\\.$key\\/?\\>[.*?\\<\\/$name\\.$key\\>"]?);
+            my $block = matcher("\\<$name\\.$key\\/?\\>");
             $content.=subst($block, $val, :global);
-            my $ifblock = matcher("(\\<[if|else] .*?)$name\\.$key <.ws> (.*?\\>)");
-            $content.=subst($ifblock, { $_[0] ~ "\"$val\"" ~ $_[1] }, :global);
+            my $ifblock = matcher("\\\$ $name\\.$key");
+            $content.=subst($ifblock, "\"$val\"", :global);
+            my $tagblock = matcher("'%' $name\\.$key");
+            ## TODO: This should urlencode the var properly.
+            $content.=subst($tagblock, $val.trans(' ' => '+'), :global);
         }
     }
     elsif $data ~~ Array {
@@ -61,11 +66,18 @@ sub parseTags (
                     $repl = %hash;
                 }
                 my $rowtype = Perlite::Math::numType $count;
+                if $count < $data.end {
+                    $repl<SEP> = $sep;
+                }
+                else {
+                    $repl<SEP> = '';
+                }
+                $repl<LAST> = $data.end;
                 $repl<ROW> = $rowtype;
                 $repl<ID> = $count++;
                 $newcontent ~= parseTags(
                     $snippet, $repl, 
-                    :name($name), :trim($trim),
+                    :name($name), :trim($trim), :sep($sep),
                 );
             }
             $content.=subst($block, $newcontent, :global);
@@ -79,10 +91,16 @@ sub parseTags (
         my $clean = matcher("\\<$name\\..*?\\>");
         say "clean: " ~ $clean.WHAT if $debug;
         $content.=subst($clean, '', :global);
-        my $ifclean = matcher("(\\<[if|else] .*?)$name\\..*?\\>");
+        my $ifclean = matcher("(\\\$|'%') $name\\.[\\w|\\.]+");
         say "Ifclean: " ~ $ifclean.WHAT if $debug;
-        $content.=subst($ifclean, { $_[0] ~ '"">' }, :global);
+        $content.=subst($ifclean, {
+            if $_[0] eq '$' { '""'; }
+            else { '' }
+        }, :global);
     }
+    my $df = open './debug.txt', :w;
+    $df.say: $content;
+    $df.close;
     return $content;
 }
 

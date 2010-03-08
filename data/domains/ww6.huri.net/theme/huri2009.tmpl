@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE
+  html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+  <head>
+		<title>
+			<theme.sitetitle> 
+			<if $page.title>
+				&raquo; <page.title>
+			</if>
+		</title>
+		<link rel="stylesheet" href="/wt/public/site/style/page/base2.css" />
+		<link rel="stylesheet" href="/wt/public/site/style/page/<theme.name>.css" />
+		<theme.header>
+		<page.header>
+<!--[if lte IE 6]>
+<style>
+#ads {display: none;}
+#adsie {clear:both; text-align:center;
+width:750px; margin-top:10px;}
+</style>
+<![endif]-->
+	</head>
+	<body>
+	<div id="outer">
+		<div id="header">
+			<div id="logo">
+				<a href="http://huri.net/" title="Home">
+					creative abstractions
+				</a>
+				<br />
+				huri.net
+			</div>
+			<div id="features">
+				<div class="thoughts">
+					<a href="http://huri.net/" title="Articles">% thoughts</a>
+				</div>
+				<div class="jargon">
+					<a href="http://jargon.huri.net/" title="Comics">? jargon</a>
+				</div>
+				<div class="shade">
+					<a href="http://shade.huri.net/" title="Poetry">* shade</a>
+				</div>
+				<div class="scrawl">
+					<a href="http://scrawl.huri.net/" title="Stories"># scrawl</a>
+				</div>
+				<div class="outward">
+					<a href="http://huri.net/links" title="Outward Paths">^ links</a>
+				</div>
+				<div class="contact">
+					<a href="http://huri.net/contact" title="Contact">@ contact</a>
+				</div>
+			</div>
+			<div id="statusbar">
+				<a href="/"><theme.sitetitle></a> 
+				<if $page.title>
+					&raquo; <page.title>
+				</if>
+			</div>
+		</div>
+		<div class="body">
+
+            <if ! $page.noarticle>
+			<div class="article">
+				<h1><page.title> (<page.updated>)</h1>
+            </if>
+				<content>
+            <if ! $page.noarticle>
+            <h4>
+            Tags:
+            <page.tags>
+                <if ! $page.tags.ITEM ~~ "\+">
+                <a href="./?tag=%page.tags.ITEM">
+                    <page.tags.ITEM></a><page.tags.SEP>
+                </if>
+            </page.tags>
+            </h4>
+			</div>
+            </if>
+
+            <if $index.pages>
+			<index.pages>
+				<div class="article">
+				<h1><index.pages.title> (<index.pages.updated>)</h1>
+				<index.pages.content>
+					<h3>
+						<a href="%index.pages.path">Read the rest...</a>
+                        &nbsp;
+                        &laquo;
+                            <index.pages.tags>
+                                <if ! $index.pages.tags.ITEM ~~ "\+">
+                                <a href="?tag=%index.pages.tags.ITEM">
+                                <index.pages.tags.ITEM></a><index.pages.tags.SEP>
+                                </if>
+                            </index.pages.tags>
+                        &raquo;
+					</h3>
+				</div>
+			</index.pages>
+            </if>
+            <if $index.pager>
+            <div class="pager">
+            Pages: 
+            <index.pager>
+                <a href="?page=%index.pager.ITEM"><index.pager.ITEM></a>
+            </index.pager>
+            </div>
+            </if>
+
+		</div>
+
+		<div id="footer">
+
+			<div class="w3cbutton3">
+				<a href="http://omnique.net/software/webtoo">
+					<span class="w3c">WT</span>
+					<span class="spec">Websight 6 &nbsp;</span>
+				</a>
+			</div>
+			<div class="w3cbutton3">
+				<a href="http://validator.w3.org/check/referer">
+					<span class="w3c">W3C</span>
+					<span class="spec">XHTML 1.1 &nbsp;</span>
+				</a>
+			</div>
+			<div class="w3cbutton3">
+				<a href="http://jigsaw.w3.org/css-validator/check/referrer">
+					<span class="w3c">W3C</span>
+					<span class="spec">CSS Level 1 &nbsp;</span>
+				</a>
+			</div>
+			<div class="w3cbutton3">
+				<a href="http://www.vim.org/">
+					<span class="w3c">VIM</span>
+					<span class="spec">Editor &nbsp;</span>
+				</a>
+			</div>
+			<div class="w3cbutton3">
+				<a href="http://www.gimp.org/">
+					<span class="w3c">Gimp</span>
+					<span class="spec">Graphics &nbsp;</span>
+				</a>
+			</div>
+
+            <a href="/atom">ATOM</a> //
+            <a href="/rss">RSS</a> //
+            &nbsp;&nbsp;
+			All content is Copyright &copy;
+			1995-2009, Timothy M. Totten, unless 
+			<a href="copyright.html">otherwise noted</a>.
+		</div>
+
+	</div>
+	</body>
+</html>

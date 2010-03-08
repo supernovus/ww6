@@ -1,0 +1,42 @@
+<p>
+Webtoo Websight 6 is the next generation of the content
+management system that powers my websites. 
+</p>
+<p>
+Webtoo Websight has gone through many rewrites since it's humble orgins
+ten years ago. Originally, there was a collection of Perl 5 CGI scripts.
+They had no way of working together, and often had duplicated functionality.
+The first version of Webtoo Websight was an attempt to bring them together
+in a framework. Unfortunately, it was overly complex, and didn't really
+work very well.
+</p>
+<p>
+The second version was a rewrite, simplifying the system, and making it
+far easier to extend. This was the first version I used on my websites.
+Versions 3 and 4 were both partial rewrites, extending
+a lot of core functionality, while still using a lot of the same code.
+</p>
+<p>
+Version 5 was a complete rewrite, moving to Object Oriented Perl 5, and
+offering the greatest flexibility of any version. However, over a couple
+of years, much of the functionality was changed, and the codebase became
+nearly unmaintainable.
+</p>
+<p>
+I considered a rewrite using Moose and other new Perl 5 technologies.
+But that would mean rewriting a lot of my Perlite libraries as well.
+</p>
+<p>
+So, when it came time to write ww6, I rewrote the whole thing, from scratch,
+in Perl 6.
+</p>
+
+<metadata>
+@include: theme/huri2009
+page:
+  title: A test page
+  author: Huri Omnique
+  updated: Fri, March 5th, 2010
+  tags: [+pages,projects,perl6]
+</metadata>
+
