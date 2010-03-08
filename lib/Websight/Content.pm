@@ -4,6 +4,7 @@ class Websight::Content does Websight;
 
 has $.config is rw;
 has $.cache is rw = 0;
+has $.static is rw = 0;
 has $.ext is rw;
 has $.append is rw = '';
 
@@ -22,15 +23,16 @@ method processPlugin (%opts?) {
                 $.append = '~' ~ %reqs.keys.sort.join('+');
             }
         }
+        $.static = $.config.has('cache-only', :true, :return) || 0;
     }
 
     say "We made it past all those settings" if $debug;
 
     my $file;
 
-    say "We shoul do the loop {$.cache+1} time(s)." if $debug;
+    say "We should do the loop {$.cache+1} time(s)." if $debug;
 
-    for 0..$.cache {
+    for $.static..$.cache {
         say "Doing the loop, iteration: {$.cache+1}" if $debug;
         my $page = $.parent.path;
         if $.cache { 
@@ -67,6 +69,7 @@ method processPlugin (%opts?) {
     }
     else {
         $.parent.err: "No page found for {$.parent.path}";
+        $.parent.setStatus(404);
     }
 }
 
