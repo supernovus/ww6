@@ -4,7 +4,7 @@ use Perlite::Parser;
 class Websight::Index does Websight;
 
 method processPlugin (%opts?) {
-    my $debug = 1; #$.parent.debug;
+    my $debug = $.parent.debug;
     say "We're in Index::View" if $debug;
     my $config   = self.getConfig(:type(Hash));
     if !$config { return; } ## We must have a config.
@@ -15,18 +15,58 @@ method processPlugin (%opts?) {
     }
     if not $data ~~ Array { return; } ## Data must be an array.
     my @showdata;
-    my $keys = $config.has('keys', :defined, :type(Array), :return);
-    my $reqkeys = $.parent.req.get('key','keys');
-    if $reqkeys {
-        $keys = $reqkeys.split(',');
+    my $tags  = $config.has('tags',  :defined, :type(Array), :return);
+    my $match = $config.has('match', :defined, :type(Array), :return);
+    my $reqtags = $.parent.req.get('tag','tags');
+    if $reqtags {
+        say "req tags: $reqtags";
+        $tags = $reqtags.split(',');
     }
-    my $author = $.parent.req.get('author');
     my $show = $.parent.req.get(
         :default($config.has('show', :notempty, :return)),
         'show',
     );
-    my @slice;
-    my $count = +@($data);
+    my @filter;
+    if $tags || $match {
+        for @($data) -> $def {
+            if $match {
+                my $failed = 0;
+                for @($match) -> $key {
+                    if $def{$key} ne $.parent.req.get($key) {
+                        $failed = 1;
+                        last;
+                    }
+                }
+                if $failed {
+                    next;
+                }
+            }
+            if $tags {
+                my $matched = 0;
+                for @($tags) -> $wantkey {
+                    for @($def<tags>) -> $haskey {
+                        $haskey.=subst('^+', '');
+                        if $haskey eq $wantkey {
+                            $matched = 1;
+                            last;
+                        }
+                    }
+                    if $matched {
+                        @filter.push: $def;
+                        last;
+                    }
+                }
+            }
+            else {
+                @filter.push: $def;
+            }
+        }
+    }
+    else {
+        @filter = @($data);
+    }
+
+    my $count = +@filter;
     if $show && $count > $show {
         my $page = $.parent.req.get(:default(1), 'page');
         if $page < 1 { $page = 1; }
@@ -36,42 +76,12 @@ method processPlugin (%opts?) {
         if $end > $count { $end = $count; }
         my $pages = ( $count / $show ).ceiling;
         $config<pager> = 1..$pages;
-        @slice = $data[$start..$end];
+        @showdata = @filter[$start..$end];
     }
     else {
-        @slice = @($data);
+        @showdata = @filter;
     }
-    if $keys || $author {
-        for @slice -> $def {
-            if $author {
-                if $def<author> ne $author {
-                    next;
-                }
-            }
-            if $keys {
-                my $matched = 0;
-                for @($keys) -> $wantkey {
-                    for @($def<keys>) -> $haskey {
-                        $haskey.=subst('^+', '');
-                        if $haskey eq $wantkey {
-                            $matched = 1;
-                            last;
-                        }
-                    }
-                    if $matched {
-                        @showdata.push: $def;
-                        last;
-                    }
-                }
-            }
-            else {
-                @showdata.push: $def;
-            }
-        }
-    }
-    else {
-        @showdata = @slice;
-    }
+
     $config<pages> = @showdata;
     self.saveConfig($config);
     # You must use WTML to parse the index tags.
