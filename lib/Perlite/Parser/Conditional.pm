@@ -52,10 +52,11 @@ class Perlite::Parser::Conditional::Parser {
     has @!match = 1; # First level always matches.
 
     method parseIf ($/) {
+        my $debug = 0;
         ## Implement the actual parser.
         my $keep = self.parseTest($/<ifStat><ifCond>);
         my $count = +@($/<ifStat>);
-        say "Count: $count";
+        say "Count: $count" if $debug;
         for @($/<ifStat>) -> $test {
             my $chain = ~$test<ifChain>;
             my $def   = $test<ifCond>;
@@ -70,16 +71,16 @@ class Perlite::Parser::Conditional::Parser {
         my $success = 1;
         my $failure = 0;
         my $options = $test<ifOption>;
-        say "Options: $options";
+        say "Options: $options" if $debug;
         if $options && $options eq '!' {
-            say "We found the negation";
+            say "We found the negation" if $debug;
             $success = 0;
             $failure = 1;
         }
         my $testvar = ~$test<ifVar>.subst('"', '', :global);
         say "** testvar: $testvar {$testvar.WHAT}" if $debug;
         my $hasComps = +@($test);
-        say "Has comps: $hasComps";
+        say "Has comps: $hasComps" if $debug;
         #my $compDef = $test<comp>;
         if ! $hasComps {
             # No comparisons were used. Check if the value is True.
@@ -88,69 +89,59 @@ class Perlite::Parser::Conditional::Parser {
             else { return $failure } 
         }
         if $testvar eq '' { return 0 } # Always fail on empty strings.
-        my $pass = $success;
-        say @($test).perl;
+        my $pass = $failure;
         for @($test) -> $comps {
             my $comp = ~$comps<ifComp>;
             my $var  = ~$comps<ifVar>.subst('"', '', :global);
-            my &fails = -> { $pass = $failure; if $success { last; } };
+            my &passes = -> { $pass = $success; }
+            my &fails  = -> { $pass = $failure; if $success { last; } };
             say "** var: $var {$var.WHAT}" if $debug;
             given $comp {
                 when '~~' {
                     my $match = matcher($var);
-                    if not $testvar ~~ $match {
-                        fails;
-                    }
+                    if $testvar ~~ $match { passes; }
+                    else { fails; }
                 }
                 when 'gt' {
-                    if not $testvar > $var {
-                        fails;
-                    }
+                    if $testvar > $var { passes; }
+                    else { fails; }
                 }
                 when 'lt' {
-                    if not $testvar < $var {
-                        fails;
-                    }
+                    if $testvar < $var { passes; }
+                    else { fails; }
                 }
                 when 'gt=' {
-                    if not $testvar >= $var {
-                        fails;
-                    }
+                    if $testvar >= $var { passes; }
+                    else { fails; }
                 }
                 when 'lt=' {
-                    if not $testvar <= $var {
-                        fails;
-                    }
+                    if $testvar <= $var { passes; }
+                    else { fails; }
                 }
                 when '!=' {
-                    if $testvar eq $var {
-                        fails;
-                    }
+                    if $testvar ne $var { passes; }
+                    else { fails; }
                 }
                 when '=' {
-                    if not $testvar eq $var {
-                        fails;
-                    }
+                    if $testvar eq $var { passes; }
+                    else { fails; }
                 }
                 when '==' {
                     say "We're in the matcher" if $debug;
                     my $num = regex { ^\d+[\.\d+]?$ };
                     if $testvar ~~ $num && $var ~~ $num {
                         say "They are both numbers" if $debug;
-                        if not $testvar == $var {
-                            fails;
-                        }
+                        if $testvar == $var { passes; }
+                        else { fails; }
                     }
                     else {
-                        if not $testvar eq $var {
-                            fails;
-                        }
+                        if $testvar eq $var { passes; }
+                        else { fails; }
                     }
                 }
                 default {
-                    if not $testvar ~~ $var {
-                        fails;
-                    }
+                    if $testvar ~~ $var { passes; }
+                    else { fails; }
                 }
             }
         }
