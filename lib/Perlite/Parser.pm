@@ -98,9 +98,9 @@ sub parseTags (
             else { '' }
         }, :global);
     }
-    my $df = open './debug.txt', :w;
-    $df.say: $content;
-    $df.close;
+#    my $df = open './debug.txt', :w;
+#    $df.say: $content;
+#    $df.close;
     return $content;
 }
 

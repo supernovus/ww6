@@ -36,6 +36,12 @@ This is the result.
   ww6 as a CGI script, where the performance was abysmal.
   This is HIGHLY recommended, as using Perl 6 with plain CGI is unbearable.
 
+- If you want to run the SCGI process on a computer behind NAT,
+  and have the publically accessible web server forward requests
+  to it, you can look into the reverse proxy functionality of OpenSSH.
+  The 'service.sh' included shows how I have it set up to run on my home
+  computer, and forward to my publically accessible VPS.
+
 === Technical Details ===
 
  = WTDL =
@@ -47,7 +53,7 @@ library, but I don't see the point right now.
 
  = WTML =
 
-The pages are stored in .wtml files, which do not specify a format.
+The Content plugin looks for files ending in .wtml by default.
 Plugins can parse the .wtml files in any way they wish.
 
 The default Metadata plugin looks for a section of WTDL formatted text
@@ -55,6 +61,7 @@ in a block of <metadata>...</metadata>.
 
 There is a template parser called WTML that supports Tags and If statements, 
 similar to the Perlite parsers from ww5. 
+
 The format has changed slightly since the ww5 days, 
 making it more streamlined, and including changes from integrating
 the Tags and If parsers together.
@@ -64,30 +71,40 @@ Where in ww5 a template may look like:
 <if "<page.type>"~="admin">
 <andif "<auth.user>"="<page.owner>">
   Hi bob, you are on a <page.type> page.
-<elsif "<page.ooya>">
+<elsif ! "<page.ooya>">
   Booga!
 <else>
   Never mind
 </if>
+<if "<page.links>">
 <recurse page.links>
   <a href="<page.links.url>"><page.links.title></a>
 </recurse>
+</if>
 
 A ww6 template would have instead:
 
-<if page.type ~~ "admin" and auth.user = page.owner>
+<if $page.type ~~ "admin" and $auth.user = $page.owner>
   Hi bob, you are on a <page.type/> page.
-<else page.booya />
+<else ! $page.ooya />
   Booga!
 <else/>
   Never mind
 </if>
+<if $page.links>
 <page.links>
-  <a href="<page.links.url/>"><page.links.title/></a>
+  <a href="%page.links.url"><page.links.title/></a>
 </page.links>
+</if>
 
 The closing slashes are optional, but recommended for clarity.
 In addition to 'and' there is also 'or'.
+
+There are three formats recognized by WTML for variables:
+
+ <variable.name/>  Is parsed directly. No changes are made.
+ $variable.name    Adds "quote" characters around the value (for <if> tags.)
+ %variable.name    URL encodes the value (for href, src, etc.)
 
 Also, the following comparisons have changed their names:
 
