@@ -15,13 +15,18 @@ method processPlugin (%opts?) {
     my $pageExt  = $.config.has('page-ext',  :notempty, :return) || 'wtml';
     my $cacheExt = $.config.has('cache-ext', :notempty, :return) || 'html';
     my $handler  = $.config.has('handler',   :notempty, :return) || 'handler';
+    my $cache = $config.has('use-cache', :true, :return) || 0;
+
+    my %reqs = $.parent.req.params;
+    my $cachetail;
+    if +%reqs.keys {
+        $cachetail = %reqs.Array.sort>>fmt('~%s+%s');
+    }
+
     if not defined $.parent.req.get('REBUILD', 'NOCACHE') {
-        $.cache = $.config.has('use-cache', :true, :return) || 0;
+        $.cache = $cache;
         if $.cache == 2 {
-            my %reqs = $.parent.req.params;
-            if +%reqs.keys {
-                $.append = '~' ~ %reqs.keys.sort.join('+');
-            }
+            $.append = $cachetail;
         }
         $.static = $.config.has('cache-only', :true, :return) || 0;
     }
@@ -51,6 +56,7 @@ method processPlugin (%opts?) {
         }
         if $file && $.cache {
             $.parent.plugins.splice;
+            $.parent.noheaders = 1;
             last;
         }
         $.append = ''; # After parsing, reset again.
@@ -66,6 +72,11 @@ method processPlugin (%opts?) {
         self.saveConfig($.config);
         my $content = slurp $file;
         $.parent.content = $content;
+        if $.parent.req.get('REBUILD') {
+            my $rep = matcher("\\.$pageExt");
+            my $cachefile = $file.subst($rep, "$cachetail.$cacheExt");
+            $.parent.savefile = $cachefile;
+        }
     }
     else {
         $.parent.err: "No page found for {$.parent.path}";
