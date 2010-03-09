@@ -51,6 +51,11 @@ but it is most certainly NOT. It has many significant differences, and is
 currently highly specific to ww6. It may be possible to make it a standalone
 library, but I don't see the point right now.
 
+The biggest difference between YAML and WTDL is that WTDL is based on
+merging multiple data sets, and so has operators for HOW to merge the
+data (e.g., in the case of Arrays, you can append to the end of the
+existing array, or insert in front of the original array.)
+
  = WTML =
 
 The Content plugin looks for files ending in .wtml by default.

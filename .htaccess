@@ -1,2 +1,3 @@
-Options +ExecCGI -Indexes
-SetHandler cgi-script
+#Options +ExecCGI -Indexes
+#SetHandler cgi-script
+deny from all

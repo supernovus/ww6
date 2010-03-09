@@ -44,6 +44,8 @@ has $.host = %.env.has('HTTP_HOST', :return)
 has $.debug = %*ENV.has('DEBUG', :return);
 has $.dlext = 'wtdl';
 has $.datadir = './';
+has $.noheaders = 0;
+has $.saveoutput;
 has %.metadata is rw = {
     :plugins( [ 'Example' ] ),
     :root( [ '' ] ),
@@ -245,15 +247,21 @@ method callPlugin ($spec, $command is copy, :%opts is copy) {
 }
 
 method processContent (Bool :$noheaders, Bool :$noplugins) {
+    if $noheaders { $.noheaders = 1; }
     say "Entered processContent" if $.debug;
     self.processPlugins if ! $noplugins;
     say "About to build headers" if $.debug;
     my $output = '';
-    $output = self!buildHeaders if ! $noheaders;
+    $output = self!buildHeaders if ! $.noheaders;
     say "About to add the content" if $.debug;
     $output ~= $.content;
     say "Built output" if $.debug;
     say %.metadata.perl if $.debug;
+    if $.saveoutput {
+        my $file = open $.saveoutput, :w;
+        $file.say: $output;
+        $file.close;
+    }
     return $output;
 }
 

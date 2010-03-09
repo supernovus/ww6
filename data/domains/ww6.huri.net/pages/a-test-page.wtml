@@ -30,6 +30,21 @@ But that would mean rewriting a lot of my Perlite libraries as well.
 So, when it came time to write ww6, I rewrote the whole thing, from scratch,
 in Perl 6.
 </p>
+<p>
+So, ww6 can serve the same page styles as ww5, but in slightly different
+ways. It has less plugins than the previous version, but a lot of the
+functionality from the older version is available in new ways.
+</p>
+<p>
+The one place where ww6 is not complete compared to ww5, is web based
+administration. There is currently no authentication system, and no
+page or data editors, so everything must be done using the raw files.
+Which isn't a problem for me, but if I was going to offer ww6 for other
+people to use, I'd want to make a Simple Page Editor, Data Editor,
+and the good old File Manager (of which a file manager was the first web
+app I ever wrote, and there's been a file manager in every version of
+Webtoo Websight.)
+</p>
 
 <metadata>
 @include: theme/huri2009
