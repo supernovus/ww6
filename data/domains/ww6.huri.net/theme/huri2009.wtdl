@@ -1,5 +1,5 @@
-plugins: [WTML]
-#plugins: [WTML,Index::Update,Content::Cache]
+plugins: [WTML,Index::Update]
+
 template: theme/huri2009
 headers:
   mime: [application/xhtml+xml,application/xml,text/xml]
@@ -13,8 +13,9 @@ theme:
   sitetitle: ww6
   name: thoughts
 
-index.update:
+index-update:
   data: index
   elements: [title,author,updated,tags]
+  snippet: 1
 
 index: 0

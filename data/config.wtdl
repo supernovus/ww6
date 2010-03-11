@@ -11,6 +11,8 @@ plugins: ~[Dispatch,Content,Metadata,Headers,Template]
 content:
   index: default
   handler: /handler
+  use-cache: 2
+
 dispatch:
   >
     path: secure

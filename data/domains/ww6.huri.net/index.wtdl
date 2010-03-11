@@ -1,12 +1,16 @@
 -
   path: /pages/a-test-page
-  author: Huri Omnique
   title: A test page
+  author: Huri Omnique
   updated: Fri, March 5th, 2010
   tags: [+pages,projects,perl6]
   content: |
-    Not much to see here yet.
-    But soon, ww6 will be able to do what ww5 can, just differently.
+    
+    <p>
+    Webtoo Websight 6 is the next generation of the content
+    management system that powers my websites. 
+    </p>
+    
 -
   path: /pages/another-page
   author: Huri Omnique
@@ -21,4 +25,5 @@
   title: Yet another
   updated: Mon, March 8th, 2010
   tags: [+pages,example]
+
 

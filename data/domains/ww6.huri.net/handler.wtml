@@ -1,0 +1,17 @@
+<p>
+I'm sorry, the page you were looking for does not exist,
+or has been restricted.
+</p>
+<p>
+Please return to the <a href="/">main index</a>.
+</p>
+
+<metadata>
+@include: theme/huri2009
+plugins: -[Index::Update]
+page:
+  title: 404 Not Found
+  author: Huri Omnique
+  updated: Sorry about that
+</metadata>
+

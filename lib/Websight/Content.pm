@@ -15,20 +15,22 @@ method processPlugin (%opts?) {
     my $pageExt  = $.config.has('page-ext',  :notempty, :return) || 'wtml';
     my $cacheExt = $.config.has('cache-ext', :notempty, :return) || 'html';
     my $handler  = $.config.has('handler',   :notempty, :return) || 'handler';
-    my $cache = $config.has('use-cache', :true, :return) || 0;
+    my $cache = $.config.has('use-cache', :true, :return) || 0;
+    say "Cache = $cache" if $debug;
 
     my %reqs = $.parent.req.params;
-    my $cachetail;
-    if +%reqs.keys {
-        $cachetail = %reqs.Array.sort>>fmt('~%s+%s');
+    %reqs.delete('REBUILD');
+    my $cachetail = '';
+    if $cache == 2 && +%reqs.keys {
+        $cachetail = %reqs.Array.sort>>.fmt("~%s+%s");
     }
 
     if not defined $.parent.req.get('REBUILD', 'NOCACHE') {
         $.cache = $cache;
-        if $.cache == 2 {
-            $.append = $cachetail;
-        }
+        $.append = $cachetail;
         $.static = $.config.has('cache-only', :true, :return) || 0;
+        say "Append: $.append" if $debug;
+        say "Static: $.static" if $debug;
     }
 
     say "We made it past all those settings" if $debug;
@@ -55,7 +57,8 @@ method processPlugin (%opts?) {
             $file = self!findPage($page) // self!findFolder($page, :slash);
         }
         if $file && $.cache {
-            $.parent.plugins.splice;
+            say "We found a cache file: $file\n" if $debug;
+            $.parent.metadata<plugins>.splice;
             $.parent.noheaders = 1;
             last;
         }
@@ -64,7 +67,21 @@ method processPlugin (%opts?) {
     }
     ## If all other combinations have failed, use the handler.
     if !$file {
-        $file = self!findPage($handler);
+        if $cache && not defined $.parent.req.get('NOCACHE') {
+            $.ext = $cacheExt;
+            $file = self!findPage($handler);
+            if $file {
+                $.parent.metadata<plugins>.splice;
+                $.parent.noheaders = 1;
+            }
+            else {
+                $.ext = $pageExt;
+                $file = self!findPage($handler);
+            }
+        }
+        else {
+            $file = self!findPage($handler);
+        }
     }
     ## Finally, if we found a page, show it!
     if $file {
@@ -72,7 +89,8 @@ method processPlugin (%opts?) {
         self.saveConfig($.config);
         my $content = slurp $file;
         $.parent.content = $content;
-        if $.parent.req.get('REBUILD') {
+        if defined $.parent.req.get('REBUILD') {
+            say "Setting the cache file to be saved." if $debug;
             my $rep = matcher("\\.$pageExt");
             my $cachefile = $file.subst($rep, "$cachetail.$cacheExt");
             $.parent.savefile = $cachefile;

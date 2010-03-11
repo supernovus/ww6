@@ -44,8 +44,8 @@ has $.host = %.env.has('HTTP_HOST', :return)
 has $.debug = %*ENV.has('DEBUG', :return);
 has $.dlext = 'wtdl';
 has $.datadir = './';
-has $.noheaders = 0;
-has $.saveoutput;
+has $.noheaders is rw = 0;
+has $.savefile is rw;
 has %.metadata is rw = {
     :plugins( [ 'Example' ] ),
     :root( [ '' ] ),
@@ -236,7 +236,7 @@ method callPlugin ($spec, $command is copy, :%opts is copy) {
 
     say "<class> $plugin" if $.debug;
     say "<namespace> $namespace" if $.debug;
-    my $classfile = $plugin.subst(/<nsSep>/, '/'); # Needed hackery.
+    my $classfile = $plugin.subst(/<nsSep>/, '/', :global); # Needed hackery.
     $classfile ~= '.pm';
     require $classfile;
     say "We got past require" if $.debug;
@@ -257,8 +257,8 @@ method processContent (Bool :$noheaders, Bool :$noplugins) {
     $output ~= $.content;
     say "Built output" if $.debug;
     say %.metadata.perl if $.debug;
-    if $.saveoutput {
-        my $file = open $.saveoutput, :w;
+    if $.savefile {
+        my $file = open $.savefile, :w;
         $file.say: $output;
         $file.close;
     }

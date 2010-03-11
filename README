@@ -42,6 +42,12 @@ This is the result.
   The 'service.sh' included shows how I have it set up to run on my home
   computer, and forward to my publically accessible VPS.
 
+ = Optional =
+
+- If you want to use ww6for5 you will need Perl 5.8 or higher. 
+  If you want to use the SCGI daemon for ww6for5, you will need the SCGI
+  library for Perl 5 (get it from CPAN.)
+ 
 === Technical Details ===
 
  = WTDL =
@@ -123,6 +129,28 @@ Old name => New name
 The '=' comparison always uses string comparison.
 The '==' comparison will use numeric comparison if both values are numbers,
 otherwise it will use string comparison.
+
+=== ww6for5 ===
+
+I detirmined that running ww6 on a VPS with 128 MB of RAM was impossible.
+The perl6 process consumed all of the RAM and swap after the second page load.
+The first solution is the service.sh script which allows me to run the SCGI
+daemon on my own computer, and have the VPS connect to it through a SSH tunnel.
+
+Well, that's fine for 75% of the time, but sometimes I do need to bring my
+home computer down. What would happen to my website at those times?
+
+I had considered writing a plugin to ww5 that would allow it to parse the
+static page caches from ww6. However, I figured it would be overkill, and
+ww5's codebase wasn't something I wanted to have sticking around.
+
+So, ww6for5 was born. Borrowing from both ww5 and ww6, it's a standalone
+library that has just enough functionality to be a Perl 5 replacement for
+the redirection and headers functionality of Dispatch, the Autoroot plugin,
+and the static cache loading from Content. So, it can VIEW ww6 caches and
+handle redirects. It DOES NOT handle any dynamic content or extra plugins.
+
+Like ww6 itself, ww6for5 can be run as a CGI script or a SCGI daemon.
 
 === Not yet finished ===
 

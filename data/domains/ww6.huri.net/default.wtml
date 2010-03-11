@@ -5,7 +5,7 @@ Welcome to ww6!
 <metadata>
 plugins: [Index]
 @include: theme/huri2009
-#plugins: -[Index::Update]
+plugins: -[Index::Update]
 page:
   title: Webtoo Websight 6
   author: Huri Omnique

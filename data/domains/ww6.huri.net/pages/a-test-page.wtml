@@ -1,7 +1,9 @@
+<div class="snippet">
 <p>
 Webtoo Websight 6 is the next generation of the content
 management system that powers my websites. 
 </p>
+</div>
 <p>
 Webtoo Websight has gone through many rewrites since it's humble orgins
 ten years ago. Originally, there was a collection of Perl 5 CGI scripts.
