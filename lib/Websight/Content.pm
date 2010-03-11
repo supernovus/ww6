@@ -18,11 +18,19 @@ method processPlugin (%opts?) {
     my $cache = $.config.has('use-cache', :true, :return) || 0;
     say "Cache = $cache" if $debug;
 
-    my %reqs = $.parent.req.params;
-    %reqs.delete('REBUILD');
     my $cachetail = '';
-    if $cache == 2 && +%reqs.keys {
-        $cachetail = %reqs.Array.sort>>.fmt("~%s+%s");
+    if $cache == 2 {
+        my %reqs = $.parent.req.params;
+        %reqs.delete('REBUILD');
+        my $ignorekeys = $.config.has('ignore-keys', :type(Array), :return);
+        if $ignorekeys && $ignorekeys ~~ Array {
+            for @($ignorekeys) -> $ignore {
+                %reqs.delete($ignore);
+            }
+        }
+        if +%reqs.keys {
+            $cachetail = %reqs.Array.sort>>.fmt("~%s+%s");
+        }
     }
 
     if not defined $.parent.req.get('REBUILD', 'NOCACHE') {

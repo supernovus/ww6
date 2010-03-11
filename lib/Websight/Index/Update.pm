@@ -42,13 +42,12 @@ method processPlugin (%opts?) {
     }
 
     if $getsnippet {
-        my $snippet = "  content: |\n    No summary.";
         if $.parent.content ~~ /:s \<div class \= \"snippet\" \>(.*?)\<\/div\>/ {
             say "Found a specified div snippet." if $debug;
-            $snippet = "  content: |\n$0";
+            my $snippet = "  content: |\n$0";
             $snippet.=subst("\n", "\n    ", :global);
+            $newcontent ~= $snippet ~ "\n";
         }
-        $newcontent ~= $snippet ~ "\n";
     }
 
     $newcontent ~= $index;

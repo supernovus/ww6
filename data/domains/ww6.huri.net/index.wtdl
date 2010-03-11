@@ -1,8 +1,8 @@
 -
   path: /pages/a-test-page
-  title: A test page
+  title: Introducing number Six
   author: Huri Omnique
-  updated: Fri, March 5th, 2010
+  updated: Wed, March 10th, 2010
   tags: [+pages,projects,perl6]
   content: |
     
@@ -18,7 +18,9 @@
   updated: Mon, March 8th, 2010
   tags: [+pages,projects]
   content: |
-    Just another page to test things with.
+    This page doesn't actually exist, but is used as an example
+    for the tagging system, as well as showing the not found handler if
+    you actually try to view it.
 -
   path: /pages/yet-another
   author: Huri Omnique

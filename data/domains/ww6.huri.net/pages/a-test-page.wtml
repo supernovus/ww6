@@ -51,9 +51,9 @@ Webtoo Websight.)
 <metadata>
 @include: theme/huri2009
 page:
-  title: A test page
+  title: Introducing number Six
   author: Huri Omnique
-  updated: Fri, March 5th, 2010
+  updated: Wed, March 10th, 2010
   tags: [+pages,projects,perl6]
 </metadata>
 

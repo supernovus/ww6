@@ -19,7 +19,7 @@ method processPlugin (%opts?) {
     my $match = $config.has('match', :defined, :type(Array), :return);
     my $reqtags = $.parent.req.get('tag','tags');
     if $reqtags {
-        say "req tags: $reqtags";
+        say "req tags: $reqtags" if $debug;
         $tags = $reqtags.split(',');
     }
     my $show = $.parent.req.get(

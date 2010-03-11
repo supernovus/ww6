@@ -12,6 +12,7 @@ content:
   index: default
   handler: /handler
   use-cache: 2
+  ignore-keys: [INDEX]
 
 dispatch:
   >

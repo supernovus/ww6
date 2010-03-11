@@ -8,7 +8,7 @@ case "$1" in
         echo "done."
     ;;
     daemon)
-        ./ww6.scgi &
+        sudo -u nobody ./ww6.scgi &
         echo $! > daemon.pid
     ;;
     start)
@@ -23,7 +23,7 @@ case "$1" in
     ;;
     stop-daemon)
         echo -n "Stopping SCGI Daemon... "
-        kill `cat daemon.pid`
+        sudo -u nobody kill `cat daemon.pid`
         rm daemon.pid
         echo "done."
     ;;
