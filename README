@@ -159,5 +159,29 @@ functionality from Webtoo Websight 5 yet.
 
 Hopefully it will soon exceed the older version.
 
+Coming soon: ww6for5. I haven't written it yet, so it's not in the
+repo. Sorry. The description above is what it WILL do.
+
+Also, a gallery-like viewer for data, and a data table module.
+See http://jargon.huri.net/ for the ww5 version (the strip index is
+powered by the 'table' and the strips themselves are powered by the
+'viewer'.)
+
+Oh, and component tags:
+
+<component plugin="Data::Table" template="/some/template" data="data-file" />
+
+Basically a separate Webtoo rendering engine being called from a plugin.
+
+Oh, and I am working on the ability to make virtual calls, to do things
+like rebuild all static pages of an Index. Right now adding pages to an
+Index when using static caching, is rather painful, as you then need
+to rebuild the Index, including with each "tag=blah" combination.
+
+So yeah, this code is definitely alpha-quality, but is interesting as a
+proof of concept.
+
+It's not ready to replace Webtoo Websight 5 yet, but it will be.
+
 Timothy M. Totten
 

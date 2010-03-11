@@ -1,0 +1,17 @@
+<p>
+This is another example page. There is no defined snippet on this one,
+so it doesn't show a summary on the index. That was intentional.
+</p>
+<p>
+Other than that, there's nothing else of interest on this page.
+</p>
+
+<metadata>
+@include: theme/huri2009
+page:
+  title: Yet another
+  author: Huri Omnique
+  updated: Mon, March 8th, 2010
+  tags: [+pages,example]
+</metadata>
+
