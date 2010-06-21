@@ -17,6 +17,9 @@ has $.debug is rw = 0;
 
 submethod BUILD (:%env!) {
 
+#    $*ERR.say: %env.perl;
+#    $*ERR.say: %env.WHAT;
+
     my $cmdline = 0;
 
     # First, set the query string. Command line use allowed.

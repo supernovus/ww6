@@ -1,11 +1,6 @@
 ## Webtoo: The Core Engine for ww6.
 
 use v6;
-
-class Webtoo { ... }
-
-use Webtoo::Data;
-use Webtoo::Request;
 use MONKEY_TYPING;
 
 augment class Hash {
@@ -27,6 +22,11 @@ augment class Hash {
         }
     }
 }
+
+class Webtoo { ... }
+
+use Webtoo::Data;
+use Webtoo::Request;
 
 class Webtoo does Webtoo::Data;
 

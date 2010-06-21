@@ -1,5 +1,4 @@
 use Websight;
-use Perlite::Parser;
 
 class Websight::Index does Websight;
 
