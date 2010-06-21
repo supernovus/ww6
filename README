@@ -1,5 +1,12 @@
 ww6: Web Application Framework for Perl 6
 
+=== NOTE ===
+
+This is a currently non-functional branch of ww6 meant to
+make it work with the new Rakudo master as of June 2010.
+For a working branch, see 'master' which must be used with the
+January release or 'alpha' branch of Rakudo.
+
 === Story ===
 
 In the beginning was Webtoo Websight, and it was good.
@@ -22,11 +29,9 @@ This is the result.
 
  = Requirements =
 
-- The January 2010 release of Rakudo Perl 6.
-  This WILL NOT work with newer releases (yet) as they are based on a new
-  core that has not finished adding the functionality from the previous
-  core. I expect that by April 2010, the new core will have not only
-  caught up to the old one, but have far surpassed it. Stay tuned!
+- Rakudo Perl 6
+  http://rakudo.org/
+  A version of Perl 6 for the Parrot Virtual Machine.
 
  = Recommended =
 

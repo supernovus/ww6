@@ -1,10 +1,14 @@
 ## Webtoo: The Core Engine for ww6.
 
 use v6;
+
+class Webtoo { ... }
+
 use Webtoo::Data;
 use Webtoo::Request;
+use MONKEY_TYPING;
 
-class Hash is also {
+augment class Hash {
     method has (
         $what, :$true, :$defined is rw, :$notempty, :$return, :$type,
     ) {
@@ -26,8 +30,7 @@ class Hash is also {
 
 class Webtoo does Webtoo::Data;
 
-constant PLUGINS  = "Websight::";
-
+has $!NS = "Websight::";
 has %.env = %*ENV; # Override this if using SCGI or FastCGI.
 has %!headers = { Status => 200, 'Content-Type' => 'text/html' };
 has $.content is rw = '';
@@ -223,7 +226,7 @@ method callPlugin ($spec, $command is copy, :%opts is copy) {
         $namespace.=subst(/<nsStart>/, '', :global);
     }
     else {
-        $plugin = PLUGINS ~ $plugin;
+        $plugin = $!NS ~ $plugin;
     }
     $namespace.=subst(/<nsSep>/, '-', :global); # Convert :: to - for NS.
     if $plugin ~~ / \+ / {

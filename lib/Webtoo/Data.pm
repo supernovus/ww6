@@ -28,8 +28,8 @@ method parseData (
     @definition is rw, 
     $data is copy, 
     $level=0, 
-    @cache?,
     $multiline is rw =0,
+    @cache?,
 ) {
     my $debug = $.debug;
     my $element   = '_';
