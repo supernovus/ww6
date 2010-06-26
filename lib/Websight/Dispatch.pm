@@ -70,15 +70,10 @@ method !matchRules (@rules) {
         ## Redirects, they are mutually exclusive.
         #  'redirect' redirects to either a full URL
         #  or to an absolute path on the current host.
-        #  'redirect-proto' redirects to the same URI, but with
-        #  the specified protocol. Use 'redirect-proto: https' to
-        #  force SSL usage.
+        #  You can also redirect the same URI to a different protocol
+        #  by specifying 'http' or 'https' as the redirect location.
         if $rule.has('redirect', :notempty, :type(Str)) {
             $.parent.redirect($rule<redirect>);
-            if !$continue { last; }
-        }
-        elsif $rule.has('redirect-proto', :noempty, :type(Str)) {
-            $.parent.redirectProto($rule<redirect-proto>);
             if !$continue { last; }
         }
 

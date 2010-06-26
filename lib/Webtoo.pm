@@ -134,22 +134,28 @@ method status ($status) {
     self.addHeader('Status', $status);
 }
 
+# redirect now supports protocol redirection. redirectProto has been removed.
 method redirect ($url is copy, $status=302, :$nostop) {
     if not $url ~~ /^\w+\:\/\// {
-        $url = $.proto ~ '://' ~ $.host ~ '/' ~ $url;
+        my $proto = $.proto;
+        my $oldurl = '';
+        if $url ~~ /^https?$/ {
+            $proto = $url;
+            $oldurl = $.uri;
+        }
+        else {
+            if not $url ~~ /^\// { $oldurl = '/'; }
+            $oldurl ~== $url;
+        }
+        $url = $proto ~ '://' ~ $.host;
+        if $.port != 80 | 443 { $url ~= ':' ~ $port }
+        $url ~= $oldurl;
     }
     self.status($status);
     self.addHeader('Location', $url);
     if !$nostop {
         %.metadata<plugins>.splice;
     }
-}
-
-## To force 'https', you can use redirectProto('https');
-method redirectProto ($proto, $status=302, :$nostop) {
-    if $.proto eq $proto { return; }
-    my $url = $proto ~ '://' ~ $.host ~ $.uri;
-    self.redirect($url, :status($status), :nostop($nostop));
 }
 
 method !buildHeaders {

@@ -17,7 +17,7 @@ content:
 dispatch:
   >
     path: secure
-    redirect-proto: https
+    redirect: https
   >
     path: ^\/author
     redirect: http://huri.net/

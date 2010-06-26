@@ -155,6 +155,9 @@ the redirection and headers functionality of Dispatch, the Autoroot plugin,
 and the static cache loading from Content. So, it can VIEW ww6 caches and
 handle redirects. It DOES NOT handle any dynamic content or extra plugins.
 
+NOTE: ww5for6 does not read the WTDL language. It's configuration must be
+written in YAML and is a subset of the WTDL config file syntax.
+
 Like ww6 itself, ww6for5 can be run as a CGI script or a SCGI daemon.
 
 === Not yet finished ===
