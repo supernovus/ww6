@@ -5,41 +5,51 @@ package WW6;
 # You can set up redirection and header rules, and parse
 # ww6 static page caches (includng the Autoroot functionality.)
 
-use strict;
-use warnings;
+use Mouse;
 use v5.10;
 
-use base 'SimpleClass';
+use YAML::Syck 'LoadFile'; # Would normally use YAML::XS.
+use CGI::Simple;
 
-use YAML::XS;
+has 'file',    is => 'ro', required => 1;
+has 'env',     is => 'ro', default => sub { \%ENV };
+has 'cgi',     is => 'ro', default => sub { CGI::Simple->new };
+has 'headers', is => 'ro';
+has 'path',    is => 'ro', lazy_build => 1;
+has 'uri',     is => 'ro', lazy_build => 1;
+has 'proto',   is => 'ro', lazy_build => 1;
+has 'port',    is => 'ro', lazy_build => 1;
+has 'host',    is => 'ro', lazy_build => 1;
+has 'conf',    is => 'ro', lazy_build => 1;
 
-## init()
-#
-#  Set up the class structure.
-#
-
-sub init {
+sub _build_path {
     my $self = shift;
-    my $struct = {
-        'env'     => { ro => 1, default => \%ENV },
-        'headers' => {},
-        'cgi'     => { ro => 1, default => CGI::Simple->new },
-        'path'    => { ro => 1 },
-        'uri'     => { ro => 1 },
-        'proto'   => { ro => 1 },
-        'port'    => { ro => 1 },
-        'host'    => { ro => 1 },
-        'config'  => { ro => 1, required => 1 },
-    };
-    $self->_init_class($struct, @_);
-    $self->{path}  = $self->{env}{'PATH_IFO'};
-    $self->{uri}   = $self->{env}{'REQUEST_URI'};
-    $self->{proto} = $self->{env}{'HTTPS'} ? 'https' : 'http'; 
-    $self->{host}  = $self->{env}{'HTTP_HOST'};
-    $self->{port}  = $self->{env}{'SERVER_PORT'};
+    return $self->env->{'PATH_INFO'};
+}
 
-    ## A bit of magic. You must specify the config file in the script
-    #  The config attribute will be replaced by a YAML tree.
-    $self->{config} = LoadFile($self->{config});
+sub _build_uri {
+    my $self = shift;
+    return $self->env->{'REQUEST_URI'};
+}
+
+sub _build_proto {
+    my $self = shift;
+    return $self->env->{'HTTPS'} ? 'https' : 'http';
+}
+
+sub _build_host {
+    my $self = shift;
+    return $self->env->{'HTTP_HOST'};
+}
+
+sub _build_port {
+    my $self = shift;
+    return $self->env->{'SERVER_PORT'};
+}
+
+sub _build_conf {
+    my $self = shift;
+    my $file = LoadFile($self->file) or die "Could not load config";
+    return $file;
 }
 
