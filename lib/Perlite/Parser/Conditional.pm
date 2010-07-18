@@ -1,5 +1,7 @@
 use Perlite::Match;
 
+module Perlite::Parser::Conditional {
+
 grammar Perlite::Parser::Conditional::Grammar {
     rule TOP {
         | <ifTag> {*}     #= if
@@ -188,7 +190,7 @@ class Perlite::Parser::Conditional::Parser {
 
 }
 
-module Perlite::Parser::Conditional {
+
 
     sub parseIf ($content) is export(:DEFAULT) {
         my $debug = 0;

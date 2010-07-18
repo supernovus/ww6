@@ -10,12 +10,12 @@ method processPlugin (%opts?) {
         $.parent.mimeType: 'text/plain';
         $content = "Hello $name, from Webtoo Websight 6.\n\n";
         $content ~= "== The Environment ==\n\n";
-        $content ~= $.parent.env.fmt("%s: %s", "\n");
+        $content ~= $.parent.env.fmt('%s: %s', "\n");
         $content ~= "\n\n== The Parameters ==\n\n";
-        $content ~= $.parent.req.params.fmt("%s: %s", "\n");
+        $content ~= $.parent.req.params.fmt('%s: %s', "\n");
         if $config {
             $content ~= "\n\n== The Config ==\n\n";
-            $content ~= $config.fmt("%s: %s", "\n");
+            $content ~= $config.fmt('%s: %s', "\n");
         }
     }
     else {
@@ -24,12 +24,12 @@ method processPlugin (%opts?) {
         $content ~= "<p>You have successfully installed Webtoo Websight 6</p>";
         $content ~= "<p>Please read the documentation to configure it.</p>";
         $content ~= "<h2>The Environment</h2><dl>\n";
-        $content ~= $.parent.env.fmt("<dt>%s</dt><dd>%s</dd>", "\n");
+        $content ~= $.parent.env.fmt('<dt>%s</dt><dd>%s</dd>', "\n");
         $content ~= "</dl><h2>The Request Parameters</h2><dl>\n";
-        $content ~= $.parent.req.params.fmt("<dt>%s</dt><dd>%s</dd>", "\n");
+        $content ~= $.parent.req.params.fmt('<dt>%s</dt><dd>%s</dd>', "\n");
         if $config {
             $content ~= "</dl><h2>The Plugin Config</h2><dl>\n";
-            $content ~= $config.fmt("<dt>%s</dt><dd>%s</dd>", "\n");
+            $content ~= $config.fmt('<dt>%s</dt><dd>%s</dd>', "\n");
         }
         $content ~= "</dl><form method=\"POST\"><input type=\"submit\" />\n";
         $content ~= "</form></body></html>\n";

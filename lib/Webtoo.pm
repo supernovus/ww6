@@ -1,50 +1,32 @@
 ## Webtoo: The Core Engine for ww6.
 
 use v6;
-use MONKEY_TYPING;
 
-augment class Hash {
-    method has (
-        $what, :$true, :$defined is rw, :$notempty, :$return, :$type,
-    ) {
-        if $notempty || $true { $defined = 1; }
-        if self.exists($what) 
-          && ( !$defined  || defined self{$what} )
-          && ( !$type     || self{what} ~~ $type )
-          && ( !$notempty || self{$what} ne ''   )
-          && ( !$true     || self{$what}         )
-        {
-            if $return { return self{$what}; }
-            else { return True; }
-        }
-        else {
-            return;
-        }
-    }
-}
-
+## An evil hack, but currently required.
 class Webtoo { ... }
 
 use Webtoo::Data;
-use Webtoo::Request;
 
 class Webtoo does Webtoo::Data;
+
+use Webtoo::Request;
+use Perlite::Hash;
 
 has $!NS = "Websight::";
 has %.env = %*ENV; # Override this if using SCGI or FastCGI.
 has %!headers = { Status => 200, 'Content-Type' => 'text/html' };
 has $.content is rw = '';
 has $.req = Webtoo::Request.new( :env(%.env) );
-has $.path = %.env.has('PATH_INFO', :notempty, :return) 
-    // %.env.has('REQUEST_URI', :defined, :return) 
+has $.path = hash-has(%.env, 'PATH_INFO', :notempty, :return) 
+    // hash-has(%.env, 'REQUEST_URI', :defined, :return) 
     // @*ARGS[0] // '';
-has $.uri = %.env.has('REQUEST_URI', :defined, :return)
+has $.uri = hash-has(%.env, 'REQUEST_URI', :defined, :return)
     // $.path;
-has $.proto = %.env.has('HTTPS', :true) ?? 'https' !! 'http';
-has $.port = %.env.has('SERVER_PORT', :true, :return) // 0;
-has $.host = %.env.has('HTTP_HOST', :return) 
-    // %*ENV.has('HOSTNAME', :return) // 'localhost';
-has $.debug = %*ENV.has('DEBUG', :return);
+has $.proto = hash-has(%.env, 'HTTPS', :true) ?? 'https' !! 'http';
+has $.port = hash-has(%.env, 'SERVER_PORT', :true, :return) // 0;
+has $.host = hash-has(%.env, 'HTTP_HOST', :return) 
+    // hash-has(%*ENV, 'HOSTNAME', :return) // 'localhost';
+has $.debug = hash-has(%*ENV, 'DEBUG', :return);
 has $.dlext = 'wtdl';
 has $.datadir = './';
 has $.noheaders is rw = 0;
@@ -145,10 +127,10 @@ method redirect ($url is copy, $status=302, :$nostop) {
         }
         else {
             if not $url ~~ /^\// { $oldurl = '/'; }
-            $oldurl ~== $url;
+            $oldurl ~= $url;
         }
         $url = $proto ~ '://' ~ $.host;
-        if $.port != 80 | 443 { $url ~= ':' ~ $port }
+        if $.port != 80 | 443 { $url ~= ':' ~ $.port }
         $url ~= $oldurl;
     }
     self.status($status);
@@ -198,7 +180,7 @@ method callPlugin ($spec, $command is copy, :%opts is copy) {
 
     if $spec ~~ Hash {
         ## For Hash based specs, the 'name' value is required.
-        if $spec.has('name', :notempty) {
+        if hash-has($spec, 'name', :notempty) {
             $plugin = $spec<name>;
         }
         else {
@@ -206,10 +188,10 @@ method callPlugin ($spec, $command is copy, :%opts is copy) {
         }
 
         ## The others are optional, and just overide the defaults.
-        if $spec.has('opts', :defined, :type(Hash)) {
+        if hash-has($spec, 'opts', :defined, :type(Hash)) {
             %opts = $spec<opts>;
         }
-        if $spec.has('command', :notempty) {
+        if hash-has($spec, 'command', :notempty) {
             $command = $spec<command>;
         }
     }

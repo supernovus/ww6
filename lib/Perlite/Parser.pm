@@ -1,5 +1,5 @@
 use Perlite::Match;
-use Perlite::Math :num;
+use Perlite::Math; #:num;
 
 module Perlite::Parser;
 

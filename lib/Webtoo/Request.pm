@@ -3,7 +3,10 @@
 
 class Webtoo::Request;
 
+use Perlite::Hash;
+
 ## Note: env is a REQUIRED parameter in the new() declaration.
+## and must already do the Hashish role from Webtoo.
 
 has $.body is rw;
 has $.type is rw;
@@ -23,7 +26,7 @@ submethod BUILD (:%env!) {
     my $cmdline = 0;
 
     # First, set the query string. Command line use allowed.
-    if %env.has('QUERY_STRING', :defined) {
+    if hash-has(%env, 'QUERY_STRING', :defined) {
         $.query = %env<QUERY_STRING>;
     }
     elsif defined @*ARGS[1] {
@@ -37,15 +40,15 @@ submethod BUILD (:%env!) {
     # Now, parse the QUERY_STRING.
     self.parse_params($.query);
 
-    if %.params.has('DEBUG', :true) { $.debug = 1; }
+    if hash-has(%.params, 'DEBUG', :true) { $.debug = 1; }
 
     # Next up, a couple common items.
-    $.type = %env.has('CONTENT_TYPE', :true, :return) || '';
-    $.method = %env.has('REQUEST_METHOD', :true, :return) || 'GET';
-    $.remoteAddr = %env.has('REMOTE_ADDR', :true, :return) || '127.0.0.1';
-    $.userAgent = %env.has('HTTP_USER_AGENT', :true, :return) || 'unknown';
+    $.type = hash-has(%env, 'CONTENT_TYPE', :true, :return) || '';
+    $.method = hash-has(%env, 'REQUEST_METHOD', :true, :return) || 'GET';
+    $.remoteAddr = hash-has(%env, 'REMOTE_ADDR', :true, :return) || '127.0.0.1';
+    $.userAgent = hash-has(%env, 'HTTP_USER_AGENT', :true, :return) || 'unknown';
 
-    if $cmdline && %.params.has('FAKEPOST', :true) {
+    if $cmdline && hash-has(%.params, 'FAKEPOST', :true) {
         $.method = 'POST';
         if %.params<FAKEPOST> eq '1' {
             $.type = 'application/x-www-form-urlencoded';
@@ -61,12 +64,12 @@ submethod BUILD (:%env!) {
     # Now for POST requests.
     if $.method eq 'POST' {
         # First, build the body.
-        if %env.has('MODPERL6', :true) {
+        if hash-has(%env, 'MODPERL6', :true) {
             say "Using mod_perl6." if $.debug;
             my $r = Apache::Requestrec.new();
             my $len = $r.read($.body, %env<CONTENT_LENGTH>);
         }
-        elsif %env.has('SCGI.Body', :defined) {
+        elsif hash-has(%env, 'SCGI.Body', :defined) {
             say "Using SCGI interface" if $.debug;
             $.body = %env<SCGI.Body>;
         }
@@ -89,7 +92,7 @@ submethod BUILD (:%env!) {
     }
 
     # Now add cookies
-    self.eat_cookie( %env<HTTP_COOKIE> ) if %env.has('HTTP_COOKIE', :true);
+    self.eat_cookie( %env<HTTP_COOKIE> ) if hash-has(%env, 'HTTP_COOKIE', :true);
 }
 
 method parse_params($string) {

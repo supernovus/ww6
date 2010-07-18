@@ -10,6 +10,7 @@ use v5.10;
 
 use YAML::Syck 'LoadFile'; # Would normally use YAML::XS.
 use CGI::Simple;
+use Carp;
 
 has 'file',    is => 'ro', required => 1;
 has 'env',     is => 'ro', default => sub { \%ENV };
@@ -49,7 +50,8 @@ sub _build_port {
 
 sub _build_conf {
     my $self = shift;
-    my $file = LoadFile($self->file) or die "Could not load config";
+    my $file = LoadFile($self->file) or croak "Could not load config";
     return $file;
 }
+
 
