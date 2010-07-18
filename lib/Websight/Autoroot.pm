@@ -21,10 +21,10 @@ method processPlugin (%opts?) {
     my $replace = 1;
     my $nest    = 0;
     my $found   = 0;
-    if %config.has('keep', :true) {
+    if hash-has(%config, 'keep', :true) {
         $replace = 0;
     }
-    if %config.has('nest', :true) {
+    if hash-has(%config, 'nest', :true) {
         $nest = %config<nest>;
     }
     my @host = $.parent.host.split('.');

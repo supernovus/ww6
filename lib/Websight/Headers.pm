@@ -8,9 +8,9 @@ method processPlugin (%opts?) {
 
     if !$config { return; }
 
-    if $config.has('mime', :defined, :type(Array)) {
+    if hash-has($config, 'mime', :defined, :type(Array)) {
         for $config<mime> -> $mime {
-            my $accept = $.parent.env.has('HTTP_ACCEPT', :return);
+            my $accept = hash-has($.parent.env, 'HTTP_ACCEPT', :return);
             if $accept {
                 if $accept ~~ matcher($mime) {
                     $.parent.mimeType($mime);
@@ -19,24 +19,24 @@ method processPlugin (%opts?) {
             }
         }
     }
-    elsif $config.has('mime', :notempty, :type(Str)) {
+    elsif hash-has($config, 'mime', :notempty, :type(Str)) {
         $.parent.mimeType($config<mime>);
     }
-    if $config.has('status', :true) {
+    if hash-has($config, 'status', :true) {
         $.parent.status($config<status>);
     }
-    if $config.has('expires') {
+    if hash-has($config, 'expires') {
         my $expire = time + $config<expires>;
         my $expiry = formatTime($expire, 'RFC');
         $.parent.addHeader('Expires', $expiry);
     }
-    if $config.has('nocache', :true) {
+    if hash-has($config, 'nocache', :true) {
         $.parent.addHeader('Cache-Control', 'no-cache');
     }
-    if $config.has('addheaders', :defined, :type(Hash)) {
+    if hash-has($config, 'addheaders', :defined, :type(Hash)) {
         $.parent.addHeaders($config<addheaders>);
     }
-    if $config.has('delheaders', :defined, :type(Array)) {
+    if hash-has($config, 'delheaders', :defined, :type(Array)) {
         $.parent.delHeaders($config<delheaders>);
     }
       

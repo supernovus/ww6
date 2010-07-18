@@ -7,22 +7,22 @@ method processPlugin (%opts?) {
     say "We're in Index::View" if $debug;
     my $config   = self.getConfig(:type(Hash));
     if !$config { return; } ## We must have a config.
-    my $data  = $config.has('data',  :defined, :return);
+    my $data  = hash-has($config, 'data',  :defined, :return);
     if !$data { return; }
     if $data ~~ Str {
         $data = $.parent.parseDataFile($data, []);
     }
     if not $data ~~ Array { return; } ## Data must be an array.
     my @showdata;
-    my $tags  = $config.has('tags',  :defined, :type(Array), :return);
-    my $match = $config.has('match', :defined, :type(Array), :return);
+    my $tags  = hash-has($config, 'tags',  :defined, :type(Array), :return);
+    my $match = hash-has($config, 'match', :defined, :type(Array), :return);
     my $reqtags = $.parent.req.get('tag','tags');
     if $reqtags {
         say "req tags: $reqtags" if $debug;
         $tags = $reqtags.split(',');
     }
     my $show = $.parent.req.get(
-        :default($config.has('show', :notempty, :return)),
+        hash-has(:default($config, 'show', :notempty, :return)),
         'show',
     );
     my @filter;

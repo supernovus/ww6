@@ -1,4 +1,5 @@
 use Perlite::Match;
+use Perlite::Hash;
 
 role Websight;
 
@@ -6,7 +7,7 @@ has $.parent is rw;
 has $.namespace is rw;
 
 method getConfig (:$type) {
-    return $.parent.metadata.has($.namespace, :type($type), :return);
+    return hash-has($.parent.metadata, $.namespace, :type($type), :return);
 }
 
 method saveConfig ($config) {

@@ -14,20 +14,20 @@ method processPlugin (%opts?) {
     say "Entered WTML plugin" if $debug;
     my %config = self.getConfig(:type(Hash)) // %opts;
     my $content = $.parent.content;
-    if %config.has('comments', :true) {
+    if hash-has(%config, 'comments', :true) {
         $content.=subst(/^^\#.*?\n/, '', :global);
     }
-    if %config.has('tags') && %config<tags> ~~ Array {
+    if hash-has(%config, 'tags') && %config<tags> ~~ Array {
         say "We've got tags!" if $debug;
         for @(%config<tags>) -> $tagset {
             say "Looking up '$tagset'" if $debug;
-            my $tags = $.parent.metadata.has($tagset, :defined, :return);
+            my $tags = hash-has($.parent.metadata, $tagset, :defined, :return);
             say "Tags is " ~ $tags.WHAT if $debug;
             if not defined $tags { next; }
             $content = parseTags($content, $tags, :name($tagset), :clean(1));
         }
     }
-    if %config.has('if', :true) {
+    if hash-has(%config, 'if', :true) {
         $content = parseIf($content);
     }
     $.parent.content = $content;

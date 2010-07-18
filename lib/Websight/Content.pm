@@ -12,17 +12,17 @@ method processPlugin (%opts?) {
     my $debug = $.parent.debug;
     say "We're in Content" if $debug;
     $.config   = self.getConfig(:type(Hash)) // {};
-    my $pageExt  = $.config.has('page-ext',  :notempty, :return) || 'wtml';
-    my $cacheExt = $.config.has('cache-ext', :notempty, :return) || 'html';
-    my $handler  = $.config.has('handler',   :notempty, :return) || 'handler';
-    my $cache = $.config.has('use-cache', :true, :return) || 0;
+    my $pageExt  = hash-has($.config, 'page-ext',  :notempty, :return) || 'wtml';
+    my $cacheExt = hash-has($.config, 'cache-ext', :notempty, :return) || 'html';
+    my $handler  = hash-has($.config, 'handler',   :notempty, :return) || 'handler';
+    my $cache = hash-has($.config, 'use-cache', :true, :return) || 0;
     say "Cache = $cache" if $debug;
 
     my $cachetail = '';
     if $cache == 2 {
         my %reqs = $.parent.req.params;
         %reqs.delete('REBUILD');
-        my $ignorekeys = $.config.has('ignore-keys', :type(Array), :return);
+        my $ignorekeys = hash-has($.config, 'ignore-keys', :type(Array), :return);
         if $ignorekeys && $ignorekeys ~~ Array {
             for @($ignorekeys) -> $ignore {
                 %reqs.delete($ignore);
@@ -36,7 +36,7 @@ method processPlugin (%opts?) {
     if not defined $.parent.req.get('REBUILD', 'NOCACHE') {
         $.cache = $cache;
         $.append = $cachetail;
-        $.static = $.config.has('cache-only', :true, :return) || 0;
+        $.static = hash-has($.config, 'cache-only', :true, :return) || 0;
         say "Append: $.append" if $debug;
         say "Static: $.static" if $debug;
     }
@@ -112,7 +112,7 @@ method processPlugin (%opts?) {
 
 method !findFolder ($page is copy, :$slash) {
     my $debug = $.parent.debug;
-    my $default = $.config.has('default', :notempty, :return) || 'default';
+    my $default = hash-has($.config, 'default', :notempty, :return) || 'default';
     if $slash {
         $page ~= '/';
     }

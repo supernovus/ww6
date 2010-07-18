@@ -21,18 +21,18 @@ method !matchRules (@rules) {
         ## Use 'continue: 1' if you want a block with a condition to continue
         #  parsing further rules. By default, a matching condition or a
         #  redirect/redirect-proto statement end processing.
-        if $rule.has('continue', :true) {
+        if hash-has($rule, 'continue', :true) {
             $continue = 2;
         }
 
         ## Conditions, if they don't match, skip this rule.
-        if $rule.has('host', :notempty, :type(Str)) {
+        if hash-has($rule, 'host', :notempty, :type(Str)) {
             if $continue == 1 { $continue = 0 }
             if not $.parent.host ~~ matcher($rule<host>) {
                 next;
             }
         }
-        if $rule.has('path', :notempty, :type(Str)) {
+        if hash-has($rule, 'path', :notempty, :type(Str)) {
             say "Parsing 'path' rule: "~$rule<path> if $debug;
             if $continue == 1 { $continue = 0 }
             if not $.parent.path ~~ matcher($rule<path>) {
@@ -40,13 +40,13 @@ method !matchRules (@rules) {
                 next;
             }
         }
-        if $rule.has('proto', :notempty, :type(Str)) {
+        if hash-has($rule, 'proto', :notempty, :type(Str)) {
             if $continue == 1 { $continue = 0 }
             if not $.parent.proto ~~ matcher($rule<proto>) {
                 next;
             }
         }
-        if $rule.has('file', :notempty, :type(Str)) {
+        if hash-has($rule, 'file', :notempty, :type(Str)) {
             if $continue == 1 { $continue = 0 }
             my $file = $rule<file>;
             my $ext = $.parent.dlext;
@@ -60,10 +60,10 @@ method !matchRules (@rules) {
         }
 
         ## Response settings
-        if $rule.has('mime', :notempty, :type(Str)) {
+        if hash-has($rule, 'mime', :notempty, :type(Str)) {
             $.parent.mimeType($rule<mime>);
         }
-        if $rule.has('headers', :defined, :type(Hash)) {
+        if hash-has($rule, 'headers', :defined, :type(Hash)) {
             $.parent.addHeaders($rule<headers>);
         }
 
@@ -72,30 +72,30 @@ method !matchRules (@rules) {
         #  or to an absolute path on the current host.
         #  You can also redirect the same URI to a different protocol
         #  by specifying 'http' or 'https' as the redirect location.
-        if $rule.has('redirect', :notempty, :type(Str)) {
+        if hash-has($rule, 'redirect', :notempty, :type(Str)) {
             $.parent.redirect($rule<redirect>);
             if !$continue { last; }
         }
 
         ## Adding 'root' paths. This just adds to the beginning of the
         #  list. If you need more control use a 'set' statement.
-        if $rule.has('root', :defined) {
+        if hash-has($rule, 'root', :defined) {
             $.parent.metadata<root>.unshift: $rule<root>
         }
 
         ## Metadata Processing
-        if $rule.has('set', :notempty, :type(Str)) {
+        if hash-has($rule, 'set', :notempty, :type(Str)) {
             $.parent.loadMetadata($rule<set>);
         }
 
         ## Plugin Processing
-        if $rule.has('plugin', :defined) {
+        if hash-has($rule, 'plugin', :defined) {
             self.callPlugin($rule<plugin>);
         }
 
         ## Include files must be either a direct Array
         #  Or include a hash element called 'dispatch' which is said array.
-        if $rule.has('include', :notempty, :type(Str)) {
+        if hash-has($rule, 'include', :notempty, :type(Str)) {
             my @subrules;
             my $subrules = $.parent.parseDataFile(
                 $rule<include>, 
@@ -106,7 +106,7 @@ method !matchRules (@rules) {
                 @subrules = @($subrules);
             }
             elsif $subrules ~~ Hash 
-               && $subrules.has('dispatch', :type(Array)) {
+               && hash-has($subrules, 'dispatch', :type(Array)) {
                 @subrules = @($subrules<dispatch>);
             }
             if @subrules {
@@ -117,7 +117,7 @@ method !matchRules (@rules) {
         ## For chaining dispatch rules inline, there are two types.
         #  Either a string, which will be parsed as WTDL AFTER matching.
         #  Or an array, which will be passed directly to matchRules.
-        if $rule.has('dispatch', :notempty, :type(Str)) {
+        if hash-has($rule, 'dispatch', :notempty, :type(Str)) {
             self!matchRules(
                 $.parent.parseData(
                     $rule<dispatch>.split,
@@ -127,7 +127,7 @@ method !matchRules (@rules) {
                 )
             );
         }
-        elsif $rule.has('dispatch', :type(Array)) {
+        elsif hash-has($rule, 'dispatch', :type(Array)) {
             self!matchRules($rule<chain>);
         }
 

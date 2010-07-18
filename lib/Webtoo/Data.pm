@@ -6,6 +6,8 @@ role Webtoo::Data;
 # But that functionality is not ready yet.
 #
 # It supports various forms of appending/merging/deleting, etc.
+#
+### TODO: Something in here is broken. Fix it!
 
 method parseDataFile(
     $file, 
@@ -28,8 +30,8 @@ method parseData (
     @definition is rw, 
     $data is copy, 
     $level=0, 
-    $multiline is rw =0,
     @cache?,
+    :$multiline is copy = 0,
 ) {
     my $debug = $.debug;
     my $element   = '_';
@@ -67,7 +69,7 @@ method parseData (
                     my @localcache = @cache;
                     @localcache.push: $data;
                     my @arraydata = self.parseData(
-                        @definition, $data, $space, @localcache, $multiline,
+                        @definition, $data, $space, @cache, :$multiline,
                     );
                     if $arrayop eq '+' | '<' {
                         $data.unshift: @arraydata;
@@ -84,7 +86,7 @@ method parseData (
                         $data{$element}, 
                         $space, 
                         @localcache, 
-                        $multiline,
+                        :$multiline,
                     );
                 }
                 ## Remove multiline setting if it had been set.
@@ -148,24 +150,24 @@ method parseData (
                     }
                 }
             }
-            regex hashKey { ^ ( .*? ) \: }
-            when /:s <hashKey> / { ## Any hash assignment
+            my regex hashKey { ( .*? ) \: }
+            when /:s <&hashKey> / { ## Any hash assignment
                 $element = ~$/<hashKey>[0];
                 if not $data ~~ Hash {
                     $data = {};
                 }
-                continue; ## Make sure it continues!
+                proceed; ## Make sure it continues!
             }
-            when /:s <hashKey> \| $/ {
+            when /:s <&hashKey> \| $/ {
                 $multiline = 1;
                 next; ## Breakout!
             }
-            when /:s <hashKey> \@ref\: (.+?) $/ {
+            when /:s <&hashKey> \@ref\: (.+?) $/ {
                 $data{$element} = self!getDataRef(
                     ~$0, self!localCache($data, @cache),
                 );
             }
-            when /:s <hashKey> (.?)\[(.+?)\] $/ {
+            when /:s <&hashKey> (.?)\[(.+?)\] $/ {
                 my $comp = $0;
                 my $arraystring = $1;
                 say "Setting array '$element', to '$arraystring', using '$comp'." if $debug;
@@ -214,10 +216,10 @@ method parseData (
                     }
                 }
             }
-            when /:s <hashKey> \~ $/ {
+            when /:s <&hashKey> \~ $/ {
                 $data.delete($element); # Death to element.
             }
-            when /:s <hashKey> (.+?) $/ {
+            when /:s <&hashKey> (.+?) $/ {
                 $data{$element} = ~$0;
             }
         }

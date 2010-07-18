@@ -2,7 +2,7 @@ use v6;
 
 module Perlite::Hash {
     sub hash-has (
-        %hash, $what, :$true, :$defined is rw, :$notempty, :$return, :$type
+        %hash, $what, :$true, :$defined is copy, :$notempty, :$return, :$type
     ) is export(:DEFAULT) {
         if $notempty || $true { $defined = 1; }
         if %hash.exists($what) 

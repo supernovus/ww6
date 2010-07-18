@@ -12,7 +12,7 @@ method processPlugin (%opts?) {
     }
     my $config = self.getConfig(:type(Hash));
     if ! $config { return; }
-    my $fileSpec = $config.has('data', :notempty, :return);
+    my $fileSpec = hash-has($config, 'data', :notempty, :return);
     if ! $fileSpec { return; }
     say "Passed the config tests." if $debug;
     my $file  = $.parent.findFile($fileSpec);
@@ -21,8 +21,8 @@ method processPlugin (%opts?) {
     my $index = slurp $file;
     my $path = $.parent.uri.split('?', 2)[0];
     say "URI: $path" if $debug;
-    my $elements = $config.has('elements', :defined, :type(Array), :return);
-    my $getsnippet = $config.has('snippet', :true);
+    my $elements = hash-has($config, 'elements', :defined, :type(Array), :return);
+    my $getsnippet = hash-has($config, 'snippet', :true);
 
     ## First, delete any existing entries.
     my $exist = matcher("^^ \\- \\n <.ws> path\\: <.ws> '$path' \\n .*? (^^\\-|\$)");
@@ -32,7 +32,7 @@ method processPlugin (%opts?) {
     my $newcontent = "-\n";
     $newcontent ~= "  path: $path\n";
     for @($elements) -> $element {
-        my $value = $.parent.metadata<page>.has($element, :defined, :return);
+        my $value = hash-has($.parent.metadata<page>, $element, :defined, :return);
         if defined $value {
             if $value ~~ Array {
                 $value = '[' ~ $value.join(',') ~ ']';

@@ -165,6 +165,10 @@ method processPlugins {
 
     say "Entered processPlugins" if $.debug;
 
+    ## TODO: get metadata loading again. Bah humbug.
+    say %.metadata.perl;
+    exit;
+
     while my $plugin = %.metadata<plugins>.shift {
         say "Processing $plugin" if $.debug;
         self.callPlugin($plugin, 'processPlugin');
