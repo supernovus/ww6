@@ -2,10 +2,22 @@
 
 use v6;
 
-## An evil hack, but currently required.
-class Webtoo { ... }
+class Webtoo {...};
 
 use Webtoo::Data;
+
+## A quick and dirty hack, replace it with a proper require statement.
+sub require ($filename is copy) {
+    for @*INC -> $inc {
+        my $try = $inc~'/'~$filename;
+        if $try.IO ~~ :f {
+            $filename = $try;
+            last;
+        }
+    }
+    my $file = slurp($filename);
+    eval($file);
+}
 
 class Webtoo does Webtoo::Data;
 
@@ -165,10 +177,6 @@ method processPlugins {
 
     say "Entered processPlugins" if $.debug;
 
-    ## TODO: get metadata loading again. Bah humbug.
-    say %.metadata.perl;
-    exit;
-
     while my $plugin = %.metadata<plugins>.shift {
         say "Processing $plugin" if $.debug;
         self.callPlugin($plugin, 'processPlugin');
@@ -178,7 +186,12 @@ method processPlugins {
 
 }
 
-method callPlugin ($spec, $command is copy, :%opts is copy) {
+method callPlugin ($spec, $command is copy, :$opts is copy) {
+
+    say "Entered callPlugin..." if $.debug;
+
+    my %opts;
+    if $opts { %opts = %($opts) };
 
     my $plugin;
 
@@ -208,19 +221,19 @@ method callPlugin ($spec, $command is copy, :%opts is copy) {
 
     ## Okay, now continue processing.
 
-    regex nsSep    { \: \: }
-    regex nsStart  { ^^ <nsSep> }
+    my regex nsSep    { \: \: }
+    my regex nsStart  { ^^ <&nsSep> }
 
     say "<def> $plugin" if $.debug;
     my $namespace = $plugin.lc;
-    if $plugin ~~ /<nsStart>/ {
-        $plugin.=subst(/<nsStart>/, '', :global);
-        $namespace.=subst(/<nsStart>/, '', :global);
+    if $plugin ~~ /<&nsStart>/ {
+        $plugin.=subst(/<&nsStart>/, '', :global);
+        $namespace.=subst(/<&nsStart>/, '', :global);
     }
     else {
         $plugin = $!NS ~ $plugin;
     }
-    $namespace.=subst(/<nsSep>/, '-', :global); # Convert :: to - for NS.
+    $namespace.=subst(/<&nsSep>/, '-', :global); # Convert :: to - for NS.
     if $plugin ~~ / \+ / {
         $plugin.=subst(/ \+ .* /, '');
     }
@@ -231,11 +244,11 @@ method callPlugin ($spec, $command is copy, :%opts is copy) {
 
     say "<class> $plugin" if $.debug;
     say "<namespace> $namespace" if $.debug;
-    my $classfile = $plugin.subst(/<nsSep>/, '/', :global); # Needed hackery.
+    my $classfile = $plugin.subst(/<&nsSep>/, '/', :global); # Needed hackery.
     $classfile ~= '.pm';
     require $classfile;
     say "We got past require" if $.debug;
-    my $plug = eval("$plugin.new()"); # More needed hackery.
+    my $plug = eval($plugin~".new()"); # More needed hackery.
     $plug.parent = self;
     $plug.namespace = $namespace;
     $plug."$command"(%opts);
@@ -265,7 +278,7 @@ method findFile ($file, :@path=%.metadata<root>, :$ext=$.dlext) {
     for @path -> $path {
         my $config = $.datadir ~ '/' ~ $path ~ '/' ~ $file ~ '.' ~ $ext;
         say "Looking for $config" if $.debug;
-        if $config ~~ :f {
+        if $config.IO ~~ :f {
             return $config;
         }
     }

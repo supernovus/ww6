@@ -1,7 +1,7 @@
+role Websight;
+
 use Perlite::Match;
 use Perlite::Hash;
-
-role Websight;
 
 has $.parent is rw;
 has $.namespace is rw;

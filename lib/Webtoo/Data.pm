@@ -1,4 +1,5 @@
 role Webtoo::Data;
+
 # The Webtoo Data/Definition Language (WTDL)
 # Kinda based on YAML, in a loose sort of way.
 # There will be support for wtdlc files, which will
@@ -7,7 +8,6 @@ role Webtoo::Data;
 #
 # It supports various forms of appending/merging/deleting, etc.
 #
-### TODO: Something in here is broken. Fix it!
 
 method parseDataFile(
     $file, 
@@ -18,7 +18,9 @@ method parseDataFile(
     my $config = self.findFile($file, :path(@path));
     if $config {
         my @definition = lines $config;
-        return self.parseData(@definition, $data, 0, @cache);
+        my $newdata = self.parseData(@definition, $data, 0, @cache);
+        say "Data returned from parseData: {$newdata.perl}" if $.debug;
+        return $newdata;
     }
     else {
         self.err: "Data file '$file' not found in any root path.";
@@ -151,23 +153,23 @@ method parseData (
                 }
             }
             my regex hashKey { ( .*? ) \: }
-            when /:s <&hashKey> / { ## Any hash assignment
+            when /:s <hashKey=&hashKey> / { ## Any hash assignment
                 $element = ~$/<hashKey>[0];
                 if not $data ~~ Hash {
                     $data = {};
                 }
                 proceed; ## Make sure it continues!
             }
-            when /:s <&hashKey> \| $/ {
+            when /:s <hashKey=&hashKey> \| $/ {
                 $multiline = 1;
                 next; ## Breakout!
             }
-            when /:s <&hashKey> \@ref\: (.+?) $/ {
+            when /:s <hashKey=&hashKey> \@ref\: (.+?) $/ {
                 $data{$element} = self!getDataRef(
                     ~$0, self!localCache($data, @cache),
                 );
             }
-            when /:s <&hashKey> (.?)\[(.+?)\] $/ {
+            when /:s <hashKey=&hashKey> (.?)\[(.+?)\] $/ {
                 my $comp = $0;
                 my $arraystring = $1;
                 say "Setting array '$element', to '$arraystring', using '$comp'." if $debug;
@@ -216,10 +218,10 @@ method parseData (
                     }
                 }
             }
-            when /:s <&hashKey> \~ $/ {
+            when /:s <hashKey=&hashKey> \~ $/ {
                 $data.delete($element); # Death to element.
             }
-            when /:s <&hashKey> (.+?) $/ {
+            when /:s <hashKey=&hashKey> (.+?) $/ {
                 $data{$element} = ~$0;
             }
         }
@@ -270,13 +272,16 @@ method !getDataRef ($refs, @cache) {
 
 method loadMetadataFile ($file) {
     my $debug = $.debug;
-    say "loadMetadataFile Called" if $debug;
-    %.metadata = self.parseDataFile($file, %.metadata);
-    say "loadMetadataFile Ended" if $debug;
+    say "loadMetadataFile Called, metadata is: {%.metadata.perl}" if $debug;
+    my %newdata = self.parseDataFile($file, %.metadata);
+    say "new data from parseDataFile: {%newdata.perl}" if $debug;
+    %.metadata = %newdata;
+    say "loadMetadataFile Ended, metadata is: {%.metadata.perl}" if $debug;
 }
 
 multi method loadMetadata (@definition is rw) {
-    %.metadata = self.parseData(@definition, %.metadata);
+    my %newdata = self.parseData(@definition, %.metadata);
+    %!metadata = %newdata;
 }
 
 multi method loadMetadata (Str $definition) {

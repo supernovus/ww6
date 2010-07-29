@@ -2,6 +2,9 @@ use Websight;
 
 class Websight::Dispatch does Websight;
 
+use Perlite::Hash;
+use Perlite::Match;
+
 method processPlugin (%opts?) {
     my $rules = self.getConfig(:type(Array));
     if defined $rules {
