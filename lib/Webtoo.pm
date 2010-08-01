@@ -6,19 +6,6 @@ class Webtoo {...};
 
 use Webtoo::Data;
 
-## A quick and dirty hack, replace it with a proper require statement.
-sub require ($filename is copy) {
-    for @*INC -> $inc {
-        my $try = $inc~'/'~$filename;
-        if $try.IO ~~ :f {
-            $filename = $try;
-            last;
-        }
-    }
-    my $file = slurp($filename);
-    eval($file);
-}
-
 class Webtoo does Webtoo::Data;
 
 use Webtoo::Request;
@@ -244,9 +231,10 @@ method callPlugin ($spec, $command is copy, :$opts is copy) {
 
     say "<class> $plugin" if $.debug;
     say "<namespace> $namespace" if $.debug;
-    my $classfile = $plugin.subst(/<&nsSep>/, '/', :global); # Needed hackery.
-    $classfile ~= '.pm';
-    require $classfile;
+    #my $classfile = $plugin.subst(/<&nsSep>/, '/', :global); # Needed hackery.
+    #$classfile ~= '.pm';
+    #require $classfile;
+    eval("use $plugin"); # Evil hack to replace 'require'.
     say "We got past require" if $.debug;
     my $plug = eval($plugin~".new()"); # More needed hackery.
     $plug.parent = self;

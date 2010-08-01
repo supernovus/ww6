@@ -1,6 +1,5 @@
 role Websight;
 
-use Perlite::Match;
 use Perlite::Hash;
 
 has $.parent is rw;
