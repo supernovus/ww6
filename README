@@ -7,6 +7,13 @@ make it work with the new Rakudo master as of June 2010.
 For a working branch, see 'master' which must be used with the
 January release or 'alpha' branch of Rakudo.
 
+=== Second note ===
+
+The plain CGI version has been deprecated. It's slow, and currently completely
+broken due to a bug in Rakudo that means %*ENV.kv does not work.
+
+I moved it into the old/ folder. Use the SCGI version, it's much better.
+
 === Story ===
 
 In the beginning was Webtoo Websight, and it was good.
@@ -32,8 +39,6 @@ This is the result.
 - Rakudo Perl 6
   http://rakudo.org/
   A version of Perl 6 for the Parrot Virtual Machine.
-
- = Recommended =
 
 - The SCGI library for Perl 6
   http://github.com/supernovus/SCGI

@@ -1,7 +1,8 @@
 use Websight;
-use Perlite::Time;
 
 class Websight::Headers does Websight;
+
+use Perlite::Time;
 
 method processPlugin (%opts?) {
     my $config = self.getConfig(:type(Hash));
