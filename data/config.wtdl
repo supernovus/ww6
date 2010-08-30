@@ -16,6 +16,10 @@ content:
 
 dispatch:
   >
+    path: test
+    set: |
+      plugins: ~[Example]
+  >
     path: secure
     redirect: https
   >

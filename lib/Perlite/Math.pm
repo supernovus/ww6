@@ -82,7 +82,7 @@ sub convertBytes ($num, :$from='B', :$to!, :$round, :$floor, :$ceiling) is expor
     return $return;
 }
 
-sub numType (Num $num) is export(:DEFAULT) { # was :num
+sub numType (Numeric $num) is export(:DEFAULT) { # was :num
     return $num % 2 ?? 'odd' !! 'even';
 }
 

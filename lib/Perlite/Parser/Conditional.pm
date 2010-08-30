@@ -200,7 +200,7 @@ class Perlite::Parser::Conditional::Parser {
         for @content -> $line {
             say "== Parsing $line" if $debug;
             my $match = Perlite::Parser::Conditional::Grammar.parse(
-                $line, :action($parser)
+                $line, :actions($parser)
             );
             if $match {
                 next; # Skip directives.

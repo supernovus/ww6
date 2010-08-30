@@ -1,5 +1,4 @@
-use Perlite::Match;
-use Perlite::Math; #:num;
+use Perlite::Math;
 
 module Perlite::Parser;
 
@@ -29,19 +28,15 @@ sub parseTags (
                     $val = 'HASH{}';
                 }
             }
-            #my $block = matcher("\\<$name\\.$key\\/?\\>[.*?\\<\\/$name\\.$key\\>"]?);
-            my $block = matcher("\\<$name\\.$key\\/?\\>");
-            $content.=subst($block, $val, :global);
-            my $ifblock = matcher("\\\$ $name\\.$key");
-            $content.=subst($ifblock, "\"$val\"", :global);
-            my $tagblock = matcher("'%' $name\\.$key");
+            $content.=subst(/\<$name\.$key\/?\>/, $val, :global);
+            $content.=subst(/\$ $name\.$key/, "\"$val\"", :global);
             ## TODO: This should urlencode the var properly.
-            $content.=subst($tagblock, $val.trans(' ' => '+'), :global);
+            $content.=subst(/'%' $name\.$key/, $val.trans(' ' => '+'), :global);
         }
     }
     elsif $data ~~ Array {
         say "is Array" if $debug;
-        my $block = matcher("\\<$name\\>(.*?)\\<\\/$name\\>");
+        my $block = /\<$name\>(.*?)\<\/$name\>/;
         if $content ~~ $block {
             say "Matched!" if $debug;
             my $newcontent = '';
@@ -65,7 +60,7 @@ sub parseTags (
                     %hash<ITEM> = $repl;
                     $repl = %hash;
                 }
-                my $rowtype = Perlite::Math::numType $count;
+                my $rowtype = numType $count;
                 if $count < $data.end {
                     $repl<SEP> = $sep;
                 }
@@ -85,13 +80,12 @@ sub parseTags (
     }
     if $clean {
         say "We've gone to the cleaners." if $debug;
-        #my $recurseclean = matcher("\\<$name\\.(.*?)\\>.*?\\<\\/$name\\.$0\\>");
         #say "recurseclean: " ~ $recurseclean.WHAT;
         #$content.=subst($recurseclean, '', :global);
-        my $clean = matcher("\\<$name\\..*?\\>");
+        my $clean = /\<$name\..*?\>/;
         say "clean: " ~ $clean.WHAT if $debug;
         $content.=subst($clean, '', :global);
-        my $ifclean = matcher("(\\\$|'%') $name\\.[\\w|\\.]+");
+        my $ifclean = /\$|'%' $name\.[\w|\.]+/;
         say "Ifclean: " ~ $ifclean.WHAT if $debug;
         $content.=subst($ifclean, {
             if $_[0] eq '$' { '""'; }
