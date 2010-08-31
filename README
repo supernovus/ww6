@@ -2,17 +2,24 @@ ww6: Web Application Framework for Perl 6
 
 === NOTE ===
 
-This is a currently non-functional branch of ww6 meant to
-make it work with the new Rakudo master as of June 2010.
-For a working branch, see 'master' which must be used with the
-January release or 'alpha' branch of Rakudo.
+This is a completely redesigned version of ww6.
+The original version only worked with the 'alpha' branch of Rakudo.
+I tried to port it to the new Rakudo master, but failed miserably.
+You can find the original version in the 'oldmaster' branch, and the
+attempt to port it in the 'newmaster' branch. Both are abandoned
+branches and I'm not planning on working on them again.
 
-=== Second note ===
+I also was not happy with tying the data definition language and
+template languages to the core. The old versions have been moved to the
+Perlite library set, and will be available for use with the new ww6.
 
-The plain CGI version has been deprecated. It's slow, and currently completely
-broken due to a bug in Rakudo that means %*ENV.kv does not work.
+The new ww6 is being written as a true framework, where you can build
+web applications in very different ways. You can now load static plugins
+in your main application file, and in fact, the ability to load dynamic plugins
+has been moved to a plugin itself.
 
-I moved it into the old/ folder. Use the SCGI version, it's much better.
+Everything in the 'lib/old' folder has yet to be ported to the new
+infrastructure.
 
 === Story ===
 
@@ -40,161 +47,61 @@ This is the result.
   http://rakudo.org/
   A version of Perl 6 for the Parrot Virtual Machine.
 
+- The Perlite libraries for Perl 6
+  http://github.com/supernovus/perlite6
+  This library collection was once included with ww6, but has been separated
+  out for use in other projects.
+
 - The SCGI library for Perl 6
   http://github.com/supernovus/SCGI
   This library was written specifically because I was frustrated testing
   ww6 as a CGI script, where the performance was abysmal.
-  This is HIGHLY recommended, as using Perl 6 with plain CGI is unbearable.
 
 - If you want to run the SCGI process on a computer behind NAT,
   and have the publically accessible web server forward requests
   to it, you can look into the reverse proxy functionality of OpenSSH.
   The 'service.sh' included shows how I have it set up to run on my home
   computer, and forward to my publically accessible VPS.
-
- = Optional =
-
-- If you want to use ww6for5 you will need Perl 5.8 or higher. 
-  If you want to use the SCGI daemon for ww6for5, you will need the SCGI
-  library for Perl 5 (get it from CPAN.)
  
-=== Technical Details ===
-
- = WTDL =
-
-The data definition language (WTDL) may at first glimse look like YAML,
-but it is most certainly NOT. It has many significant differences, and is
-currently highly specific to ww6. It may be possible to make it a standalone
-library, but I don't see the point right now.
-
-The biggest difference between YAML and WTDL is that WTDL is based on
-merging multiple data sets, and so has operators for HOW to merge the
-data (e.g., in the case of Arrays, you can append to the end of the
-existing array, or insert in front of the original array.)
-
- = WTML =
-
-The Content plugin looks for files ending in .wtml by default.
-Plugins can parse the .wtml files in any way they wish.
-
-The default Metadata plugin looks for a section of WTDL formatted text
-in a block of <metadata>...</metadata>.
-
-There is a template parser called WTML that supports Tags and If statements, 
-similar to the Perlite parsers from ww5. 
-
-The format has changed slightly since the ww5 days, 
-making it more streamlined, and including changes from integrating
-the Tags and If parsers together.
-
-Where in ww5 a template may look like:
-
-<if "<page.type>"~="admin">
-<andif "<auth.user>"="<page.owner>">
-  Hi bob, you are on a <page.type> page.
-<elsif ! "<page.ooya>">
-  Booga!
-<else>
-  Never mind
-</if>
-<if "<page.links>">
-<recurse page.links>
-  <a href="<page.links.url>"><page.links.title></a>
-</recurse>
-</if>
-
-A ww6 template would have instead:
-
-<if $page.type ~~ "admin" and $auth.user = $page.owner>
-  Hi bob, you are on a <page.type/> page.
-<else ! $page.ooya />
-  Booga!
-<else/>
-  Never mind
-</if>
-<if $page.links>
-<page.links>
-  <a href="%page.links.url"><page.links.title/></a>
-</page.links>
-</if>
-
-The closing slashes are optional, but recommended for clarity.
-In addition to 'and' there is also 'or'.
-
-There are three formats recognized by WTML for variables:
-
- <variable.name/>  Is parsed directly. No changes are made.
- $variable.name    Adds "quote" characters around the value (for <if> tags.)
- %variable.name    URL encodes the value (for href, src, etc.)
-
-Also, the following comparisons have changed their names:
-
-Old name => New name
-   >     =>  gt
-   <     =>  lt
-   >=    =>  gt=
-   <=    =>  lt=
-   ~=    =>  ~~
-
-The '=' comparison always uses string comparison.
-The '==' comparison will use numeric comparison if both values are numbers,
-otherwise it will use string comparison.
-
-=== ww6for5 ===
-
-I detirmined that running ww6 on a VPS with 128 MB of RAM was impossible.
-The perl6 process consumed all of the RAM and swap after the second page load.
-The first solution is the service.sh script which allows me to run the SCGI
-daemon on my own computer, and have the VPS connect to it through a SSH tunnel.
-
-Well, that's fine for 75% of the time, but sometimes I do need to bring my
-home computer down. What would happen to my website at those times?
-
-I had considered writing a plugin to ww5 that would allow it to parse the
-static page caches from ww6. However, I figured it would be overkill, and
-ww5's codebase wasn't something I wanted to have sticking around.
-
-So, ww6for5 was born. Borrowing from both ww5 and ww6, it's a standalone
-library that has just enough functionality to be a Perl 5 replacement for
-the redirection and headers functionality of Dispatch, the Autoroot plugin,
-and the static cache loading from Content. So, it can VIEW ww6 caches and
-handle redirects. It DOES NOT handle any dynamic content or extra plugins.
-
-NOTE: ww5for6 does not read the WTDL language. It's configuration must be
-written in YAML and is a subset of the WTDL config file syntax.
-
-Like ww6 itself, ww6for5 can be run as a CGI script or a SCGI daemon.
-
-=== Not yet finished ===
+=== Future Plans ===
 
 This project is still under construction, and does not include all of the
 functionality from Webtoo Websight 5 yet.
 
-Hopefully it will soon exceed the older version.
+In fact, it's currently in a major rewrite stage and does not even include
+most of the functionality of the previous master version.
 
-Coming soon: ww6for5. I haven't written it yet, so it's not in the
-repo. Sorry. The description above is what it WILL do.
+I want to build a static page creator app using this, so you could build
+an entire static website based on templates and configuration files.
 
-Also, a gallery-like viewer for data, and a data table module.
-See http://jargon.huri.net/ for the ww5 version (the strip index is
-powered by the 'table' and the strips themselves are powered by the
-'viewer'.)
+I would like to write a Metadata plugin that can use JSON, YAML or Perl
+data structures as a serialization format, and use special tags to merge
+strucutres correctly. So for instance:
 
-Oh, and component tags:
+  OVERRIDE:
+    that: this    # Always overrides $data<that>.
+  APPEND:         # Items will be append to end of the array.
+    array:
+      - Add this
+      - And this
+  INSERT:         # Items will be inserted to the start of the array.
+    array:
+      - At the beginning
+      - Me too.
+  MERGE:              # Items will be merged with existing hash.
+    ARRAY: append     # Could also be INSERT or OVERRIDE.
+    SCALAR: override  # ditto for scalars, which can be converted to arrays.
+    hash:
+      now: has this item
+      and: also this item
+      so:
+        - This will be appended to the $data<hash><so> array.
 
-<component plugin="Data::Table" template="/some/template" data="data-file" />
+  ## MERGE can also accept an array, each one can set separate settings
+     for how to deal with ARRAYs and SCALARs.
 
-Basically a separate Webtoo rendering engine being called from a plugin.
-
-Oh, and I am working on the ability to make virtual calls, to do things
-like rebuild all static pages of an Index. Right now adding pages to an
-Index when using static caching, is rather painful, as you then need
-to rebuild the Index, including with each "tag=blah" combination.
-
-So yeah, this code is definitely alpha-quality, but is interesting as a
-proof of concept.
-
-It's not ready to replace Webtoo Websight 5 yet, but it will be.
+I'm also planning a project called Flower, which will be an implementation
+of the Petal template engine for Perl 6 (including the Metal extensions.)
 
 Timothy M. Totten
 

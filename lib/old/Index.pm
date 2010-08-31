@@ -10,7 +10,7 @@ method processPlugin (%opts?) {
     my $data  = hash-has($config, 'data',  :defined, :return);
     if !$data { return; }
     if $data ~~ Str {
-        $data = $.parent.parseDataFile($data, []);
+        $data = $.parent.metadata.parseFile($data, []);
     }
     if not $data ~~ Array { return; } ## Data must be an array.
     my @showdata;

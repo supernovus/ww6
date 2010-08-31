@@ -4,7 +4,7 @@ use v6;
 
 class Webtoo;
 
-use Perlite::Data;
+#use Perlite::Data;
 use Perlite::WebRequest;
 use Perlite::Hash;
 
@@ -23,29 +23,9 @@ has $.port = hash-has(%.env, 'SERVER_PORT', :true, :return) // 0;
 has $.host = hash-has(%.env, 'HTTP_HOST', :return) 
     // hash-has(%*ENV, 'HOSTNAME', :return) // 'localhost';
 has $.debug = hash-has(%*ENV, 'DEBUG', :return);
-has $.dlext = 'wtdl';
-has $.datadir = './';
 has $.noheaders is rw = 0;
 has $.savefile is rw;
-has $.metadata is rw = Perlite::Data.make(:data({
-    :plugins( [ 'Example' ] ),
-    :root( [ '' ] ),
-    'request' => {
-        :host($.host),
-        :proto($.proto),
-        :path($.path),
-        :type($.req.type),
-        :method($.req.method),
-        :query($.req.query),
-        :params($.req.params),
-        :userip($.req.remoteAddr),
-        :browser($.req.userAgent),
-        :uri($.uri),
-        :url($.proto ~ '://' ~ $.host);
-        :urlhttp('http://' ~ $.host);
-        :urlhttps('https://' ~ $.host);
-    },
-}));
+has %.hooks is rw;
 
 method err ($message) {
     $*ERR.say: $message;
@@ -132,8 +112,21 @@ method redirect ($url is copy, $status=302, :$nostop) {
     self.status($status);
     self.addHeader('Location', $url);
     if !$nostop {
-        $.metadata<plugins>.splice;
+        self!callHooks('redirect');
     }
+}
+
+method !callHooks($hook) {
+  if %.hooks.exists($hook) {
+    if %.hooks{$hook} ~~ Array {
+      for %.hooks{$hook} -> &func {
+        func();
+      }
+    }
+    elsif %.hooks{$hook} ~~ Callable {
+      %.hooks{$hook}();
+    }
+  }
 }
 
 method !buildHeaders {
@@ -157,116 +150,20 @@ method !buildHeaders {
     return $headers;
 }
 
-method processPlugins {
-
-    say "Entered processPlugins" if $.debug;
-
-    while my $plugin = $.metadata<plugins>.shift {
-        say "Processing $plugin" if $.debug;
-        self.callPlugin($plugin, 'processPlugin');
-    }
-
-    say "Leaving processPlugins" if $.debug;
-
-}
-
-method callPlugin ($spec, $command is copy, :$opts is copy) {
-
-    say "Entered callPlugin..." if $.debug;
-
-    my %opts;
-    if $opts { %opts = %($opts) };
-
-    my $plugin;
-
-    if $spec ~~ Hash {
-        ## For Hash based specs, the 'name' value is required.
-        if hash-has($spec, 'name', :notempty) {
-            $plugin = $spec<name>;
-        }
-        else {
-            return self.err: "No plugin name specified.";
-        }
-
-        ## The others are optional, and just overide the defaults.
-        if hash-has($spec, 'opts', :defined, :type(Hash)) {
-            %opts = $spec<opts>;
-        }
-        if hash-has($spec, 'command', :notempty) {
-            $command = $spec<command>;
-        }
-    }
-    elsif $spec ~~ Str {
-        $plugin = $spec;
-    }
-    else {
-        return self.err: "Invalid callPlugin specification passed.";
-    }
-
-    ## Okay, now continue processing.
-
-    my regex nsSep    { \: \: }
-    my regex nsStart  { ^^ <&nsSep> }
-
-    say "<def> $plugin" if $.debug;
-    my $namespace = $plugin.lc;
-    if $plugin ~~ /<&nsStart>/ {
-        $plugin.=subst(/<&nsStart>/, '', :global);
-        $namespace.=subst(/<&nsStart>/, '', :global);
-    }
-    else {
-        $plugin = $!NS ~ $plugin;
-    }
-    $namespace.=subst(/<&nsSep>/, '-', :global); # Convert :: to - for NS.
-    if $plugin ~~ / \+ / {
-        $plugin.=subst(/ \+ .* /, '');
-    }
-    elsif $plugin ~~ / \= / {
-        $namespace = $plugin.split(/\=/)[1];
-        $plugin.=subst(/ \= .* /, '');
-    }
-
-    say "<class> $plugin" if $.debug;
-    say "<namespace> $namespace" if $.debug;
-    #my $classfile = $plugin.subst(/<&nsSep>/, '/', :global); # Needed hackery.
-    #$classfile ~= '.pm';
-    #require $classfile;
-    eval("use $plugin"); # Evil hack to replace 'require'.
-    say "We got past require" if $.debug;
-    my $plug = eval($plugin~".new()"); # More needed hackery.
-    $plug.parent = self;
-    $plug.namespace = $namespace;
-    $plug."$command"(%opts);
-}
-
-method processContent (Bool :$noheaders, Bool :$noplugins) {
+method processContent (Bool :$noheaders) {
     if $noheaders { $.noheaders = 1; }
     say "Entered processContent" if $.debug;
-    self.processPlugins if ! $noplugins;
     say "About to build headers" if $.debug;
     my $output = '';
     $output = self!buildHeaders if ! $.noheaders;
     say "About to add the content" if $.debug;
     $output ~= $.content;
     say "Built output" if $.debug;
-    say $.metadata.perl if $.debug;
     if $.savefile {
         my $file = open $.savefile, :w;
         $file.say: $output;
         $file.close;
     }
     return $output;
-}
-
-method findFile ($file, :@path=$.metadata<root>, :$ext=$.dlext) {
-    say "We're in findFile" if $.debug;
-    for @path -> $path {
-        my $config = $.datadir ~ '/' ~ $path ~ '/' ~ $file ~ '.' ~ $ext;
-        say "Looking for $config" if $.debug;
-        if $config.IO ~~ :f {
-            return $config;
-        }
-    }
-    return;
 }
 

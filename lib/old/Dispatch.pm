@@ -100,7 +100,7 @@ method !matchRules (@rules) {
         #  Or include a hash element called 'dispatch' which is said array.
         if hash-has($rule, 'include', :notempty, :type(Str)) {
             my @subrules;
-            my $subrules = $.parent.parseDataFile(
+            my $subrules = $.parent.metadata.parseFile(
                 $rule<include>, 
                 [], 
                 :cache([ $.parent.metadata ]),
@@ -122,7 +122,7 @@ method !matchRules (@rules) {
         #  Or an array, which will be passed directly to matchRules.
         if hash-has($rule, 'dispatch', :notempty, :type(Str)) {
             self!matchRules(
-                $.parent.parseData(
+                $.parent.metadata.parse(
                     $rule<dispatch>.split,
                     [],
                     0,
