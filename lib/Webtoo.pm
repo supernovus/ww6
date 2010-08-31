@@ -2,20 +2,17 @@
 
 use v6;
 
-class Webtoo {...};
+class Webtoo;
 
-use Webtoo::Data;
-
-class Webtoo does Webtoo::Data;
-
-use Webtoo::Request;
+use Perlite::Data;
+use Perlite::WebRequest;
 use Perlite::Hash;
 
 has $!NS = "Websight::";
 has %.env = %*ENV; # Override this if using SCGI or FastCGI.
 has %!headers = { Status => 200, 'Content-Type' => 'text/html' };
 has $.content is rw = '';
-has $.req = Webtoo::Request.new( :env(%.env) );
+has $.req = Perlite::WebRequest.new( :env(%.env) );
 has $.path = hash-has(%.env, 'PATH_INFO', :notempty, :return) 
     // hash-has(%.env, 'REQUEST_URI', :defined, :return) 
     // @*ARGS[0] // '';
@@ -30,7 +27,7 @@ has $.dlext = 'wtdl';
 has $.datadir = './';
 has $.noheaders is rw = 0;
 has $.savefile is rw;
-has %.metadata is rw = {
+has $.metadata is rw = Perlite::Data.make(:data({
     :plugins( [ 'Example' ] ),
     :root( [ '' ] ),
     'request' => {
@@ -48,7 +45,7 @@ has %.metadata is rw = {
         :urlhttp('http://' ~ $.host);
         :urlhttps('https://' ~ $.host);
     },
-};
+}));
 
 method err ($message) {
     $*ERR.say: $message;
@@ -135,7 +132,7 @@ method redirect ($url is copy, $status=302, :$nostop) {
     self.status($status);
     self.addHeader('Location', $url);
     if !$nostop {
-        %.metadata<plugins>.splice;
+        $.metadata<plugins>.splice;
     }
 }
 
@@ -164,7 +161,7 @@ method processPlugins {
 
     say "Entered processPlugins" if $.debug;
 
-    while my $plugin = %.metadata<plugins>.shift {
+    while my $plugin = $.metadata<plugins>.shift {
         say "Processing $plugin" if $.debug;
         self.callPlugin($plugin, 'processPlugin');
     }
@@ -252,7 +249,7 @@ method processContent (Bool :$noheaders, Bool :$noplugins) {
     say "About to add the content" if $.debug;
     $output ~= $.content;
     say "Built output" if $.debug;
-    say %.metadata.perl if $.debug;
+    say $.metadata.perl if $.debug;
     if $.savefile {
         my $file = open $.savefile, :w;
         $file.say: $output;
@@ -261,7 +258,7 @@ method processContent (Bool :$noheaders, Bool :$noplugins) {
     return $output;
 }
 
-method findFile ($file, :@path=%.metadata<root>, :$ext=$.dlext) {
+method findFile ($file, :@path=$.metadata<root>, :$ext=$.dlext) {
     say "We're in findFile" if $.debug;
     for @path -> $path {
         my $config = $.datadir ~ '/' ~ $path ~ '/' ~ $file ~ '.' ~ $ext;

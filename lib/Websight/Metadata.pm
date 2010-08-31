@@ -12,7 +12,7 @@ method processPlugin (%opts?) {
     if $content ~~ $block {
         say "It matched!" if $debug;
         my $definition = ~$0;
-        $.parent.loadMetadata($definition);
+        $.parent.metadata.load($definition);
         say "Data loaded" if $debug;
         $content.=subst($block, '');
         $.parent.content =  $content;

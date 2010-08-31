@@ -88,7 +88,7 @@ method !matchRules (@rules) {
 
         ## Metadata Processing
         if hash-has($rule, 'set', :notempty, :type(Str)) {
-            $.parent.loadMetadata($rule<set>);
+            $.parent.metadata.load($rule<set>);
         }
 
         ## Plugin Processing

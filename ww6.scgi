@@ -19,7 +19,7 @@ my $scgi = SCGI.new( :port(8118), :strict );
 
 my $handler = sub (%env) {
     my $wt = Webtoo.new( :datadir($datadir), :env(%env) );
-    $wt.loadMetadataFile($config); # The global config.
+    $wt.metadata.loadFile($config); # The global config.
     return $wt.processContent;
 }
 
