@@ -1,26 +1,5 @@
 ww6: Web Application Framework for Perl 6
 
-=== NOTE ===
-
-This is a completely redesigned version of ww6.
-The original version only worked with the 'alpha' branch of Rakudo.
-I tried to port it to the new Rakudo master, but failed miserably.
-You can find the original version in the 'oldmaster' branch, and the
-attempt to port it in the 'newmaster' branch. Both are abandoned
-branches and I'm not planning on working on them again.
-
-I also was not happy with tying the data definition language and
-template languages to the core. The old versions have been moved to the
-Perlite library set, and will be available for use with the new ww6.
-
-The new ww6 is being written as a true framework, where you can build
-web applications in very different ways. You can now load static plugins
-in your main application file, and in fact, the ability to load dynamic plugins
-has been moved to a plugin itself.
-
-Everything in the 'lib/old' folder has yet to be ported to the new
-infrastructure.
-
 === Story ===
 
 In the beginning was Webtoo Websight, and it was good.
@@ -69,39 +48,19 @@ This project is still under construction, and does not include all of the
 functionality from Webtoo Websight 5 yet.
 
 In fact, it's currently in a major rewrite stage and does not even include
-most of the functionality of the previous master version.
+most of the functionality of the previous master version (the old-libs
+folder contains a bunch of plugins that were written for the original ww6.)
 
 I want to build a static page creator app using this, so you could build
 an entire static website based on templates and configuration files.
 
 I would like to write a Metadata plugin that can use JSON, YAML or Perl
 data structures as a serialization format, and use special tags to merge
-strucutres correctly. So for instance:
-
-  OVERRIDE:
-    that: this    # Always overrides $data<that>.
-  APPEND:         # Items will be append to end of the array.
-    array:
-      - Add this
-      - And this
-  INSERT:         # Items will be inserted to the start of the array.
-    array:
-      - At the beginning
-      - Me too.
-  MERGE:              # Items will be merged with existing hash.
-    ARRAY: append     # Could also be INSERT or OVERRIDE.
-    SCALAR: override  # ditto for scalars, which can be converted to arrays.
-    hash:
-      now: has this item
-      and: also this item
-      so:
-        - This will be appended to the $data<hash><so> array.
-
-  ## MERGE can also accept an array, each one can set separate settings
-     for how to deal with ARRAYs and SCALARs.
+strucutres correctly. I haven't decided on an exact format for it yet.
 
 I'm also planning a project called Flower, which will be an implementation
 of the Petal template engine for Perl 6 (including the Metal extensions.)
+It will be a separate project, but you'll be able to use it in ww6 apps.
 
 Timothy M. Totten
 
