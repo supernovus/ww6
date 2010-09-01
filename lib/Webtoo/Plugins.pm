@@ -3,7 +3,7 @@ role Webtoo::Plugins;
 has @.plugins is rw;
 has $.defCommand = 'processPlugin';
 
-method doDynamicPlugins {
+method processPlugins {
 
     say "Entered processPlugins" if $.debug;
 
@@ -17,29 +17,19 @@ method doDynamicPlugins {
 }
 
 ## A Quick wrapper supporting both Dynamic and Static plugins.
-method callPlugin ($plugin, :$command = $.defCommand, :$opts, :$namespace) {
-  if $plugin ~~ Websight {
-    self.callStaticPlugin($plugin, :$command, :$opts, :$namespace);
-  }
-  else {
-    self.callDynamicPlugin($plugin, :$command, :$opts, :$namespace);
-  }
-}
-
-## Dynamic plugins. Either the name of the class to load, or a spec.
-method callDynamicPlugin ($spec, :$command = $.defCommand is copy, :$opts, :$namespace is copy) {
+method callPlugin ($spec, :$command is copy = $.defCommand, :$opts is copy, :$namespace is copy) {
 
     say "Entered callDynamicPlugin..." if $.debug;
 
     my $plugin;
 
     if $spec ~~ Hash {
-        ## For Hash based specs, the 'name' value is required.
-        if hash-has($spec, 'name', :notempty) {
+        ## For Hash based specs, the 'plugin' value is required.
+        if hash-has($spec, 'plugin', :notempty) {
             $plugin = $spec<name>;
         }
         else {
-            return self.err: "No plugin name specified.";
+            return self.err: "No plugin specified.";
         }
 
         ## The others are optional, and just overide the defaults.
@@ -50,12 +40,26 @@ method callDynamicPlugin ($spec, :$command = $.defCommand is copy, :$opts, :$nam
             $command = $spec<command>;
         }
     }
-    elsif $spec ~~ Str {
-        $plugin = $spec;
+    else {
+      $plugin = $spec;
+    }
+
+    if $plugin ~~ Websight {
+        return self.callStaticPlugin($plugin, :$command, :$opts, :$namespace);
+    }
+    elsif $plugin ~~ Str {
+        return self.callDynamicPlugin($plugin, :$command, :$opts, :$namespace);
     }
     else {
-        return self.err: "Invalid callPlugin specification passed.";
+        return self.err: "Invalid plugin specification";
     }
+
+}
+
+## Dynamic plugins. Either the name of the class to load, or a spec.
+method callDynamicPlugin ($plugin is copy, :$command = $.defCommand, :$opts, :$namespace is copy) {
+
+    say "Entered callDynamicPlugin..." if $.debug;
 
     ## Okay, now continue processing.
 
@@ -100,9 +104,9 @@ method callStaticPlugin ($plugin, :$command = $.defCommand, :$opts, :$namespace 
     my regex nsSep    { \: \: }
 
     if (!$namespace) { 
-      $namespace = $plugin.WHAT.lc;
-      $namespace.=subst(/$!NS/, '', :global); # Strip the Namespace.
-      $namespace.=subst(/<&nsSep>/, '-', :global); # Convert :: to - for NS.
+        $namespace = $plugin.WHAT.lc;
+        $namespace.=subst(/$!NS/, '', :global); # Strip the Namespace.
+        $namespace.=subst(/<&nsSep>/, '-', :global); # Convert :: to - for NS.
     }
 
     say "<class> "~$plugin.WHAT if $.debug;

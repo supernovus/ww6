@@ -11,6 +11,8 @@ BEGIN {
 
 use SCGI;
 use Webtoo;
+use Webtoo::Plugins;
+use Websight::Example;
 
 my $datadir = './data';
 my $config  = 'config';
@@ -19,8 +21,11 @@ my $scgi = SCGI.new( :port(8118), :strict );
 
 my $handler = sub (%env) {
     my $wt = Webtoo.new( :datadir($datadir), :env(%env) );
+    $wt does Webtoo::Plugins; ## Add plugin support.
     ## Make a good example.
+    #$wt does Webtoo::Metadata::PDDL;  ## add PDDL metadata support.
     #$wt.metadata.loadFile($config); # The global config.
+    $wt.callPlugin(Websight::Example.new, :opts({'hello'=>'world'}));
     return $wt.processContent;
 }
 

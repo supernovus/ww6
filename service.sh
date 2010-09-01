@@ -8,7 +8,7 @@ case "$1" in
         echo "done."
     ;;
     daemon)
-        sudo -u nobody ./ww6.scgi &
+        sudo -u nobody ./apps/default.scgi &
         echo $! > daemon.pid
     ;;
     start)
