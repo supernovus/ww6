@@ -8,7 +8,6 @@ class Webtoo;
 use Perlite::WebRequest;
 use Perlite::Hash;
 
-has $!NS = "Websight::";  ## Namespce for plugins. Defaults to Websight::
 has %.env = %*ENV; # Override this if using SCGI or FastCGI.
 has %!headers = { Status => 200, 'Content-Type' => 'text/html' };
 has $.content is rw = '';

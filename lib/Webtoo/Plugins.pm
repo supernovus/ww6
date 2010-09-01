@@ -1,5 +1,6 @@
 role Webtoo::Plugins;
 
+has $!NS = "Websight::";  ## Namespce for plugins. Defaults to Websight::
 has @.plugins is rw;
 has $.defCommand = 'processPlugin';
 
@@ -44,14 +45,10 @@ method callPlugin ($spec, :$command is copy = $.defCommand, :$opts is copy, :$na
       $plugin = $spec;
     }
 
-#    if ($plugin.does('Websight')) {
-#        return self.callStaticPlugin($plugin, :$command, :$opts, :$namespace);
-#    }
-    if ($plugin ~~ Str) { ## Was elsif
+    if ($plugin ~~ Str) {
         return self.callDynamicPlugin($plugin, :$command, :$opts, :$namespace);
     }
     else {
-#        return self.err: "Invalid plugin specification: "~$plugin.perl;
         return self.callStaticPlugin($plugin, :$command, :$opts, :$namespace);
     }
 

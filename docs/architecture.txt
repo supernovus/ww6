@@ -1,0 +1,47 @@
+ww6 Architecture
+-----------------
+
+So, what are all those files in the lib directory? Well, let's find out.
+
+=== Webtoo.pm ===
+
+The core ww6 engine. This is what makes it tick.
+
+In your application, you will create a Webtoo object for each
+page request. If you are using SCGI, this is done in the handler subroutine.
+
+=== Webtoo/ ===
+
+Plugins that directly extend the functionality of Webtoo.
+These are designed as Perl 6 Roles, that you must apply to your
+Webtoo object using the 'does' statement.
+
+Once added, your Webtoo object will have new capabilities.
+
+ = Webtoo/Plugins.pm =
+
+This Role will add the ability to load plugins. You can load plugins either
+dynamically (pass the class name) or statically (pass an object of a given
+class.)
+
+NOTE: Until Rakudo implements a proper 'require' statement, the dynamic
+loading does not work properly.
+
+ = Webtoo/Metadata/PDDL.pm =
+
+This Role adds a Perlite::Data object as $.metadata.
+Perlite Data Definition Language is slightly similar to YAML, but was
+designed specifically for use with an older version of ww6.
+I am looking at adding a new Metadata role that will be able to use standard
+serialization languages such as YAML, JSON or PSON (Perl Six Object Notation).
+That's not quite ready yet though, as I have to figure out how it will handle
+rules for merging data.
+
+=== Websight.pm ===
+
+A role that is meant for loadable plugins.
+
+=== Websight/ ===
+
+All of the classes in this folder are loadable plugins, meant for use
+with the Webtoo::Plugins functionality. They all use the Websight role.
