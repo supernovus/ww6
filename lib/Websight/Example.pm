@@ -2,8 +2,8 @@ use Websight;
 
 class Websight::Example does Websight;
 
-method processPlugin (%opts?) {
-    my $config = self.getConfig(:type(Hash));
+method processPlugin ($config?) {
+    if (!$config) { $config = self.getConfig(:type(Hash)); }
     my $name = $.parent.req.get('name') || 'World';
     my $content;
     if $.parent.req.get('text') {

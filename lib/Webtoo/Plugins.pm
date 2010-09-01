@@ -1,26 +1,35 @@
 role Webtoo::Plugins;
 
-has @.plugins;
+has @.plugins is rw;
+has $.defCommand = 'processPlugin';
 
-method processPlugins {
+method doDynamicPlugins {
 
     say "Entered processPlugins" if $.debug;
 
     while my $plugin = @.plugins.shift {
         say "Processing $plugin" if $.debug;
-        self.callPlugin($plugin, 'processPlugin');
+        self.callPlugin($plugin);
     }
 
     say "Leaving processPlugins" if $.debug;
 
 }
 
-method callPlugin ($spec, $command is copy, :$opts is copy) {
+## A Quick wrapper supporting both Dynamic and Static plugins.
+method callPlugin ($plugin, :$command = $.defCommand, :$opts, :$namespace) {
+  if $plugin ~~ Websight {
+    self.callStaticPlugin($plugin, :$command, :$opts, :$namespace);
+  }
+  else {
+    self.callDynamicPlugin($plugin, :$command, :$opts, :$namespace);
+  }
+}
 
-    say "Entered callPlugin..." if $.debug;
+## Dynamic plugins. Either the name of the class to load, or a spec.
+method callDynamicPlugin ($spec, :$command = $.defCommand is copy, :$opts, :$namespace is copy) {
 
-    my %opts;
-    if $opts { %opts = %($opts) };
+    say "Entered callDynamicPlugin..." if $.debug;
 
     my $plugin;
 
@@ -34,8 +43,8 @@ method callPlugin ($spec, $command is copy, :$opts is copy) {
         }
 
         ## The others are optional, and just overide the defaults.
-        if hash-has($spec, 'opts', :defined, :type(Hash)) {
-            %opts = $spec<opts>;
+        if hash-has($spec, 'opts', :defined) {
+            $opts = $spec<opts>;
         }
         if hash-has($spec, 'command', :notempty) {
             $command = $spec<command>;
@@ -54,7 +63,7 @@ method callPlugin ($spec, $command is copy, :$opts is copy) {
     my regex nsStart  { ^^ <&nsSep> }
 
     say "<def> $plugin" if $.debug;
-    my $namespace = $plugin.lc;
+    if (!$namespace) { $namespace = $plugin.lc; }
     if $plugin ~~ /<&nsStart>/ {
         $plugin.=subst(/<&nsStart>/, '', :global);
         $namespace.=subst(/<&nsStart>/, '', :global);
@@ -81,7 +90,25 @@ method callPlugin ($spec, $command is copy, :$opts is copy) {
     my $plug = eval($plugin~".new()"); # More needed hackery.
     $plug.parent = self;
     $plug.namespace = $namespace;
-    $plug."$command"(%opts);
+    $plug."$command"($opts);
 }
 
+method callStaticPlugin ($plugin, :$command = $.defCommand, :$opts, :$namespace is copy) {
+
+    say "Entered callStaticPlugin..." if $.debug;
+
+    my regex nsSep    { \: \: }
+
+    if (!$namespace) { 
+      $namespace = $plugin.WHAT.lc;
+      $namespace.=subst(/$!NS/, '', :global); # Strip the Namespace.
+      $namespace.=subst(/<&nsSep>/, '-', :global); # Convert :: to - for NS.
+    }
+
+    say "<class> "~$plugin.WHAT if $.debug;
+    say "<namespace> $namespace" if $.debug;
+    $plugin.parent = self;
+    $plugin.namespace = $namespace;
+    $plugin."$command"($opts);
+}
 
