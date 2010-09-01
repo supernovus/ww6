@@ -44,14 +44,15 @@ method callPlugin ($spec, :$command is copy = $.defCommand, :$opts is copy, :$na
       $plugin = $spec;
     }
 
-    if ($plugin ~~ Websight) {
-        return self.callStaticPlugin($plugin, :$command, :$opts, :$namespace);
-    }
-    elsif ($plugin ~~ Str) {
+#    if ($plugin.does('Websight')) {
+#        return self.callStaticPlugin($plugin, :$command, :$opts, :$namespace);
+#    }
+    if ($plugin ~~ Str) { ## Was elsif
         return self.callDynamicPlugin($plugin, :$command, :$opts, :$namespace);
     }
     else {
-        return self.err: "Invalid plugin specification";
+#        return self.err: "Invalid plugin specification: "~$plugin.perl;
+        return self.callStaticPlugin($plugin, :$command, :$opts, :$namespace);
     }
 
 }
@@ -104,9 +105,10 @@ method callStaticPlugin ($plugin, :$command = $.defCommand, :$opts, :$namespace 
     my regex nsSep    { \: \: }
 
     if (!$namespace) { 
-        $namespace = $plugin.WHAT.lc;
+        $namespace = ~$plugin.WHAT.perl;
         $namespace.=subst($!NS, '', :global); # Strip the Namespace.
         $namespace.=subst(/<&nsSep>/, '-', :global); # Convert :: to - for NS.
+        $namespace.=lc; # Change to lowercase.
     }
 
     say "<class> "~$plugin.WHAT if $.debug;

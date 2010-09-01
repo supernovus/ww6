@@ -2,7 +2,7 @@ use Websight;
 
 class Websight::Example does Websight;
 
-method processPlugin ($config?) {
+method processPlugin ($config? is copy) {
     if (!$config) { $config = self.getConfig(:type(Hash)); }
     my $name = $.parent.req.get('name') || 'World';
     my $content;
@@ -19,10 +19,11 @@ method processPlugin ($config?) {
         }
     }
     else {
-        $content = "<html><head><title>Hello $name</title></head>\n";
-        $content ~= "<body><h1>Hello $name</h1>\n";
+        $content = "<html><head><title>Hello {$name}</title></head>\n";
+        $content ~= "<body><h1>Hello {$name}</h1>\n";
         $content ~= "<p>You have successfully installed Webtoo Websight 6</p>";
         $content ~= "<p>Please read the documentation to configure it.</p>";
+        $content ~= "<p>For this example file, you can pass ?name=YourName in the URL to change your name.</p>";
         $content ~= "<h2>The Environment</h2><dl>\n";
         $content ~= $.parent.env.fmt('<dt>%s</dt><dd>%s</dd>', "\n");
         $content ~= "</dl><h2>The Request Parameters</h2><dl>\n";
@@ -31,9 +32,9 @@ method processPlugin ($config?) {
             $content ~= "</dl><h2>The Plugin Config</h2><dl>\n";
             $content ~= $config.fmt('<dt>%s</dt><dd>%s</dd>', "\n");
         }
-        $content ~= "</dl><form method=\"POST\"><input type=\"submit\" />\n";
+        $content ~= "</dl><form method=\"POST\"><input type=\"submit\" value=\"Show as text\" name=\"text\" />\n";
         $content ~= "</form></body></html>\n";
-    }
+   }
     $.parent.content = $content;
 }
 
