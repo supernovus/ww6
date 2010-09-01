@@ -44,10 +44,10 @@ method callPlugin ($spec, :$command is copy = $.defCommand, :$opts is copy, :$na
       $plugin = $spec;
     }
 
-    if $plugin ~~ Websight {
+    if ($plugin ~~ Websight) {
         return self.callStaticPlugin($plugin, :$command, :$opts, :$namespace);
     }
-    elsif $plugin ~~ Str {
+    elsif ($plugin ~~ Str) {
         return self.callDynamicPlugin($plugin, :$command, :$opts, :$namespace);
     }
     else {
@@ -105,7 +105,7 @@ method callStaticPlugin ($plugin, :$command = $.defCommand, :$opts, :$namespace 
 
     if (!$namespace) { 
         $namespace = $plugin.WHAT.lc;
-        $namespace.=subst(/$!NS/, '', :global); # Strip the Namespace.
+        $namespace.=subst($!NS, '', :global); # Strip the Namespace.
         $namespace.=subst(/<&nsSep>/, '-', :global); # Convert :: to - for NS.
     }
 
