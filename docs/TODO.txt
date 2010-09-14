@@ -1,0 +1,10 @@
+-- ww6 and perlite6
+
+- Dispatch, manual mode.
+- New JSON and YAML Metadata plugins, using Perlite::Data framework.
+
+-- Other projects (to start)
+
+- Exemel: custom XML library.
+- Flower: a port of Petal using Exemel as engine.
+

@@ -51,16 +51,12 @@ In fact, it's currently in a major rewrite stage and does not even include
 most of the functionality of the previous master version (the old-libs
 folder contains a bunch of plugins that were written for the original ww6.)
 
-I want to build a static page creator app using this, so you could build
-an entire static website based on templates and configuration files.
+In addition to the original 'dynamic website' content management system,
+I would like to add the ability to create completely static websites using
+templates (the static cache functionality from the previous ww6 design was
+a similar idea, and may return, but I want to take it a bit further.)
 
-I would like to write a Metadata plugin that can use JSON, YAML or Perl
-data structures as a serialization format, and use special tags to merge
-strucutres correctly. I haven't decided on an exact format for it yet.
-
-I'm also planning a project called Flower, which will be an implementation
-of the Petal template engine for Perl 6 (including the Metal extensions.)
-It will be a separate project, but you'll be able to use it in ww6 apps.
+See the docs/TODO.txt for more details on specific future plans.
 
 Timothy M. Totten
 

@@ -4,11 +4,9 @@ use Perlite::Data;
 use Perlite::File;
 
 has $.datadir = '.';
-has $.dataext = '.wtdl';
 
 has $.metadata is rw = Perlite::Data.make(
   :data({
-    :plugins( [ 'Example' ] ),
     :root( [ '' ] ),
     'request' => {
        :host($.host),
@@ -27,7 +25,7 @@ has $.metadata is rw = Perlite::Data.make(
     },
   }),
   :find(sub ($me, $file) {
-    findFile($file, $.datadir, :subdirs($.metadata<root>), :ext($.dataext));
+    findFile($file, :root($.datadir), :subdirs($me<root>));
   }),
 );
 

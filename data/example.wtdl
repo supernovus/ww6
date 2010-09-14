@@ -8,6 +8,11 @@
 # This is so that the include is processed ONLY if the file exists.
 
 plugins: ~[Dispatch,Content,Metadata,Headers,Template]
+
+example:
+  hello: world
+  goodbye: universe
+
 content:
   index: default
   handler: /handler

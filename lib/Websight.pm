@@ -1,5 +1,8 @@
 role Websight;
 
+# Note: We assume that the Webtoo object has at least the Plugins role loaded,
+# and for getConfig/saveConfig that it has a Metadata role loaded as well.
+
 use Perlite::Hash;
 
 has $.parent is rw;
