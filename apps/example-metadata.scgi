@@ -22,14 +22,20 @@ my $scgi = SCGI.new( :port($port), :strict ); ## Create an SCGI object.
 
 ## Now we're going to create a handler subroutine to handle page requests.
 my $handler = sub (%env) {
+    #say "Creating object";
     my $wt = Webtoo.new( 
         :env(%env), 
-        :metadata(Perlite::Data.new),
+        :metadata(Perlite::Data::JSON.new),
         :datadir($datadir),
     ); ## Create a Webtoo object, with metadata and datadir set.
+    #say "Initializing metadata";
     $wt.init-metadata; ## Init the metadata object with default values.
+    #say "Loading configuration";
+    #$wt.metadata.debug = True;
     $wt.metadata.loadFile($config); ## Load the config file.
+    #say "Processing plugins";
     $wt.processPlugins; ## Process plugins in the 'plugins' metadata array.
+    #say "Processing content";
     return $wt.processContent; ## Return processed content to web server.
 }
 
