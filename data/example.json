@@ -1,0 +1,5 @@
+## Example JSON file
+{
+ "plugins": [ "Example" ],
+ "example": { "hello" => "world" },
+}

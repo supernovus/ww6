@@ -10,7 +10,6 @@ BEGIN {
 
 use SCGI;
 use Webtoo;
-use Webtoo::Plugins;
 use Websight::Example; ## We're using "static" plugins, so load it now.
 
 my $port = 8118; ## SCGI port
@@ -20,7 +19,6 @@ my $scgi = SCGI.new( :port($port), :strict ); ## Create an SCGI object.
 ## Now we're going to create a handler subroutine to handle page requests.
 my $handler = sub (%env) {
     my $wt = Webtoo.new( :env(%env) ); ## Create a Webtoo object.
-    $wt does Webtoo::Plugins; ## Add plugin support.
     my $example = Websight::Example.new(); ## Init the static plugin.
     $wt.callPlugin($example, :opts({'hello'=>'world'})); ## Call the plugin.
     return $wt.processContent; ## Return processed content to web server.

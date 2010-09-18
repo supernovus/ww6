@@ -4,9 +4,10 @@ use v6;
 
 class Webtoo;
 
-#use Perlite::Data;
 use Perlite::WebRequest;
 use Perlite::Hash;
+use Perlite::Data;
+use Perlite::File;
 
 has %.env = %*ENV; # Override this if using SCGI or FastCGI.
 has %!headers = { Status => 200, 'Content-Type' => 'text/html' };
@@ -25,6 +26,152 @@ has $.debug = hash-has(%*ENV, 'DEBUG', :return);
 has $.noheaders is rw = 0;
 has $.savefile is rw;
 has %.hooks is rw;
+has Perlite::Data $.metadata is rw; ## Metadata object.
+has $!NS = "Websight::";  ## Namespce for plugins. Defaults to Websight::
+has $.defCommand = 'processPlugin'; ## Default command.
+has $.datadir = '.';
+
+## We would use BUILD to init the metadata, but unfortunately,
+## the BUILD submethod currently makes all of the attribute settings
+## go "poof". It's basically useless. I hope that gets fixed. :-P
+method init-metadata() {
+    if defined $.metadata {
+        $.metadata = $.metadata.make(
+          :data({
+            :root( [ '' ] ),
+            :plugins( ['Example'] ),
+            'request' => {
+               :host($.host),
+               :proto($.proto),
+               :path($.path),
+               :type($.req.type),
+               :method($.req.method),
+               :query($.req.query),
+               :params($.req.params),
+               :userip($.req.remoteAddr),
+               :browser($.req.userAgent),
+               :uri($.uri),
+               :url($.proto ~ '://' ~ $.host);
+               :urlhttp('http://' ~ $.host);
+               :urlhttps('https://' ~ $.host);
+            },
+          }),
+          :find(sub ($me, $file) {
+            findFile($file, :root($.datadir), :subdirs($me<root>));
+          }),
+        );
+    }
+}
+
+method processPlugins {
+
+    say "Entered processPlugins" if $.debug;
+
+    while my $plugin = $.metadata<plugins>.shift {
+        say "Processing $plugin" if $.debug;
+        self.callPlugin($plugin);
+    }
+
+    say "Leaving processPlugins" if $.debug;
+
+}
+
+## A Quick wrapper supporting both Dynamic and Static plugins.
+method callPlugin ($spec, :$command is copy = $.defCommand, :$opts is copy, :$namespace is copy) {
+
+    say "Entered callDynamicPlugin..." if $.debug;
+
+    my $plugin;
+
+    if $spec ~~ Hash {
+        ## For Hash based specs, the 'plugin' value is required.
+        if hash-has($spec, 'plugin', :notempty) {
+            $plugin = $spec<name>;
+        }
+        else {
+            return self.err: "No plugin specified.";
+        }
+
+        ## The others are optional, and just overide the defaults.
+        if hash-has($spec, 'opts', :defined) {
+            $opts = $spec<opts>;
+        }
+        if hash-has($spec, 'command', :notempty) {
+            $command = $spec<command>;
+        }
+    }
+    else {
+      $plugin = $spec;
+    }
+
+    if ($plugin ~~ Str) {
+        return self!callDynamicPlugin($plugin, :$command, :$opts, :$namespace);
+    }
+    else {
+        return self!callStaticPlugin($plugin, :$command, :$opts, :$namespace);
+    }
+
+}
+
+## Dynamic plugins. Either the name of the class to load, or a spec.
+method !callDynamicPlugin ($plugin is copy, :$command = $.defCommand, :$opts, :$namespace is copy) {
+
+    say "Entered callDynamicPlugin..." if $.debug;
+
+    ## Okay, now continue processing.
+
+    my regex nsSep    { \: \: }
+    my regex nsStart  { ^^ <&nsSep> }
+
+    say "<def> $plugin" if $.debug;
+    if (!$namespace) { $namespace = $plugin.lc; }
+    if $plugin ~~ /<&nsStart>/ {
+        $plugin.=subst(/<&nsStart>/, '', :global);
+        $namespace.=subst(/<&nsStart>/, '', :global);
+    }
+    else {
+        $plugin = $!NS ~ $plugin;
+    }
+    $namespace.=subst(/<&nsSep>/, '-', :global); # Convert :: to - for NS.
+    if $plugin ~~ / \+ / {
+        $plugin.=subst(/ \+ .* /, '');
+    }
+    elsif $plugin ~~ / \= / {
+        $namespace = $plugin.split(/\=/)[1];
+        $plugin.=subst(/ \= .* /, '');
+    }
+
+    say "<class> $plugin" if $.debug;
+    say "<namespace> $namespace" if $.debug;
+    #my $classfile = $plugin.subst(/<&nsSep>/, '/', :global); # Needed hackery.
+    #$classfile ~= '.pm';
+    #require $classfile;
+    eval("use $plugin"); # Evil hack to replace 'require'.
+    say "We got past require" if $.debug;
+    my $plug = eval($plugin~".new()"); # More needed hackery.
+    $plug.parent = self;
+    $plug.namespace = $namespace;
+    $plug."$command"($opts);
+}
+
+method !callStaticPlugin ($plugin, :$command = $.defCommand, :$opts, :$namespace is copy) {
+    say "Entered callStaticPlugin..." if $.debug;
+
+    my regex nsSep    { \: \: }
+
+    if (!$namespace) { 
+        $namespace = ~$plugin.WHAT.perl;
+        $namespace.=subst($!NS, '', :global); # Strip the Namespace.
+        $namespace.=subst(/<&nsSep>/, '-', :global); # Convert :: to - for NS.
+        $namespace.=lc; # Change to lowercase.
+    }
+
+    say "<class> "~$plugin.WHAT if $.debug;
+    say "<namespace> $namespace" if $.debug;
+    $plugin.parent = self;
+    $plugin.namespace = $namespace;
+    $plugin."$command"($opts);
+}
 
 method err ($message) {
     $*ERR.say: $message;
