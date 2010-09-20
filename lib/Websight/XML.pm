@@ -1,24 +1,32 @@
 use Websight; 
 
+## This plugin can be used standalone, but it's pretty boring.
+## Better to make anything depending on it a subclass, and call
+## the self.make-xml() method before trying to use the XML object.
+
 class Websight::XML does Websight;
 
 use Exemel;
 
+## This method will turn a raw text content into an XML document.
+## It also supports converting an Exemel::Element, but that's not
+## a standard usage.
 method make-xml() {
-  if $.parent.content !~~ Exemel::Element {
+  ## We want an Exemel::Document. Let's make one.
+  if $.parent.content !~~ Exemel::Document {
     my $xml;
-    if $.parent.content ~~ Exemel::Document { ## too soon for Document.
-      $xml = $.parent.content.root;
+    if $.parent.content ~~ Exemel::Element {
+      $xml = Exemel::Document.new(:root($.parent.content));
     }
     else {
-      $xml = Exemel::Element.parse($.parent.content);
+      $xml = Exemel::Document.parse($.parent.content);
     }
     $.parent.content = $xml;
   }
 }
 
-## This is pretty boring when used alone. Best to subclass XML
-#  and call the make-xml() function from the subclass.
+## The default if you do call this plugin directly.
 method processPlugin ($opts?) {
   self.make-xml();
 }
+

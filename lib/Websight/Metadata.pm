@@ -6,16 +6,17 @@ method processPlugin ($opts?) {
   self.make-xml;
   my $debug = $.parent.debug;
   my $name = $.namespace;
-  loop (my $i=0; $i < $.parent.content.nodes.elems; $i++) {
-    if $.parent.content.nodes[$i] !~~ Exemel::Element { next; }
-    my $id = $.parent.content.nodes[$].get('id');
+  loop (my $i=0; $i < $.parent.content.root.nodes.elems; $i++) {
+    if $.parent.content.root.nodes[$i] !~~ Exemel::Element { next; }
+    my $id = $.parent.content.root.nodes[$].get('id');
     if $id && $id eq $name {
-      my $md_node = $.parent.content.nodes[$].nodes[0];
-      if $md_node ~~ Exemel::Text {
+      ## The metadata element should have only one node.
+      my $md_node = $.parent.content.root.nodes[$].nodes[0];
+      if $md_node ~~ Exemel::Text { ## We need a text node.
         my $data = ~$md_node;
         $.parent.metadata.load($data);
       }
-      $.parent.content.nodes.splice($i, 1);
+      $.parent.content.root.nodes.splice($i, 1);
       last;
     }
   }

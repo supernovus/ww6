@@ -88,7 +88,7 @@ method clearPlugins {
 ## A Quick wrapper supporting both Dynamic and Static plugins.
 method callPlugin ($spec, :$command is copy = $.defCommand, :$opts is copy, :$namespace is copy) {
 
-    say "Entered callDynamicPlugin..." if $.debug;
+    say "Entered callPlugin..." if $.debug;
 
     my $plugin;
 
