@@ -5,16 +5,14 @@ class Websight::Content does Websight;
 has $.config is rw;
 has $.cache is rw = 0;
 has $.static is rw = 0;
-has $.ext is rw;
 has $.append is rw = '';
 
 method processPlugin (%opts?) {
     my $debug = $.parent.debug;
     say "We're in Content" if $debug;
     $.config   = self.getConfig(:type(Hash)) // {};
-    my $pageExt  = hash-has($.config, 'page-ext',  :notempty, :return) || 'wtml';
-    my $cacheExt = hash-has($.config, 'cache-ext', :notempty, :return) || 'html';
-    my $handler  = hash-has($.config, 'handler',   :notempty, :return) || 'handler';
+    my $cacheExt = hash-has($.config, 'cache-ext', :notempty, :return) || '.cache';
+    my $handler  = hash-has($.config, 'handler',   :notempty, :return) || 'handler.xml';
     my $cache = hash-has($.config, 'use-cache', :true, :return) || 0;
     say "Cache = $cache" if $debug;
 
@@ -51,14 +49,11 @@ method processPlugin (%opts?) {
         say "Doing the loop, iteration: {$.cache+1}" if $debug;
         my $page = $.parent.path;
         if $.cache { 
-            $.ext = $cacheExt;
-        }
-        else {
-            $.ext = $pageExt;
+            $page ~= $cacheExt;
         }
         if $page ~~ /\/$/ {
             say "Page ended in a slash" if $debug;
-            $file = self!findFolder($page) // self!findPage($page, :slash);   
+            $file = self!findFolder($page) // self!findPage($page, :slash);
         }
         else {
             say "Page didn't end in a slash" if $debug;
@@ -66,7 +61,7 @@ method processPlugin (%opts?) {
         }
         if $file && $.cache {
             say "We found a cache file: $file\n" if $debug;
-            $.parent.metadata<plugins>.splice;
+            $.parent.clearPlugins;
             $.parent.noheaders = 1;
             last;
         }
@@ -99,8 +94,7 @@ method processPlugin (%opts?) {
         $.parent.content = $content;
         if defined $.parent.req.get('REBUILD') {
             say "Setting the cache file to be saved." if $debug;
-            my $rep = matcher("\\.$pageExt");
-            my $cachefile = $file.subst($rep, "$cachetail.$cacheExt");
+            my $cachefile = $file ~= $cachetail ~ $cacheExt;
             $.parent.savefile = $cachefile;
         }
     }

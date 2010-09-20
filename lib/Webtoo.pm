@@ -81,6 +81,10 @@ method processPlugins {
 
 }
 
+method clearPlugins {
+  $.metadata<plugins>.splice;
+}
+
 ## A Quick wrapper supporting both Dynamic and Static plugins.
 method callPlugin ($spec, :$command is copy = $.defCommand, :$opts is copy, :$namespace is copy) {
 

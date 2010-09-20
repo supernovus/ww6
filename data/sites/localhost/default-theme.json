@@ -1,5 +1,5 @@
 {
-  "plugins" : [ "WTML" ],
+  "+plugins" : [ "Petal" ],
   "layout"  : "default-layout.xml"
 }
 
