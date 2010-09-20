@@ -3,12 +3,11 @@ use Websight;
 class Websight::Dispatch does Websight;
 
 use Perlite::Hash;
-use Perlite::Match;
 
-method processPlugin (%opts?) {
-    my $rules = self.getConfig(:type(Array));
-    if defined $rules {
-        self!matchRules($rules);
+method processPlugin ($config? is copy) {
+    if (!$config) { $config = self.getConfig(:type(Array)); }
+    if defined $config {
+        self!matchRules($config);
         $.parent.metadata.delete($.namespace);
     }
 }
@@ -31,33 +30,28 @@ method !matchRules (@rules) {
         ## Conditions, if they don't match, skip this rule.
         if hash-has($rule, 'host', :notempty, :type(Str)) {
             if $continue == 1 { $continue = 0 }
-            if not $.parent.host ~~ matcher($rule<host>) {
+            if not $.parent.host ~~ eval("/$rule<host>/") {
                 next;
             }
         }
         if hash-has($rule, 'path', :notempty, :type(Str)) {
             say "Parsing 'path' rule: "~$rule<path> if $debug;
             if $continue == 1 { $continue = 0 }
-            if not $.parent.path ~~ matcher($rule<path>) {
+            if not $.parent.path ~~ eval("/$rule<path>/") {
                 say "Which did not match." if $debug;
                 next;
             }
         }
         if hash-has($rule, 'proto', :notempty, :type(Str)) {
             if $continue == 1 { $continue = 0 }
-            if not $.parent.proto ~~ matcher($rule<proto>) {
+            if not $.parent.proto ~~ eval("/$rule<proto>/") {
                 next;
             }
         }
         if hash-has($rule, 'file', :notempty, :type(Str)) {
             if $continue == 1 { $continue = 0 }
             my $file = $rule<file>;
-            my $ext = $.parent.dlext;
-            if $file ~~ /\.(\w+)$/ {
-                $ext = $0;
-                $file.=subst(/\.\w+$/, '');
-            }
-            if not $.parent.findFile($file, :ext($ext)) {
+            if not $.parent.findFile($file) {
                 next;
             }
         }
@@ -86,12 +80,13 @@ method !matchRules (@rules) {
             $.parent.metadata<root>.unshift: $rule<root>
         }
 
-        ## Metadata Processing
-        if hash-has($rule, 'set', :notempty, :type(Str)) {
-            $.parent.metadata.load($rule<set>);
+        ## Metadata Processing, takes a Hash, and the contents of the
+        #  Hash will be merged with the metadata object.
+        if hash-has($rule, 'set', :notempty, :type(Hash)) {
+            $.parent.metadata.merge($rule<set>);
         }
 
-        ## Plugin Processing
+        ## Plugin Processing, pass it a plugin spec Hash.
         if hash-has($rule, 'plugin', :defined) {
             self.callPlugin($rule<plugin>);
         }
@@ -100,16 +95,14 @@ method !matchRules (@rules) {
         #  Or include a hash element called 'dispatch' which is said array.
         if hash-has($rule, 'include', :notempty, :type(Str)) {
             my @subrules;
-            my $subrules = $.parent.metadata.parseFile(
-                $rule<include>, 
-                [], 
-                :cache([ $.parent.metadata ]),
-            );
+            my $subrules = $.parent.metadata.parseFile($rule<include>);
             if $subrules ~~ Array {
                 @subrules = @($subrules);
             }
-            elsif $subrules ~~ Hash 
-               && hash-has($subrules, 'dispatch', :type(Array)) {
+            elsif 
+            ( $subrules ~~ Hash 
+              && hash-has($subrules, 'dispatch', :type(Array)) 
+            ) {
                 @subrules = @($subrules<dispatch>);
             }
             if @subrules {
@@ -117,20 +110,9 @@ method !matchRules (@rules) {
             }
         }
 
-        ## For chaining dispatch rules inline, there are two types.
-        #  Either a string, which will be parsed as WTDL AFTER matching.
-        #  Or an array, which will be passed directly to matchRules.
-        if hash-has($rule, 'dispatch', :notempty, :type(Str)) {
-            self!matchRules(
-                $.parent.metadata.parse(
-                    $rule<dispatch>.split,
-                    [],
-                    0,
-                    [ $.parent.metadata ],
-                )
-            );
-        }
-        elsif hash-has($rule, 'dispatch', :type(Array)) {
+        ## Rule chaining. Pass an array, and it will be parsed as a nested
+        # set of dispatch rules.
+        if hash-has($rule, 'dispatch', :type(Array)) {
             self!matchRules($rule<chain>);
         }
 

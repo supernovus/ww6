@@ -1,4 +1,4 @@
-ww6: Web Application Framework for Perl 6
+ww6: Web Application Framework and CMS Library-set for Perl 6
 
 === Story ===
 
@@ -35,13 +35,27 @@ This is the result.
   http://github.com/supernovus/SCGI
   This library was written specifically because I was frustrated testing
   ww6 as a CGI script, where the performance was abysmal.
+ 
+- The Exemel and Flower libraries
+  http://github.com/supernovus/exemel
+  http://github.com/supernovus/flower
+  Not required by the Webtoo core, or the Example plugin,
+  but these is used by the Websight CMS plugins.
+
+- The JSON::Tiny library
+  http://github.com/moritz/json
+  Again, not used by the Webtoo core directly, but if you want to use
+  the metadata functionality of Webtoo (required by most Websight plugins)
+  then the currently supported metadata plugin is Perlite::Data::JSON.
+  All example data files included with ww6 are written in JSON, using the
+  Perlite::Data API for merge rules and includes.
 
 - If you want to run the SCGI process on a computer behind NAT,
   and have the publically accessible web server forward requests
   to it, you can look into the reverse proxy functionality of OpenSSH.
   The 'service.sh' included shows how I have it set up to run on my home
   computer, and forward to my publically accessible VPS.
- 
+
 === Future Plans ===
 
 This project is still under construction, and does not include all of the

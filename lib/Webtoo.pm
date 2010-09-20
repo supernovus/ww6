@@ -63,6 +63,11 @@ method init-metadata() {
     }
 }
 
+## Similar to the findFile for metadata, but for use elsewhere.
+method findFile($file) {
+  findFile($file, :root($.datadir), :subdirs($.metadata<root>));
+}
+
 method processPlugins {
 
     say "Entered processPlugins" if $.debug;
