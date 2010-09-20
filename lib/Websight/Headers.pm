@@ -31,7 +31,7 @@ method processPlugin ($default_config?) {
     if hash-has($config, 'expires') {
         my $expires = $config<expires>;
         my $unit = 's';
-        if ($exipires ~~ /^(\d+ [\.\d+]?)(<[smhdwMy]>)$/) {
+        if ($expires ~~ /^(\d+ [\.\d+]?)(<[smhdwMy]>)$/) {
           $unit = ~$1;
           $expires = +$0;
         }

@@ -9,7 +9,7 @@ has $.cache is rw = 0;
 has $.static is rw = 0;
 has $.append is rw = '';
 
-method processPlugin (%opts?) {
+method processPlugin ($opts?) {
     my $debug = $.parent.debug;
     say "We're in Content" if $debug;
     $.config   = self.getConfig(:type(Hash)) // {};
@@ -70,17 +70,16 @@ method processPlugin (%opts?) {
         $.append = ''; # After parsing, reset again.
         $.cache-- if $.cache; # Lower the static.
     }
+    say "After search file is $file";
     ## If all other combinations have failed, use the handler.
     if !$file {
         if $cache && not defined $.parent.req.get('NOCACHE') {
-            $.ext = $cacheExt;
-            $file = self!findPage($handler);
+            $file = self!findPage($handler~$cacheExt);
             if $file {
                 $.parent.metadata<plugins>.splice;
                 $.parent.noheaders = 1;
             }
             else {
-                $.ext = $pageExt;
                 $file = self!findPage($handler);
             }
         }
@@ -90,10 +89,12 @@ method processPlugin (%opts?) {
     }
     ## Finally, if we found a page, show it!
     if $file {
+        say "Found $file" if $debug;
         $.config<path>;
         self.saveConfig($.config);
         my $content = slurp $file;
         $.parent.content = $content;
+        say "Found Content is: "~$content if $debug;
         if defined $.parent.req.get('REBUILD') {
             say "Setting the cache file to be saved." if $debug;
             my $cachefile = $file ~= $cachetail ~ $cacheExt;
@@ -108,20 +109,22 @@ method processPlugin (%opts?) {
 
 method !findFolder ($page is copy, :$slash) {
     my $debug = $.parent.debug;
-    my $default = hash-has($.config, 'default', :notempty, :return) || 'default';
+    say "We're in findFolder" if $debug;
+    my $default = hash-has($.config, 'default', :notempty, :return) || 'default.xml';
     if $slash {
         $page ~= '/';
     }
     my $find = $page ~ $default ~ $.append;
-    return $.parent.findFile($find, :ext($.ext));
+    return $.parent.findFile($find);
 }
 
 method !findPage ($page is copy, :$slash) {
     my $debug = $.parent.debug;
+    say "We're in findPage" if $debug;
     if $slash {
         $page.=subst(/\/$/,'');
     }
     my $find = $page ~ $.append;
-    return $.parent.findFile($find, :ext($.ext));
+    return $.parent.findFile($find);
 }
 

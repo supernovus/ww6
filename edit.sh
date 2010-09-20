@@ -53,6 +53,15 @@ case "$1" in
             popd
         fi
     ;;
+    test|-t)
+      if [ -n "$2" ]; then
+        getmodule $2 ./
+        pushd lib
+        clean $MODULE
+        perl6 $MODULE.pm
+        popd
+      fi
+    ;;
     *)
         getmodule $1
         clean $MODULE

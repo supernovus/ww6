@@ -95,7 +95,7 @@ method callPlugin ($spec, :$command is copy = $.defCommand, :$opts is copy, :$na
     if $spec ~~ Hash {
         ## For Hash based specs, the 'plugin' value is required.
         if hash-has($spec, 'plugin', :notempty) {
-            $plugin = $spec<name>;
+            $plugin = $spec<plugin>;
         }
         else {
             return self.err: "No plugin specified.";
@@ -158,9 +158,12 @@ method !callDynamicPlugin ($plugin is copy, :$command = $.defCommand, :$opts, :$
     eval("use $plugin"); # Evil hack to replace 'require'.
     say "We got past require" if $.debug;
     my $plug = eval($plugin~".new()"); # More needed hackery.
-    $plug.parent = self;
-    $plug.namespace = $namespace;
-    $plug."$command"($opts);
+    say "What the fuck: "~$plug.perl if $.debug;
+    if $plug {
+      $plug.parent = self;
+      $plug.namespace = $namespace;
+      $plug."$command"($opts);
+    }
 }
 
 method !callStaticPlugin ($plugin, :$command = $.defCommand, :$opts, :$namespace is copy) {
