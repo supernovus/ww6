@@ -2,6 +2,8 @@ use Websight;
 
 class Websight::Content does Websight;
 
+use Perlite::Hash;
+
 has $.config is rw;
 has $.cache is rw = 0;
 has $.static is rw = 0;

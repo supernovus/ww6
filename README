@@ -26,7 +26,7 @@ This is the result.
   http://rakudo.org/
   A version of Perl 6 for the Parrot Virtual Machine.
 
-- The Perlite libraries for Perl 6
+- The Perlite library collection for Perl 6
   http://github.com/supernovus/perlite6
   This library collection was once included with ww6, but has been separated
   out for use in other projects.
@@ -49,6 +49,12 @@ This is the result.
   then the currently supported metadata plugin is Perlite::Data::JSON.
   All example data files included with ww6 are written in JSON, using the
   Perlite::Data API for merge rules and includes.
+
+- The Temporal Utils library collection
+  http://github.com/supernovus/temporal-utils
+  Not used by the core or Example plugin, but it is used by a few of the
+  CMS plugins (including Headers) and by Flower::Utils::Date which can be
+  loaded by the Petal plugin (see the utils option in the Petal plugin.)
 
 - If you want to run the SCGI process on a computer behind NAT,
   and have the publically accessible web server forward requests

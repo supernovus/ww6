@@ -2,10 +2,12 @@ use Websight;
 
 class Websight::Headers does Websight;
 
-use Perlite::Time;
+use Perlite::Hash;
+use DateTime::Utils;
+use DateTime::Math;
 
-method processPlugin (%opts?) {
-    my $config = self.getConfig(:type(Hash));
+method processPlugin ($default_config?) {
+    my $config = self.getConfig(:type(Hash)) // $default_config;
 
     if !$config { return; }
 
@@ -27,8 +29,14 @@ method processPlugin (%opts?) {
         $.parent.status($config<status>);
     }
     if hash-has($config, 'expires') {
-        my $expire = time + $config<expires>;
-        my $expiry = formatTime($expire, 'RFC');
+        my $expires = $config<expires>;
+        my $unit = 's';
+        if ($exipires ~~ /^(\d+ [\.\d+]?)(<[smhdwMy]>)$/) {
+          $unit = ~$1;
+          $expires = +$0;
+        }
+        my $expire = DateTime.now + to-seconds($expires, $unit);
+        my $expiry = rfc2822($expire);
         $.parent.addHeader('Expires', $expiry);
     }
     if hash-has($config, 'nocache', :true) {
@@ -40,6 +48,6 @@ method processPlugin (%opts?) {
     if hash-has($config, 'delheaders', :defined, :type(Array)) {
         $.parent.delHeaders($config<delheaders>);
     }
-      
+
 }
 

@@ -2,6 +2,8 @@ use Websight;
 
 class Websight::Autoroot does Websight;
 
+use Perlite::Hash;
+
 ## Find a root based on a domain name.
 #  Existing roots will be searched in.
 #  By default, if this finds a path, that path
@@ -15,9 +17,9 @@ class Websight::Autoroot does Websight;
 #  That means you could have domains/my.test.com and domains/test.com
 #  and files would be found in them in that order.
 
-method processPlugin (%opts?) {
+method processPlugin (%def_config) {
     my $debug = $.parent.debug;
-    my %config = self.getConfig(:type(Hash)) // %opts;
+    my %config = self.getConfig(:type(Hash)) // %def_config;
     my $replace = 1;
     my $nest    = 0;
     my $found   = 0;
@@ -35,7 +37,7 @@ method processPlugin (%opts?) {
             say "Checking '$root' for '$check'." if $debug;
             my $path = $.parent.datadir ~ '/' ~ $root ~ '/' ~ $check;
             say "Lookng for $path" if $debug;
-            if $path ~~ :d {
+            if $path.IO ~~ :d {
                 say "Found it!" if $debug;
                 @roots.push: $root ~ '/' ~ $check;
                 if $nest < 2 { $found = 1; last; }
