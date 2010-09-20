@@ -1,7 +1,0 @@
-plugins: [WTML]
-template: default
-wtml:
-  tags: [page]
-  if: 1
-  comments: 1
-

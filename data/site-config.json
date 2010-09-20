@@ -1,0 +1,22 @@
+{
+  "plugins" : [ "Dispatch", "Content", "Metadata", "Headers", "Template" ],
+  "content" : 
+  {
+    "index"       : "default.xml",
+    "handler"     : "/handler.xml",
+    "use-cache"   : 0,
+    "ignore-keys" : [ "INDEX" ]
+  },
+  "dispatch" : 
+  [
+    { "path" : "secure",    "redirect" : "https" },
+    { "path" : "^\\/author", "redirect" : "http://huri.net/" },
+    { "path" : "^\\/example", "set" :
+      { "plugins" : "Example", "example" : { "hello" : "world" } }
+    },
+    { "root" : "sites", "plugin" :
+      { "name" : "Autoroot", "opts" : { "nest" : 1 } }
+    },
+    { "file" : "redirect.json", "include" : "redirect.json" }
+  ]
+}

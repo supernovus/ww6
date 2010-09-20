@@ -1,0 +1,6 @@
+This folder contains the old "domains" directory.
+It's still using WTDL data and WTML templates instead
+of the newer JSON data and XML+TAL templates.
+
+I will migrate these files over to the new formats as the plugins that
+powered the features are ported to the new framework.

@@ -1,0 +1,5 @@
+{
+  "plugins" : [ "WTML" ],
+  "layout"  : "default-layout.xml"
+}
+
