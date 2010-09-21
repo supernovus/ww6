@@ -25,12 +25,8 @@ my $handler = sub (%env) {
     #say "Creating object";
     my $wt = Webtoo.new( 
         :env(%env), 
-        :metadata(Perlite::Data::JSON.new),
         :datadir($datadir),
-    ); ## Create a Webtoo object, with metadata and datadir set.
-    #say "Initializing metadata";
-    $wt.init-metadata; ## Init the metadata object with default values.
-    #say "Loading configuration";
+    ); 
     #$wt.metadata.debug = True;
     $wt.metadata.loadFile($config); ## Load the config file.
     #say "Processing plugins";

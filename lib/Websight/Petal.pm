@@ -2,7 +2,7 @@ use Websight::XML;
 
 class Websight::Petal is Websight::XML;
 
-use Perlite::Hash;
+use Hash::Has;
 use Flower;
 
 # This plugin must be called AFTER any others that add metadata that

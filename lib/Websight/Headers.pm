@@ -2,7 +2,7 @@ use Websight;
 
 class Websight::Headers does Websight;
 
-use Perlite::Hash;
+use Hash::Has;
 use DateTime::Utils;
 use DateTime::Math;
 

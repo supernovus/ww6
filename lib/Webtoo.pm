@@ -4,15 +4,15 @@ use v6;
 
 class Webtoo;
 
-use Perlite::WebRequest;
-use Perlite::Hash;
-use Perlite::Data;
+use WebRequest;
+use Hash::Has;
+use HashConfig::Magic;
 use Perlite::File;
 
 has %.env = %*ENV; # Override this if using SCGI or FastCGI.
 has %!headers = { Status => 200, 'Content-Type' => 'text/html' };
 has $.content is rw = '';
-has $.req = Perlite::WebRequest.new( :env(%.env) );
+has $.req = WebRequest.new( :env(%.env) );
 has $.path = hash-has(%.env, 'PATH_INFO', :notempty, :return) 
     // hash-has(%.env, 'REQUEST_URI', :defined, :return) 
     // @*ARGS[0] // '';
@@ -26,42 +26,33 @@ has $.debug = hash-has(%*ENV, 'DEBUG', :return);
 has $.noheaders is rw = 0;
 has $.savefile is rw;
 has %.hooks is rw;
-has Perlite::Data $.metadata is rw; ## Metadata object.
 has $!NS = "Websight::";  ## Namespce for plugins. Defaults to Websight::
 has $.defCommand = 'processPlugin'; ## Default command.
 has $.datadir = '.';
-
-## We would use BUILD to init the metadata, but unfortunately,
-## the BUILD submethod currently makes all of the attribute settings
-## go "poof". It's basically useless. I hope that gets fixed. :-P
-method init-metadata() {
-    if defined $.metadata {
-        $.metadata = $.metadata.make(
-          :data({
-            :root( [ '' ] ),
-            :plugins( ['Example'] ),
-            'request' => {
-               :host($.host),
-               :proto($.proto),
-               :path($.path),
-               :type($.req.type),
-               :method($.req.method),
-               :query($.req.query),
-               :params($.req.params),
-               :userip($.req.remoteAddr),
-               :browser($.req.userAgent),
-               :uri($.uri),
-               :url($.proto ~ '://' ~ $.host);
-               :urlhttp('http://' ~ $.host);
-               :urlhttps('https://' ~ $.host);
-            },
-          }),
-          :find(sub ($me, $file) {
-            findFile($file, :root($.datadir), :subdirs($me<root>));
-          }),
-        );
-    }
-}
+has HashConfig::Magic $.metadata is rw = HashConfig::Magic.make(
+  :data({
+    :root( [ '' ] ),
+    :plugins( ['Example'] ),
+    'request' => {
+        :host($.host),
+        :proto($.proto),
+        :path($.path),
+        :type($.req.type),
+        :method($.req.method),
+        :query($.req.query),
+        :params($.req.params),
+        :userip($.req.remoteAddr),
+        :browser($.req.userAgent),
+        :uri($.uri),
+        :url($.proto ~ '://' ~ $.host);
+        :urlhttp('http://' ~ $.host);
+        :urlhttps('https://' ~ $.host);
+    },
+  }),
+  :find(sub ($me, $file) {
+    findFile($file, :root($.datadir), :subdirs($me<root>));
+  }),
+);
 
 ## Similar to the findFile for metadata, but for use elsewhere.
 method findFile($file) {

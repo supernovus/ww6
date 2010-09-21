@@ -2,7 +2,7 @@ use Websight;
 
 class Websight::Dispatch does Websight;
 
-use Perlite::Hash;
+use Hash::Has;
 
 method processPlugin ($config? is copy) {
     if (!$config) { $config = self.getConfig(:type(Array)); }

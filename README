@@ -1,5 +1,10 @@
 ww6: Web Application Framework and CMS Library-set for Perl 6
 
+Status: Currently broken, and on hiatus until Rakudo/Parrot don't play
+        mindgames with my head, pulling some of the weirdest errors ever.
+        I guess nobody else is crazy enough to try things like:
+         eval("use $library"); and eval("$library.new()"); I am crazy.
+
 === Story ===
 
 In the beginning was Webtoo Websight, and it was good.
@@ -30,6 +35,13 @@ This is the result.
   http://github.com/supernovus/perlite6
   This library collection was once included with ww6, but has been separated
   out for use in other projects.
+
+- The Hash::Has, HashConfig and WebRequest libraries
+  http://github.com/supernovus/hash-has
+  http://github.com/supernovus/HashConfig
+  http://github.com/supernovus/WebRequest
+  Used by the core, these used to be part of Perlite, but
+  where separated out into their own projects.
 
 - The SCGI library for Perl 6
   http://github.com/supernovus/SCGI

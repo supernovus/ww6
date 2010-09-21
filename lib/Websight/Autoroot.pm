@@ -2,7 +2,7 @@ use Websight;
 
 class Websight::Autoroot does Websight;
 
-use Perlite::Hash;
+use Hash::Has;
 
 ## Find a root based on a domain name.
 #  Existing roots will be searched in.
