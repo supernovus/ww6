@@ -17,17 +17,17 @@ use Hash::Has;
 #  That means you could have domains/my.test.com and domains/test.com
 #  and files would be found in them in that order.
 
-method processPlugin (%def_config) {
+method processPlugin ($def_config?) {
     my $debug = $.parent.debug;
-    my %config = self.getConfig(:type(Hash)) // %def_config;
+    my $config = self.getConfig(:type(Hash)) // $def_config // {};
     my $replace = 1;
     my $nest    = 0;
     my $found   = 0;
-    if hash-has(%config, 'keep', :true) {
+    if hash-has($config, 'keep', :true) {
         $replace = 0;
     }
-    if hash-has(%config, 'nest', :true) {
-        $nest = %config<nest>;
+    if hash-has($config, 'nest', :true) {
+        $nest = $config<nest>;
     }
     my @host = $.parent.host.split('.');
     say "Host: {@host}" if $debug;
