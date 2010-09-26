@@ -1,5 +1,4 @@
 {
-  "plugins" : [ "Dispatch", "Content", "Metadata", "Headers", "Layout" ],
   "content" : 
   {
     "index"       : "default.xml",
@@ -14,9 +13,7 @@
     { "path" : "^\\/example", "set" :
       { "plugins" : [ "Example" ], "example" : { "hello" : "world" } }
     },
-    { "root" : ["sites"], "plugin" :
-      { "plugin" : "Autoroot", "opts" : { "nest" : 1 } }
-    },
+    { "root" : ["sites"] },
     { "file" : "redirect.json", "include" : "redirect.json" }
   ]
 }

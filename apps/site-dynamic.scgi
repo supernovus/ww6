@@ -15,7 +15,7 @@ use Webtoo;
 
 my $port = 8118; ## SCGI port
 my $datadir = './data'; ## The directory our data is stored in.
-my $config  = 'example.json'; ## Name of the configuration file, in datadir.
+my $config  = 'site-config.json'; ## Name of the configuration file, in datadir.
 
 my $scgi = SCGI.new( :port($port), :strict ); ## Create an SCGI object.
 

@@ -12,10 +12,16 @@ BEGIN {
 
 use SCGI;
 use Webtoo;
+use Websight::Dispatch;
+use Websight::Autoroot;
+use Websight::Content;
+use Websight::Metadata;
+use Websight::Headers;
+use Websight::Layout;
 
 my $port = 8118; ## SCGI port
 my $datadir = './data'; ## The directory our data is stored in.
-my $config  = 'example.json'; ## Name of the configuration file, in datadir.
+my $config  = 'static-site-config.json'; ## Name of the configuration file, in datadir.
 
 my $scgi = SCGI.new( :port($port), :strict ); ## Create an SCGI object.
 
@@ -25,9 +31,17 @@ my $handler = sub (%env) {
     my $wt = Webtoo.new( 
         :env(%env), 
         :datadir($datadir),
-    ); 
+    ); ## Create a Webtoo object, with metadata and datadir set.
     #$wt.metadata.debug = True;
     $wt.metadata.loadFile($config); ## Load the config file.
+    $wt.metadata<plugins> = [
+      Websight::Dispatch.new(),
+      Websight::Autoroot.new(),
+      Websight::Content.new(),
+      Websight::Metadata.new(),
+      Websight::Headers.new(),
+      Websight::Layout.new(),
+    ];
     #say "Processing plugins";
     $wt.processPlugins; ## Process plugins in the 'plugins' metadata array.
     #say "Processing content";
