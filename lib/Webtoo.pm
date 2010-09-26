@@ -242,7 +242,7 @@ method status ($status) {
 }
 
 # redirect now supports protocol redirection. redirectProto has been removed.
-method redirect ($url is copy, $status=302, :$nostop) {
+method redirect ($url is copy, $status=302, :$nohooks, :$noclear) {
     if not $url ~~ /^\w+\:\/\// {
         my $proto = $.proto;
         my $oldurl = '';
@@ -260,8 +260,11 @@ method redirect ($url is copy, $status=302, :$nostop) {
     }
     self.status($status);
     self.addHeader('Location', $url);
-    if !$nostop {
+    if !$nohooks {
         self!callHooks('redirect');
+    }
+    if !$noclear {
+      self.clearPlugins;
     }
 }
 

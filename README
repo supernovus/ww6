@@ -1,10 +1,10 @@
 ww6: Web Application Framework and CMS Library-set for Perl 6
 
-Status: Currently broken, and on hiatus until Rakudo/Parrot don't play
-        mindgames with my head, pulling some of the weirdest errors ever.
-        I guess nobody else is crazy enough to try things like:
-         eval("use $library"); and eval("$library.new()"); I am crazy.
-
+Status: Unstable, but sort-of works.
+        The dynamic module loading can have some strange side effects if
+        you are mixing pre-compiled libraries with plain .pm ones.
+        I recommend compiling everything first.
+       
 === Story ===
 
 In the beginning was Webtoo Websight, and it was good.

@@ -25,7 +25,7 @@ The help tag is <span tal:replace="page/types/help"/>, which is really helpful.
   "INCLUDE" : "default-theme.json",
   "page" :
   {
-    "title" : "A Test Page"
+    "title" : "A Test Page",
     "testif" :
     {
       "first"  : "Ooga Booga",
