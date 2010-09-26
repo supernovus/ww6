@@ -70,7 +70,7 @@ method processPlugin ($opts?) {
         $.append = ''; # After parsing, reset again.
         $.cache-- if $.cache; # Lower the static.
     }
-    say "After search file is $file";
+    say "After search file is $file" if $debug;
     ## If all other combinations have failed, use the handler.
     if !$file {
         if $cache && not defined $.parent.req.get('NOCACHE') {

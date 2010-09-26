@@ -3,11 +3,9 @@ use Websight::XML;
 class Websight::Metadata is Websight::XML;
 
 method processPlugin ($opts?) {
-  say "<content-before>"~$.parent.content~"</content-before>";
   self.make-xml;
   my $debug = $.parent.debug;
   my $name = $.namespace;
-  say "<content>"~$.parent.content~"</content>";
   loop (my $i=0; $i < $.parent.content.root.nodes.elems; $i++) {
     if $.parent.content.root.nodes[$i] !~~ Exemel::Element { next; }
     my $id = $.parent.content.root.nodes[$i].attribs<id>;
