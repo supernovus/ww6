@@ -1,0 +1,15 @@
+<div>
+<p>
+Sorry, the page you requested was not found on this server.
+</p>
+
+<div id="metadata">
+{
+  "INCLUDE" : "default-theme.json",
+  "page" :
+  {
+    "title" : "Page not found"
+  }
+}
+</div>
+</div>
