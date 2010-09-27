@@ -1,6 +1,6 @@
 ww6: Web Application Framework and CMS Library-set for Perl 6
 
-Status: Unstable, but sort-of works.
+Status: It works, but depending on features you use, can be pretty slow.
         The dynamic module loading can have some strange side effects if
         you are mixing pre-compiled libraries with plain .pm ones.
         I recommend compiling everything first.

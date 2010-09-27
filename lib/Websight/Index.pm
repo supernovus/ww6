@@ -10,7 +10,7 @@ method processPlugin (%opts?) {
     my $data  = hash-has($config, 'data',  :defined, :return);
     if !$data { return; }
     if $data ~~ Str {
-        $data = $.parent.metadata.parseFile($data, []);
+        $data = $.parent.metadata.parseFile($data);
     }
     if not $data ~~ Array { return; } ## Data must be an array.
     my @showdata;
@@ -22,7 +22,7 @@ method processPlugin (%opts?) {
         $tags = $reqtags.split(',');
     }
     my $show = $.parent.req.get(
-        hash-has(:default($config, 'show', :notempty, :return)),
+        :default(hash-has($config, 'show', :notempty, :return)),
         'show',
     );
     my @filter;
@@ -83,9 +83,8 @@ method processPlugin (%opts?) {
 
     $config<pages> = @showdata;
     self.saveConfig($config);
-    # You must use WTML to parse the index tags.
+    # You must use the page parser to parse the index tags.
     # index.pages is the actual list of pages.
     # index.pager is an array of numbers, representing pages of the list.
 }
-
 

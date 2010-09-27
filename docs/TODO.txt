@@ -1,1 +1,2 @@
-- Port the rest of the old-libs over to the new infratsructure.
+- Finish porting Index::Update to the new infrastructure.
+- Make this use a proper resources folder, not a horrid hack.

@@ -1,7 +1,12 @@
 use Websight;
-use Perlite::Match;
 
 class Websight::Index::Update does Websight;
+
+method saveIndex($index, $file) {
+  my $fh = open $file, :w;
+  $fh.say: $.parent.metadata.parser.encode($index);
+  $fh.close;
+}
 
 method processPlugin (%opts?) {
     my $debug = $.parent.debug;
