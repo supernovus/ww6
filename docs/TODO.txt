@@ -1,5 +1,1 @@
-- Dispatch, manual mode.
 - Port the rest of the old-libs over to the new infratsructure.
-- Change default metadata to JSON. PDDL/WTDL is dead.
-- Replace WTML plugin with Petal plugin, powered by Flower.
-

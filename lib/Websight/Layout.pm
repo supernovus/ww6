@@ -10,6 +10,7 @@ method processPlugin ($opts?) {
     say "Our template is $template" if $debug;
     self.make-xml;
     $.parent.metadata<content> = $.parent.content.root.nodes;
+    ## Unlike URL requests, templates must have the extention specified.
     my $file = $.parent.findFile($template);
     if $file {
         my $content = slurp $file;

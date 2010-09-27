@@ -1,0 +1,103 @@
+#!/usr/bin/env perl6
+#
+# The script to manage ww6 sites.
+#
+# NOTE: Until installers like neutro have a way of installing resource files
+# into specific folders, we are generating the code on the fly. It sucks, but
+# it'll have to work until I can work with tadzik to have some sort of equiv
+# to '/usr/share', '/var' and '/etc' in Module::Install.
+
+use File::Mkdir;
+
+## Returns true if the OS is not Windows.
+sub not_win {
+  $*VM<config><osname> ne 'MSWin32';
+}
+
+## chmod, is completely ignored on Windows.
+sub chmod($file, $mode) {
+  if not_win() {
+    run "chmod $mode $file";
+  }
+}
+
+## active cms type site, uses Webtoo as an SCGI daemon.
+sub create-cms($dir) {
+  ## Ensure the directory exists.
+  mkdir $dir, :p;
+
+  ## Let's create the daemon script.
+  my $filename = $dir~'/daemon.scgi';
+  my $file = open $filename, :w;
+  $file.say: '#!/usr/bin/env perl6';
+  $file.say: 'BEGIN { @*INC.push "./lib"; print "Initializing daemon... "; }';
+  $file.say: 'use SCGI';
+  $file.say: 'use Webtoo';
+  $file.say: 'my $port = 8118;';
+  $file.say: 'my $datadir = "./data";';
+  $file.say: 'my $config = "config.json";';
+  $file.say: 'my $scgi = SCGI.new( :port($port) );';
+  $file.say: 'my $handler = sub(%env) {';
+  $file.say: '  my $wt = Webtoo.new( :env(%env), :datadir($datadir) );';
+  $file.say: '  $wt.metadata.loadFile($config);';
+  $file.say: '  $wt.processPlugins;';
+  $file.say: '  return $wt.processContent;';
+  $file.say: '}';
+  $file.say: 'say "done.";';
+  $file.say: '$scgi.handle: $handler;';
+  $file.close;
+  chmod $filename, '0755';
+
+  ## Next, let's create an example site config.
+  my $data = $dir~'/data';
+  mkdir $data, :p;
+  $filename = $data~'/config.json';
+  $file = open $filename, :w;
+  $file.say: '{';
+  $file.say: '  "plugins" : [ "Dispatch", "Content", "Metadata", "Headers", "Layout" ],';
+  $file.say: '  "content" :';
+  $file.say: '  {';
+  $file.say: '    "index"   : "default",';
+  $file.say: '    "handler" : "handler"';
+  $file.say: '  },';
+  $file.say: '  "dispatch" :';
+  $file.say: '  [';
+  $file.say: '    { "path" : "secure", "redirect" : "https" },';
+  $file.say: '    { "path" : "^\\author", "redirect" : "http://huri.net/" },';
+  $file.say: '    { "path" : "^\\example", "set" :';
+  $file.say: '      { "plugins" : [ "Example" ], "example" : { "hello" : "world" } }';
+  $file.say: '    },';
+  $file.say: '    { "root" : ["sites"], "plugin" :';
+  $file.say: '      { "plugin" : "Autoroot", "opts" : { "nest" : 1 } }';
+  $file.say: '    },';
+  $file.say: '    { "file" : "redirect.json", "include" : "redirect.json" }';
+  $file.say: '  ]';
+  $file.say: '}';
+  $file.close;
+  chmod $filename, '0644';
+
+	## TODO, add the other files.
+
+}
+
+sub create-html($dir) {
+  say "Sorry, that's not implemented yet.";
+  exit;
+}
+
+sub show-types {
+  say "Invalid create type specified. Valid types:";
+  say "  cms           An active content management system";
+  say "  html          A static website, generated from templates";
+  exit;
+}
+
+## Create a new site, by default creates it in the current folder.
+multi sub MAIN (:$create!, :$dir='.') {
+  given $create {
+    when 'cms'  { create-cms($dir);  }
+    when 'html' { create-html($dir); }
+    default     { show-types;        }
+  }
+}
+

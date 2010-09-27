@@ -7,14 +7,16 @@ use Hash::Has;
 has $.config is rw;
 has $.cache is rw = 0;
 has $.static is rw = 0;
+has $.ext is rw;
 has $.append is rw = '';
 
 method processPlugin ($opts?) {
     my $debug = $.parent.debug;
     say "We're in Content" if $debug;
     $.config   = self.getConfig(:type(Hash)) // {};
+    my $pageExt  = hash-has($.config, 'page-ext',  :notempty, :return) || '.xml';
     my $cacheExt = hash-has($.config, 'cache-ext', :notempty, :return) || '.cache';
-    my $handler  = hash-has($.config, 'handler',   :notempty, :return) || 'handler.xml';
+    my $handler  = hash-has($.config, 'handler',   :notempty, :return) || 'handler';
     my $cache = hash-has($.config, 'use-cache', :true, :return) || 0;
     say "Cache = $cache" if $debug;
 
@@ -51,7 +53,10 @@ method processPlugin ($opts?) {
         say "Doing the loop, iteration: {$.cache+1}" if $debug;
         my $page = $.parent.path;
         if $.cache { 
-            $page ~= $cacheExt;
+            $.ext = $cacheExt;
+        }
+        else {
+          $.ext = $pageExt;
         }
         if $page ~~ /\/$/ {
             say "Page ended in a slash" if $debug;
@@ -74,7 +79,8 @@ method processPlugin ($opts?) {
     ## If all other combinations have failed, use the handler.
     if !$file {
         if $cache && not defined $.parent.req.get('NOCACHE') {
-            $file = self!findPage($handler~$cacheExt);
+            $.ext = $cacheExt;
+            $file = self!findPage($handler);
             if $file {
                 $.parent.metadata<plugins>.splice;
                 $.parent.noheaders = 1;
@@ -97,7 +103,7 @@ method processPlugin ($opts?) {
         say "Found Content is: "~$content if $debug;
         if defined $.parent.req.get('REBUILD') {
             say "Setting the cache file to be saved." if $debug;
-            my $cachefile = $file ~= $cachetail ~ $cacheExt;
+            my $cachefile = $file.subst(/\.$pageExt/, "$cachetail.$cacheExt");
             $.parent.savefile = $cachefile;
         }
     }
@@ -110,12 +116,12 @@ method processPlugin ($opts?) {
 method !findFolder ($page is copy, :$slash) {
     my $debug = $.parent.debug;
     say "We're in findFolder" if $debug;
-    my $default = hash-has($.config, 'default', :notempty, :return) || 'default.xml';
+    my $index = hash-has($.config, 'index', :notempty, :return) || 'index';
     if $slash {
         $page ~= '/';
     }
-    my $find = $page ~ $default ~ $.append;
-    return $.parent.findFile($find);
+    my $find = $page ~ $index ~ $.append;
+    return $.parent.findFile($find, :ext($.ext));
 }
 
 method !findPage ($page is copy, :$slash) {
@@ -125,6 +131,6 @@ method !findPage ($page is copy, :$slash) {
         $page.=subst(/\/$/,'');
     }
     my $find = $page ~ $.append;
-    return $.parent.findFile($find);
+    return $.parent.findFile($find, :ext($.ext));
 }
 

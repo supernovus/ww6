@@ -2,10 +2,8 @@
   "plugins" : [ "Dispatch", "Content", "Metadata", "Headers", "Layout" ],
   "content" : 
   {
-    "index"       : "default.xml",
-    "handler"     : "handler.xml",
-    "use-cache"   : 0,
-    "ignore-keys" : [ "INDEX" ]
+    "index"       : "default",
+    "handler"     : "handler"
   },
   "dispatch" : 
   [

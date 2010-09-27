@@ -1,0 +1,18 @@
+<div>
+<p>
+This is a really boring page.
+</p>
+<p>
+Yeah, it really is.
+</p>
+
+<div id="metadata">
+{
+  "INCLUDE" : "default-theme.json",
+  "page" :
+  {
+    "title" : "A boring page"
+  }
+}
+</div>
+</div>

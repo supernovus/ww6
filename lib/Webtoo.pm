@@ -55,8 +55,10 @@ has HashConfig::Magic $.metadata is rw = HashConfig::Magic.make(
 );
 
 ## Similar to the findFile for metadata, but for use elsewhere.
-method findFile($file) {
-  findFile($file, :root($.datadir), :subdirs($.metadata<root>));
+## Also supports the optional :$ext parameter. Unlike before, you must
+## put a dot in the extension.
+method findFile($file, :$ext='') {
+  findFile($file, :root($.datadir), :subdirs($.metadata<root>), :$ext);
 }
 
 method processPlugins {
