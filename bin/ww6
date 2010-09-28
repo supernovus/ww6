@@ -8,6 +8,7 @@
 # to '/usr/share', '/var' and '/etc' in Module::Install.
 
 use File::Mkdir;
+use File::Find;
 
 ## Returns true if the OS is not Windows.
 sub not_win {
@@ -21,83 +22,30 @@ sub chmod($file, $mode) {
   }
 }
 
-## active cms type site, uses Webtoo as an SCGI daemon.
-sub create-cms($dir) {
-  ## Ensure the directory exists.
-  mkdir $dir, :p;
-
-  ## Let's create the daemon script.
-  my $filename = $dir~'/daemon.scgi';
-  my $file = open $filename, :w;
-  $file.say: '#!/usr/bin/env perl6';
-  $file.say: 'BEGIN { @*INC.push "./lib"; print "Initializing daemon... "; }';
-  $file.say: 'use SCGI';
-  $file.say: 'use Webtoo';
-  $file.say: 'my $port = 8118;';
-  $file.say: 'my $datadir = "./data";';
-  $file.say: 'my $config = "config.json";';
-  $file.say: 'my $scgi = SCGI.new( :port($port) );';
-  $file.say: 'my $handler = sub(%env) {';
-  $file.say: '  my $wt = Webtoo.new( :env(%env), :datadir($datadir) );';
-  $file.say: '  $wt.metadata.loadFile($config);';
-  $file.say: '  $wt.processPlugins;';
-  $file.say: '  return $wt.processContent;';
-  $file.say: '}';
-  $file.say: 'say "done.";';
-  $file.say: '$scgi.handle: $handler;';
-  $file.close;
-  chmod $filename, '0755';
-
-  ## Next, let's create an example site config.
-  my $data = $dir~'/data';
-  mkdir $data, :p;
-  $filename = $data~'/config.json';
-  $file = open $filename, :w;
-  $file.say: '{';
-  $file.say: '  "plugins" : [ "Dispatch", "Content", "Metadata", "Headers", "Layout" ],';
-  $file.say: '  "content" :';
-  $file.say: '  {';
-  $file.say: '    "index"   : "default",';
-  $file.say: '    "handler" : "handler"';
-  $file.say: '  },';
-  $file.say: '  "dispatch" :';
-  $file.say: '  [';
-  $file.say: '    { "path" : "secure", "redirect" : "https" },';
-  $file.say: '    { "path" : "^\\author", "redirect" : "http://huri.net/" },';
-  $file.say: '    { "path" : "^\\example", "set" :';
-  $file.say: '      { "plugins" : [ "Example" ], "example" : { "hello" : "world" } }';
-  $file.say: '    },';
-  $file.say: '    { "root" : ["sites"], "plugin" :';
-  $file.say: '      { "plugin" : "Autoroot", "opts" : { "nest" : 1 } }';
-  $file.say: '    },';
-  $file.say: '    { "file" : "redirect.json", "include" : "redirect.json" }';
-  $file.say: '  ]';
-  $file.say: '}';
-  $file.close;
-  chmod $filename, '0644';
-
-	## TODO, add the other files.
-
-}
-
-sub create-html($dir) {
-  say "Sorry, that's not implemented yet.";
-  exit;
-}
-
 sub show-types {
   say "Invalid create type specified. Valid types:";
+  ## TODO: make this read the templates folder and list the found templates.
   say "  cms           An active content management system";
-  say "  html          A static website, generated from templates";
   exit;
 }
 
 ## Create a new site, by default creates it in the current folder.
 multi sub MAIN (:$create!, :$dir='.') {
-  given $create {
-    when 'cms'  { create-cms($dir);  }
-    when 'html' { create-html($dir); }
-    default     { show-types;        }
+  print "Creating a new $create in $dir... ";
+  my $resdir = $*PROGRAM_NAME.subst('ww6', 'webtoo');
+  my $tdir = $resdir~'/templates/'~$create;
+  if $tdir.IO ~~ :d {
+    for find(dir => $tdir, type => 'file').list -> $file {
+      my $target-dir = $file.dir.subst($tdir, $dir);
+      mkdir $target-dir, :p;
+      if not_win() {
+        run "cp $file $target-dir/{$file.name}";
+      }
+      else {
+        run "copy $file $target-dir/{$file.name}";
+      }
+    }
   }
+  say "done.";
 }
 

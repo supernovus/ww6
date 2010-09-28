@@ -5,6 +5,9 @@
 # Example plugin is obtaining it's configuration from the 'example' section
 # in the configuration file.
 
+## NOTE: Since this got moved into examples, there is no site data for it
+## anymore. The default daemons/templates are now built by the 'ww6' script.
+
 BEGIN {
     @*INC.push: './lib';
     print "Initializing System... ";

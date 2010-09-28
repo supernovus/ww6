@@ -1,2 +1,3 @@
 - Finish porting Index::Update to the new infrastructure.
-- Make this use a proper resources folder, not a horrid hack.
+- Make this use a proper resources folder once Module::Install and proto/pls
+  support it, rather than the webtoo folder in the 'bin' directory.

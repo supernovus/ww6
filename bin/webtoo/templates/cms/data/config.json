@@ -3,7 +3,8 @@
   "content" : 
   {
     "index"       : "default",
-    "handler"     : "handler"
+    "handler"     : "handler",
+    "ignore-keys" : [ "INDEX" ]
   },
   "dispatch" : 
   [

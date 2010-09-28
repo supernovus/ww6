@@ -1,11 +1,11 @@
-use Websight;
+use Websight::XML;
 
-class Websight::Index::Update does Websight;
+class Websight::Index::Update is Websight::XML;
 
 method saveIndex($index, $file) {
-  my $fh = open $file, :w;
-  $fh.say: $.parent.metadata.parser.encode($index);
-  $fh.close;
+    my $fh = open $file, :w;
+    $fh.say: $.parent.metadata.parser.encode($index);
+    $fh.close;
 }
 
 method processPlugin (%opts?) {
@@ -23,43 +23,41 @@ method processPlugin (%opts?) {
     my $file  = $.parent.findFile($fileSpec);
     if ! $file { return; }
     say "The index exists." if $debug;
-    my $index = slurp $file;
+    my $index = $.parent.metadata.parseFile($file);
     my $path = $.parent.uri.split('?', 2)[0];
     say "URI: $path" if $debug;
     my $elements = hash-has($config, 'elements', :defined, :type(Array), :return);
     my $getsnippet = hash-has($config, 'snippet', :true);
 
     ## First, delete any existing entries.
-    my $exist = matcher("^^ \\- \\n <.ws> path\\: <.ws> '$path' \\n .*? (^^\\-|\$)");
-    $index.=subst($exist, { $_[0] });
+    loop (my $i=0; $i < $index.elems; $i++) {
+      if $index[$i]<path> eq $path {
+        $index.splice($i, 1);
+        last;
+      }
+    }
 
     ## Now, let's add the new entry.
-    my $newcontent = "-\n";
-    $newcontent ~= "  path: $path\n";
+    my %newpage;
+    %newpage<path> = $path;
     for @($elements) -> $element {
         my $value = hash-has($.parent.metadata<page>, $element, :defined, :return);
         if defined $value {
-            if $value ~~ Array {
-                $value = '[' ~ $value.join(',') ~ ']';
-            }
-            $newcontent ~= "  $element: $value\n";
+            %newpage{$element} = $value;
         }
     }
 
     if $getsnippet {
-        if $.parent.content ~~ /:s \<div class \= \"snippet\" \>(.*?)\<\/div\>/ {
-            say "Found a specified div snippet." if $debug;
-            my $snippet = "  content: |\n$0";
-            $snippet.=subst("\n", "\n    ", :global);
-            $newcontent ~= $snippet ~ "\n";
+        self.make-xml;
+        my $snippet = $.parent.content.elements(:id<snippet>);
+        if $snippet {
+          %newpage<snippet> = $snippet;
         }
     }
 
-    $newcontent ~= $index;
+    $index.unshift: %newpage;
 
-    my $savefile = open $file, :w;
-    $savefile.print: $newcontent;
-    $savefile.close;
+    self.saveIndex($index, $file);
 
 }
 
