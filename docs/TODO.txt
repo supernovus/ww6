@@ -1,3 +1,8 @@
+- Change how caching works with headers, and enable a separate rootdir 
+  for static site generation.
 - Finish porting Index::Update to the new infrastructure.
 - Make this use a proper resources folder once Module::Install and proto/pls
   support it, rather than the webtoo folder in the 'bin' directory.
+- Replicate the functionality of the Linkage and Gallery plugins from ww5.
+- Port the Page Editor and Data Editor from ww5.
+- Port the File Manager from ww5.
