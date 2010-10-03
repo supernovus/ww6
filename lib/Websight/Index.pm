@@ -2,7 +2,9 @@ use Websight;
 
 class Websight::Index does Websight;
 
-method processPlugin (%opts?) {
+use Hash::Has;
+
+method processPlugin ($opts?) {
     my $debug = $.parent.debug;
     say "We're in Index::View" if $debug;
     my $config   = self.getConfig(:type(Hash));
@@ -44,7 +46,6 @@ method processPlugin (%opts?) {
                 my $matched = 0;
                 for @($tags) -> $wantkey {
                     for @($def<tags>) -> $haskey {
-                        $haskey.=subst('^+', '');
                         if $haskey eq $wantkey {
                             $matched = 1;
                             last;

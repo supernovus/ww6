@@ -1,0 +1,18 @@
+[
+  {
+    "path"     : "pages/example",
+    "title"    : "An example page",
+    "author"   : "Timothy Totten",
+    "updated"  : "October 4th, 2010",
+    "tags"     : [ "projects", "perl6" ],
+    "snippet"  : "Welcome to Webtoo Websight 6, the Web Application Framework for Perl 6"
+  },
+  {
+    "path"     : "pages/another",
+    "title"    : "A boring page",
+    "author"   : "Some guy",
+    "updated"  : "Sept. 14th, 2010",
+    "tags"     : [ "test", "perl6" ],
+    "snippet"  : "Just another boring page used as an example"
+  }
+]

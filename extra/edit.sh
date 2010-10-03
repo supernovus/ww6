@@ -1,6 +1,5 @@
 #!/bin/bash
-## This is deprecated. Use 'mbuild' from perl6-Module-Tools instead.
-## http://github.com/tadzik/perl6-Module-Tools
+## This is deprecated. Use 'ufo' or 'mbuild' from perl6-Module-Tools instead.
 
 die() {
     echo "$@"

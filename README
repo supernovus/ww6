@@ -3,8 +3,13 @@ ww6: Web Application Framework and CMS Library-set for Perl 6
 Status: It works, but depending on features you use, can be pretty slow.
         The dynamic module loading can have some strange side effects if
         you are mixing pre-compiled libraries with plain .pm ones.
-        I recommend compiling everything first.
-       
+        I recommend compiling everything first, if you use 'neutro' as
+        recommended below this will be done for you automatically.
+
+BIG CAVEAT: Currently if you want this to work as an "installed" application,
+            you must use the 'neutro' installer. 'proto' and 'pls' most likely
+            won't work, and 'ufo' doesn't support the folder inside 'bin'.
+
 === Story ===
 
 In the beginning was Webtoo Websight, and it was good.

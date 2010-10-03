@@ -31,10 +31,10 @@ sub show-types {
 
 ## Create a new site, by default creates it in the current folder.
 multi sub MAIN (:$create!, :$dir='.') {
-  print "Creating a new $create in $dir... ";
   my $resdir = $*PROGRAM_NAME.subst('ww6', 'webtoo');
   my $tdir = $resdir~'/templates/'~$create;
   if $tdir.IO ~~ :d {
+    print "Creating a new '$create' in '$dir'... ";
     for find(dir => $tdir, type => 'file').list -> $file {
       my $target-dir = $file.dir.subst($tdir, $dir);
       mkdir $target-dir, :p;
@@ -45,7 +45,10 @@ multi sub MAIN (:$create!, :$dir='.') {
         run "copy $file $target-dir/{$file.name}";
       }
     }
+    say "done.";
   }
-  say "done.";
+  else {
+    show-types;
+  }
 }
 

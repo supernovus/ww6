@@ -4,7 +4,38 @@
 </head>
 <body>
 <h1 tal:content="page/title">page title</h1>
+<div class="article" tal:condition="not:page/noarticle">
 <div tal:replace="content"/>
+<div class="info">
+Last updated by <em tal:replace="page/author"/> 
+on <em tal:replace="page/updated"/>.
+Tags: 
+<span tal:repeat="tag page/tags">
+<a tal:attributes="href string:${index/page}?tag=${tag}" tal:content="tag">tag</a> &nbsp;
+</span>
+</div>
+</div>
+<p class="article" tal:repeat="art index/pages">
+<div style="font-size: 1.25em">
+<strong tal:content="art/title">title</strong>&nbsp;
+by <em tal:replace="art/author"/>
+on <em tal:content="art/updated"/>
+</div>
+<div tal:replace="art/snippet"/>
+<div class="info">
+<a tal:attributes="href art/path">Read the rest...</a>
+Tags:
+<span tal:repeat="tag art/tags">
+<a tal:attributes="href string:?tag=${tag}" tal:content="tag">tag</a> &nbsp;
+</span>
+</div>
+</p>
+<div class="pager" tal:condition="index/pager">
+Pages:
+<span tal:repeat="pg index/pager">
+<a tal:attributes="href string:?page=${pg}" tal:content="pg">page</a> &nbsp;
+</span>
+</div>
 <p class="disclaimer">
 Everything on this site is copyright &copy; Timothy M. Totten, 2010.
 Site powered by Webtoo Websight 6 (ww6)

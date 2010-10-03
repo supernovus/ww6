@@ -11,7 +11,10 @@ Yeah, it really is.
   "INCLUDE" : "default-theme.json",
   "page" :
   {
-    "title" : "A boring page"
+    "title" : "A boring page",
+    "author"  : "Timothy Totten",
+    "updated" : "Sept 14th, 2010",
+    "tags"    : [ "test", "perl6" ]
   }
 }
 </div>
