@@ -1,4 +1,4 @@
-<div>
+<page>
 <div>
 A list of articles is below
 </div>
@@ -22,4 +22,4 @@ A list of articles is below
   }
 }
 </div>
-</div>
+</page>
