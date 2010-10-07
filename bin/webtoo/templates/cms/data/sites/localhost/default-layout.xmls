@@ -1,4 +1,4 @@
-<html xmlns:tal="http://purl.org/petal/1.0/">
+<html>
 <head>
 <title tal:content="page/title">page title</title>
 </head>
