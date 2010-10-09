@@ -59,16 +59,13 @@ This is the result.
 - The Exemel and Flower libraries
   http://github.com/supernovus/exemel
   http://github.com/supernovus/flower
-  Not required by the Webtoo core, or the Example plugin,
-  but these is used by the Websight CMS plugins.
+  Not required by the Webtoo core, but these are used by the 
+  Websight CMS plugins.
 
 - The JSON::Tiny library
   http://github.com/moritz/json
-  Again, not used by the Webtoo core directly, but if you want to use
-  the metadata functionality of Webtoo (required by most Websight plugins)
-  then the currently supported metadata plugin is Perlite::Data::JSON.
-  All example data files included with ww6 are written in JSON, using the
-  Perlite::Data API for merge rules and includes.
+  Required by the HashConfig library, this is used for configuration
+  files and Metadata in the CMS libraries.
 
 - The Temporal Utils library collection
   http://github.com/supernovus/temporal-utils
@@ -86,10 +83,6 @@ This is the result.
 
 This project is still under construction, and does not include all of the
 functionality from Webtoo Websight 5 yet.
-
-In fact, it's currently in a major rewrite stage and does not even include
-most of the functionality of the previous master version (the old-libs
-folder contains a bunch of plugins that were written for the original ww6.)
 
 In addition to the original 'dynamic website' content management system,
 I would like to add the ability to create completely static websites using
