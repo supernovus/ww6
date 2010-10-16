@@ -112,24 +112,26 @@ method callPlugin ($spec, :$command is copy = $.defCommand, :$opts is copy, :$na
     }
 }
 
-## Note loadPlugin and it's helpers will modify the namespace string passed to it.
-method loadPlugin ($plugin, :$namespace is rw, :$prefix=$!NS) {
-  my $loaded;
-  if ($plugin ~~ Str) {
-    $loaded = self!loadDynamicPlugin($plugin, :$namespace, :$prefix);
+## Note loadPlugin and it's helpers will modify the namespace passed to it.
+method loadPlugin ($plug, :$namespace is rw, :$prefix=$!NS, :$noload) {
+  my $plugin;
+  if ($plug ~~ Str) {
+    $plugin = self!loadDynamicPlugin($plug, :$namespace, :$prefix, :$noload);
   }
   else {
-    $loaded = self!loadStaticPlugin($plugin, :$namespace, :$prefix);
+    $plugin = self!loadStaticPlugin($plug, :$namespace, :$prefix);
   }
-  if $loaded<plugin> {
-    $loaded.parent = self;
-    $loaded.namespace = $namespace;
+  if $plugin && !$noload {
+    $plugin.parent = self;
+    $plugin.namespace = $namespace;
   }
-  return $loaded;
+  return $plugin;
 }
 
-## Dynamic plugins. Loads by class name, returns a spec.
-method !loadDynamicPlugin ($plugin is copy, :$namespace is rw, :$prefix) {
+## Dynamic plugins. Loads by class name.
+method !loadDynamicPlugin (
+  $plugin is copy, :$namespace is rw, :$prefix, :$noload
+) {
 
     say "Entered callDynamicPlugin..." if $.debug;
 
@@ -164,14 +166,20 @@ method !loadDynamicPlugin ($plugin is copy, :$namespace is rw, :$prefix) {
     eval("use $plugin"); # Evil hack to replace 'require'.
     if defined $! { die "eval use failed: $!"; }
     say "We got past require" if $.debug;
-    my $plug = eval($plugin~".new()"); # More needed hackery.
-    if defined $! { die "eval new() failed: $!"; }
+    if ($noload) {
+      eval('$plugin = '~$plugin); ## Convert string into Type object.
+      if defined $! { die "eval type assignment failed: $!"; }
+      return $plugin;
+    }
+    else {
+      my $plug = eval($plugin~".new()"); # More needed hackery.
+      if defined $! { die "eval new() failed: $!"; }
 
-    return $plug;
-#    return { :plugin($plug), :namespace($namespace) };
+      return $plug;
+    }
 }
 
-## Static plugins, loads by initialized object, returns a spec.
+## Static plugins, loads by initialized object.
 method !loadStaticPlugin ($plugin, :$namespace is rw, :$prefix) {
     say "Entered callStaticPlugin..." if $.debug;
 
@@ -187,7 +195,6 @@ method !loadStaticPlugin ($plugin, :$namespace is rw, :$prefix) {
     say "<class> "~$plugin.WHAT if $.debug;
     say "<namespace> $namespace" if $.debug;
     return $plugin;
-#    return { :plugin($plugin), :namespace($namespace) };
 }
 
 method err ($message) {

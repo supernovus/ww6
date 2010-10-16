@@ -1,17 +1,26 @@
 - Implement Websight::Lighter
   Inspired by the PHP web framework CodeIgniter, Lighter will allow you to
   create Web Applications using a MVC approach (with Model being optional.)
-  It will use the metadata, but will have a wrapper around it in the form of self.data
-  for Controllers, so you can do self.data<page><title> = 'My Page'; then do
-  self.view('index.xhtml') and it will look for index.xhtml in the application views/ folder
-  and parse it using Flower, replacing any TAL queries for "page/title" with "My Page".
-  It will have support for plugins, so you can do:
-  self.load-plugin('Example::Test');
-  and it will load the Plugins::Example::Test plugin from your classes/Plugins/Example/Test.pm
-  file. It will make it available as self.example-test, so you can call methods on it.
+  It will use the metadata, but will have a wrapper around it in the form 
+  of self.data for Controllers, so you can do: 
+  self.data<page><title> = 'My Page'; 
+  then do self.view('index.xhtml') and it will look for index.xhtml in 
+  the application views/ folder and parse it using Flower, replacing any 
+  TAL queries for "page/title" with "My Page". It will have support for
+  plugins, so you can do: self.load-plugin('Example::Test');
+  and it will load the Plugins::Example::Test plugin from your 
+  classes/Plugins/Example/Test.pm file. It will make it available as 
+  self.example-test, so you can call methods on it.
+
+- Make a Rewriting ability in the Dispatch plugin, similar to the 
+  URI Routing in CodeIgniter. In this case, Rewriting would work with 
+  any other paths, which means not just Lighter apps, but CMS pages and 
+  paths dispatched to standalone plugins.
 
 - Change how caching works with headers, and enable a separate rootdir 
   for static site generation.
+  - Ensure Caching works with both CMS pages and Flower apps.
+
 - Finish porting Index::Update to the new infrastructure.
 
 - Make this use a proper resources folder once Module::Install and proto/pls
