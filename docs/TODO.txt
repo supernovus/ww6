@@ -1,8 +1,21 @@
+- Implement Websight::Lighter
+  Inspired by the PHP web framework CodeIgniter, Lighter will allow you to
+  create Web Applications using a MVC approach (with Model being optional.)
+  It will use the metadata, but will have a wrapper around it in the form of self.data
+  for Controllers, so you can do self.data<page><title> = 'My Page'; then do
+  self.view('index.xhtml') and it will look for index.xhtml in the application views/ folder
+  and parse it using Flower, replacing any TAL queries for "page/title" with "My Page".
+  The initial version will have limited support for plugins and helpers (which must be
+  placed in the app's 'classes/Plugins' and 'classes/Helpers' folders respectively.)
+
 - Change how caching works with headers, and enable a separate rootdir 
   for static site generation.
 - Finish porting Index::Update to the new infrastructure.
+
 - Make this use a proper resources folder once Module::Install and proto/pls
   support it, rather than the webtoo folder in the 'bin' directory.
+
 - Replicate the functionality of the Linkage and Gallery plugins from ww5.
 - Port the Page Editor and Data Editor from ww5.
 - Port the File Manager from ww5.
+
