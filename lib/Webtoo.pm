@@ -57,8 +57,8 @@ has HashConfig::Magic $.metadata is rw = HashConfig::Magic.make(
 ## Similar to the findFile for metadata, but for use elsewhere.
 ## Also supports the optional :$ext parameter. Unlike before, you must
 ## put a dot in the extension.
-method findFile($file, :$ext='') {
-  findFile($file, :root($.datadir), :subdirs($.metadata<root>), :$ext);
+method findFile($file, :$ext='', :$dir) {
+  findFile($file, :root($.datadir), :subdirs($.metadata<root>), :$ext, :$dir);
 }
 
 method processPlugins {
@@ -106,17 +106,30 @@ method callPlugin ($spec, :$command is copy = $.defCommand, :$opts is copy, :$na
       $plugin = $spec;
     }
 
-    if ($plugin ~~ Str) {
-        return self!callDynamicPlugin($plugin, :$command, :$opts, :$namespace);
+    my $loaded = self.loadPlugin($plugin, :$namespace);
+    if ($loaded) {
+      $loaded."$command"($opts);
     }
-    else {
-        return self!callStaticPlugin($plugin, :$command, :$opts, :$namespace);
-    }
-
 }
 
-## Dynamic plugins. Either the name of the class to load, or a spec.
-method !callDynamicPlugin ($plugin is copy, :$command = $.defCommand, :$opts, :$namespace is copy) {
+## Note loadPlugin and it's helpers will modify the namespace string passed to it.
+method loadPlugin ($plugin, :$namespace is rw, :$prefix=$!NS) {
+  my $loaded;
+  if ($plugin ~~ Str) {
+    $loaded = self!loadDynamicPlugin($plugin, :$namespace, :$prefix);
+  }
+  else {
+    $loaded = self!loadStaticPlugin($plugin, :$namespace, :$prefix);
+  }
+  if $loaded<plugin> {
+    $loaded.parent = self;
+    $loaded.namespace = $namespace;
+  }
+  return $loaded;
+}
+
+## Dynamic plugins. Loads by class name, returns a spec.
+method !loadDynamicPlugin ($plugin is copy, :$namespace is rw, :$prefix) {
 
     say "Entered callDynamicPlugin..." if $.debug;
 
@@ -132,7 +145,7 @@ method !callDynamicPlugin ($plugin is copy, :$command = $.defCommand, :$opts, :$
         $namespace.=subst(/<&nsStart>/, '', :global);
     }
     else {
-        $plugin = $!NS ~ $plugin;
+        $plugin = $prefix ~ $plugin;
     }
     $namespace.=subst(/<&nsSep>/, '-', :global); # Convert :: to - for NS.
     if $plugin ~~ / \+ / {
@@ -149,33 +162,32 @@ method !callDynamicPlugin ($plugin is copy, :$command = $.defCommand, :$opts, :$
     #$classfile ~= '.pm';
     #require $classfile;
     eval("use $plugin"); # Evil hack to replace 'require'.
+    if defined $! { die "eval use failed: $!"; }
     say "We got past require" if $.debug;
     my $plug = eval($plugin~".new()"); # More needed hackery.
-    say "What the fuck: "~$plug.perl if $.debug;
-    if $plug {
-      $plug.parent = self;
-      $plug.namespace = $namespace;
-      $plug."$command"($opts);
-    }
+    if defined $! { die "eval new() failed: $!"; }
+
+    return $plug;
+#    return { :plugin($plug), :namespace($namespace) };
 }
 
-method !callStaticPlugin ($plugin, :$command = $.defCommand, :$opts, :$namespace is copy) {
+## Static plugins, loads by initialized object, returns a spec.
+method !loadStaticPlugin ($plugin, :$namespace is rw, :$prefix) {
     say "Entered callStaticPlugin..." if $.debug;
 
     my regex nsSep    { \: \: }
 
     if (!$namespace) { 
         $namespace = ~$plugin.WHAT.perl;
-        $namespace.=subst($!NS, '', :global); # Strip the Namespace.
+        $namespace.=subst($prefix, '', :global); # Strip the prefix.
         $namespace.=subst(/<&nsSep>/, '-', :global); # Convert :: to - for NS.
         $namespace.=lc; # Change to lowercase.
     }
 
     say "<class> "~$plugin.WHAT if $.debug;
     say "<namespace> $namespace" if $.debug;
-    $plugin.parent = self;
-    $plugin.namespace = $namespace;
-    $plugin."$command"($opts);
+    return $plugin;
+#    return { :plugin($plugin), :namespace($namespace) };
 }
 
 method err ($message) {

@@ -27,3 +27,8 @@ These plugins are designed to allow for a custom content management
 system, but are also good examples to use when planning on writing your
 own plugins.
 
+=== WW/ ===
+
+This directory contains roles for use with Websight plugins and/or
+Websight::Lighter Plugins and Controllers.
+

@@ -1,6 +1,6 @@
-use Websight;
+use WW::ChainLoader;
 
-class Websight::Dispatch does Websight;
+class Websight::Dispatch does WW::ChainLoader;
 
 use Hash::Has;
 

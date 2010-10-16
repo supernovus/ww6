@@ -5,8 +5,10 @@
   for Controllers, so you can do self.data<page><title> = 'My Page'; then do
   self.view('index.xhtml') and it will look for index.xhtml in the application views/ folder
   and parse it using Flower, replacing any TAL queries for "page/title" with "My Page".
-  The initial version will have limited support for plugins and helpers (which must be
-  placed in the app's 'classes/Plugins' and 'classes/Helpers' folders respectively.)
+  It will have support for plugins, so you can do:
+  self.load-plugin('Example::Test');
+  and it will load the Plugins::Example::Test plugin from your classes/Plugins/Example/Test.pm
+  file. It will make it available as self.example-test, so you can call methods on it.
 
 - Change how caching works with headers, and enable a separate rootdir 
   for static site generation.

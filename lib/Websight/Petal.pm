@@ -20,3 +20,4 @@ method processPlugin ($default_opts?) {
   }
   $.parent.content = $flower.parse(|$.parent.metadata);
 }
+
