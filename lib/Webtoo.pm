@@ -113,10 +113,12 @@ method callPlugin ($spec, :$command is copy = $.defCommand, :$opts is copy, :$na
 }
 
 ## Note loadPlugin and it's helpers will modify the namespace passed to it.
-method loadPlugin ($plug, :$namespace is rw, :$prefix=$!NS, :$noload) {
+method loadPlugin ($plug, :$namespace is rw, :$prefix=$!NS, :$noload, :$try) {
   my $plugin;
   if ($plug ~~ Str) {
-    $plugin = self!loadDynamicPlugin($plug, :$namespace, :$prefix, :$noload);
+    $plugin = self!loadDynamicPlugin(
+      $plug, :$namespace, :$prefix, :$noload, :$try
+    );
   }
   else {
     $plugin = self!loadStaticPlugin($plug, :$namespace, :$prefix);
@@ -130,7 +132,7 @@ method loadPlugin ($plug, :$namespace is rw, :$prefix=$!NS, :$noload) {
 
 ## Dynamic plugins. Loads by class name.
 method !loadDynamicPlugin (
-  $plugin is copy, :$namespace is rw, :$prefix, :$noload
+  $plugin is copy, :$namespace is rw, :$prefix, :$noload, :$try
 ) {
 
     say "Entered callDynamicPlugin..." if $.debug;
@@ -164,16 +166,16 @@ method !loadDynamicPlugin (
     #$classfile ~= '.pm';
     #require $classfile;
     eval("use $plugin"); # Evil hack to replace 'require'.
-    if defined $! { die "eval use failed: $!"; }
+    if defined $! && !$try { die "eval use failed: $!"; }
     say "We got past require" if $.debug;
     if ($noload) {
       eval('$plugin = '~$plugin); ## Convert string into Type object.
-      if defined $! { die "eval type assignment failed: $!"; }
+      if defined $! && !$try { die "eval type assignment failed: $!"; }
       return $plugin;
     }
     else {
       my $plug = eval($plugin~".new()"); # More needed hackery.
-      if defined $! { die "eval new() failed: $!"; }
+      if defined $! && !$try { die "eval new() failed: $!"; }
 
       return $plug;
     }

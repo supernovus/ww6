@@ -30,5 +30,5 @@ own plugins.
 === WW/ ===
 
 This directory contains roles for use with Websight plugins and/or
-Websight::Lighter Plugins and Controllers.
+Websight::Lighter Controllers, Plugins, and Models.
 
