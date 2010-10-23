@@ -6,12 +6,19 @@ Status: It works, but depending on features you use, can be pretty slow.
         I recommend compiling everything first, if you use 'neutro' as
         recommended below this will be done for you automatically.
 
-BIG CAVEAT: Currently if you want this to work as an "installed" application,
-            you must use the 'neutro' installer, or 'mbuild'.
-            'proto' and 'pls' most likely won't work, and 'ufo' 
-            doesn't support the folder inside 'bin'.
-            The folder inside 'bin' is a huge hack that should be replaced
-            with a proper solution once installers decide upon a solution.
+NOTE:   This now has it's own custom Makefile, that was originally created
+        by 'ufo' but is now manually managed. The reason is, I have a folder
+        that needs to be installed into a location findable by the 'ww6'
+        script, and until there is a library to use XDG folders on Unix and
+        common folders on Windows, and it gets integrated with neutro, pls
+        and proto, the custom Makefile will have to do.
+        DO NOT run 'ufo' in this folder.
+
+NOTE 2: This has only been tested on Linux, and due to using Makefiles and
+        GNU-style options like 'cp -a', it may not work on any other OS.
+        Feel free to try it with Cygwin or on MacOSX, and if are able to
+        patch it up and make it work, send me the patch and you'll get listed
+        in the credits.
 
 === Story ===
 

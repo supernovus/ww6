@@ -30,10 +30,8 @@ has $.classdir  is rw = 'classes';
 
 ## Models are currently implemented as being identical to Plugins, except that
 ## the load-model() method uses the Models:: namespace instead of Plugins::
-## A simple role called WW::Model will be available, which will allow  you to
-## use any database model you want. Additionally, WW::Model::Table will be
-## available in a later release, and will offer a simple to use model (similar
-## to, but entirely unlike ActiveRecord, see docs/Model-Table.txt for details.)
+## You can use anything you want as a class. If you want, you can include the
+## WW::Plugin role to make your model extendable too.
 
 method processPlugin ($default_opts = {}) {
   $.opts = self.getConfig(:type(Hash), :default($default_opts));

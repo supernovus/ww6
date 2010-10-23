@@ -1,6 +1,6 @@
 use Websight::XML;
 
-class Websight::Petal is Websight::XML;
+class Websight::Flower is Websight::XML;
 
 use Hash::Has;
 use Flower;

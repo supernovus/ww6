@@ -2,10 +2,6 @@
 #
 # The script to manage ww6 sites.
 #
-# NOTE: Until installers like neutro have a way of installing resource files
-# into specific folders, we are generating the code on the fly. It sucks, but
-# it'll have to work until I can work with tadzik to have some sort of equiv
-# to '/usr/share', '/var' and '/etc' in Module::Install.
 
 use File::Mkdir;
 use File::Find;
@@ -30,8 +26,12 @@ sub show-types {
 }
 
 ## Create a new site, by default creates it in the current folder.
+## The current hackish place for the resource directory is in ~/.perl6/share
+## It finds it by looking where 'ww6' is (generally ~/.perl6/bin) and setting
+## the resdir to ../share/webtoo from that path.
+
 multi sub MAIN (:$create!, :$dir='.') {
-  my $resdir = $*PROGRAM_NAME.subst('ww6', 'webtoo');
+  my $resdir = $*PROGRAM_NAME.subst('ww6', '../share/webtoo');
   my $tdir = $resdir~'/templates/'~$create;
   if $tdir.IO ~~ :d {
     print "Creating a new '$create' in '$dir'... ";

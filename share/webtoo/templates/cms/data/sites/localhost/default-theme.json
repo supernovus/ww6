@@ -1,5 +1,5 @@
 {
-  "+plugins" : [ "Petal" ],
+  "+plugins" : [ "Flower" ],
   "layout"  : "default-layout.xmls",
   "index"   : { "page" : "/" }
 }
