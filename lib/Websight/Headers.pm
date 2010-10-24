@@ -40,7 +40,8 @@ method processPlugin ($default_config?) {
         $.parent.addHeader('Expires', $expiry);
     }
     if hash-has($config, 'nocache', :true) {
-        $.parent.addHeader('Cache-Control', 'no-cache');
+        $.parent.addHeader('Cache-Control', 'no-cache, no-store, must-revalidate, max-age=0, post-check=0, pre-check=0');
+        $.parent.addHeader('Pragma', 'no-cache', :append);
     }
     if hash-has($config, 'addheaders', :defined, :type(Hash)) {
         $.parent.addHeaders($config<addheaders>);

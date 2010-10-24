@@ -9,13 +9,12 @@ has $.defcont   is rw = 'Index';
 has $.defmethod is rw = 'index';  ## Controller.handle_index();
 has $.errmethod is rw = 'error';  ## Controller.handle_error();
 has $.outmethod is rw = 'output'; ## Controller.output();
+has $.premethod is rw = 'prepare'; ## Controller.prepare();
 has $.plugns    is rw = 'Plugins::';
-has $.addns     is rw = 'Addons::';
 has $.contns    is rw = 'Controllers::';
 has $.modns     is rw = 'Models::';
 has $.viewdir   is rw = 'views';
 has $.classdir  is rw = 'classes';
-
 
 ## Controllers MUST start with a capital letter, and have NO OTHER capital
 ## letters in their name. Handler methods inside controllers MUST start with
@@ -33,15 +32,18 @@ has $.classdir  is rw = 'classes';
 ## You can use anything you want as a class. If you want, you can include the
 ## WW::Plugin role to make your model extendable too.
 
-method processPlugin ($default_opts = {}) {
-  $.opts = self.getConfig(:type(Hash), :default($default_opts));
+method processPlugin ($default_opts) {
+  my $defopts = {};
+  if (defined $default_opts && $default_opts ~~ Hash) {
+    $defopts = $default_opts;
+  }
+  $.opts = self.getConfig(:type(Hash), :default($defopts));
 
   self!set-opt($.defcont,   'default-controller');
   self!set-opt($.defmethod, 'default-handler');
   self!set-opt($.errmethod, 'error-handler');
   self!set-opt($.outmethod, 'output-method');
   self!set-opt($.plugns,    'plugin-namespace');
-  self!set-opt($.addns,     'addon-namespace');
   self!set-opt($.contns,    'controller-namespace');
   self!set-opt($.modns,     'model-namespace');
   self!set-opt($.viewdir,   'view-folder');
@@ -84,7 +86,13 @@ method processPlugin ($default_opts = {}) {
 
   my $content;
 
-  ## Okay, now that we've found the controller, lets use it.
+  ## First off, run any prep stuff.
+  if $controller.can($.premethod) {
+    say "Loading the premethod";
+    $controller."{$.premethod}"();
+  }
+
+  ## Now let's get the content.
   if $controller.can-handle($handler) {
     $content = $controller.call-handler($handler, |@parameters);
   }
@@ -102,6 +110,7 @@ method processPlugin ($default_opts = {}) {
     }
   }
 
+  ## Finally, process the output if there is an output filter method.
   if $controller.can($.outmethod) {
     $content = $controller."{$.outmethod}"($content);
   }
@@ -111,7 +120,7 @@ method processPlugin ($default_opts = {}) {
 
 method !default-controller() {
   my $class = self.load-controller($.defcont);
-  if $class {
+  if defined $class {
     return $class;
   }
   else {
@@ -125,13 +134,16 @@ method !set-opt($opt is rw, $key) {
 }
 
 method load-controller ($name) {
-  my $controller = $.parent.loadPlugin($name, :prefix($.contns), :try);
-  if defined $controller && $controller.does('WW::Controller') {
+  my $namespace; ## Needed hackery until I fix how namespace works.
+  my $controller = $.parent.loadPlugin($name, :$namespace, :prefix($.contns), :try);
+  if defined $controller {
     $controller.plugns  = $.plugns;
-    $controller.addns   = $.addns;
     $controller.modns   = $.modns;
     $controller.viewdir = $.viewdir;
     return $controller;
+  }
+  else {
+    return Nil;
   }
 }
 

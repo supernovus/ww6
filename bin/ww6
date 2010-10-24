@@ -18,11 +18,21 @@ sub chmod($file, $mode) {
   }
 }
 
-sub show-types {
-  say "Invalid create type specified. Valid types:";
-  ## TODO: make this read the templates folder and list the found templates.
-  say "  cms           An active content management system";
+sub show-types ($resdir) {
+  my $tempdir = $resdir~'/templates';
+
+  say "List of currently available templates:";
+  my @temps = dir($tempdir);
+  for @temps -> $dir {
+    my $space = ' ' x 11-$dir.chars;
+    print ' '~$dir~$space;
+    say slurp($tempdir~'/'~$dir~'/desc.txt');
+  }
   exit;
+}
+
+sub resdir {
+  return $*PROGRAM_NAME.subst('ww6', '../share/webtoo');
 }
 
 ## Create a new site, by default creates it in the current folder.
@@ -31,9 +41,9 @@ sub show-types {
 ## the resdir to ../share/webtoo from that path.
 
 multi sub MAIN (:$create!, :$dir='.') {
-  my $resdir = $*PROGRAM_NAME.subst('ww6', '../share/webtoo');
+  my $resdir = resdir();
   my $tdir = $resdir~'/templates/'~$create;
-  if $tdir.IO ~~ :d {
+  if $create ne '' && $tdir.IO ~~ :d {
     print "Creating a new '$create' in '$dir'... ";
     for find(dir => $tdir, type => 'file').list -> $file {
       my $target-dir = $file.dir.subst($tdir, $dir);
@@ -48,7 +58,15 @@ multi sub MAIN (:$create!, :$dir='.') {
     say "done.";
   }
   else {
-    show-types;
+    say "Invalid create type specified.";
+    show-types($resdir);
   }
+}
+
+## Show the types
+
+multi sub MAIN (:$list!) {
+  my $dir = resdir();
+  show-types($dir);
 }
 

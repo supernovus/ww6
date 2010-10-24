@@ -15,7 +15,7 @@ NOTE:   This now has it's own custom Makefile, that was originally created
         DO NOT run 'ufo' in this folder.
 
 NOTE 2: This has only been tested on Linux, and due to using Makefiles and
-        GNU-style options like 'cp -a', it may not work on any other OS.
+        utilities like 'rsync', it may not work on any other OS.
         Feel free to try it with Cygwin or on MacOSX, and if are able to
         patch it up and make it work, send me the patch and you'll get listed
         in the credits.
@@ -37,6 +37,25 @@ But then, the Great Architect said, "no."
 And proceeded to rewrite the whole thing, in Perl 6.
 
 This is the result.
+
+=== Features ===
+
+ * Supports Dispatch based configurations, where all URLs are matched
+   and dispatched to the correct module.
+
+ * Supports a custom website content management system, which looks for
+   pages in a specific format, and parses them with plugins.
+
+ * Supports web applications with dynamically dispatched controllers,
+   similar to CodeIgniter from PHP.
+
+ * Has a simple script 'ww6' to create new sites/apps with:
+   $ ww6 --create webapp --dir new-app
+   To get a list of available templates, type 'ww6 --list'.
+
+ * The templates come with a pre-fab daemon.scgi script which you can do:
+     ./daemon.scgi
+   to run, and then connect an SCGI mount to port 8118 to see your app.
 
 === Dependencies ===
 
@@ -66,13 +85,12 @@ This is the result.
 - The Exemel and Flower libraries
   http://github.com/supernovus/exemel
   http://github.com/supernovus/flower
-  Not required by the Webtoo core, but these are used by the 
-  Websight CMS plugins.
+  Used by both the CMS libraries, and the Lighter web application library.
 
 - The JSON::Tiny library
   http://github.com/moritz/json
   Required by the HashConfig library, this is used for configuration
-  files and Metadata in the CMS libraries.
+  files and Metadata (as well as a few other places in examples.)
 
 - The Temporal Utils library collection
   http://github.com/supernovus/temporal-utils
@@ -91,12 +109,8 @@ This is the result.
 This project is still under construction, and does not include all of the
 functionality from Webtoo Websight 5 yet.
 
-In addition to the original 'dynamic website' content management system,
-I would like to add the ability to create completely static websites using
-templates (the static cache functionality from the previous ww6 design was
-a similar idea, and may return, but I want to take it a bit further.)
+See the docs/TODO.txt for specific details on future plans.
 
-See the docs/TODO.txt for more details on specific future plans.
-
-Timothy M. Totten
+License: http://www.perlfoundation.org/artistic_license_2_0
+Author: Timothy M. Totten
 

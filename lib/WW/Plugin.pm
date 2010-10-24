@@ -3,7 +3,6 @@ use Websight;
 role WW::Plugin does Websight;
 
 has $.plugns is rw = 'Plugins::';
-has $.addns  is rw = 'Addons::';
 has $.modns  is rw = 'Models::';
 
 ## A shortcut to the data. Let's you do:
@@ -29,17 +28,11 @@ method load-plugin (
 ) {
   my $plug = $.parent.loadPlugin($plugin, :$namespace, :$prefix);
   $plug.plugns = $.plugns;
-  $plug.addns  = $.addns;
   $plug.modns  = $.modns;
   if (!$noadd) {
     self.add-attribute($namespace, $plug);
   }
   return $plug;
-}
-
-method load-addon ($addon) {
-  my $plug = $.parent.loadPlugin($addon, :prefix($.addns), :noload);
-  self does $plug;
 }
 
 ## Actually calls load-plugin, but with a different default namespace.

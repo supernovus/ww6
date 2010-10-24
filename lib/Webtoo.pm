@@ -162,23 +162,36 @@ method !loadDynamicPlugin (
 
     say "<class> $plugin" if $.debug;
     say "<namespace> $namespace" if $.debug;
-    #my $classfile = $plugin.subst(/<&nsSep>/, '/', :global); # Needed hackery.
-    #$classfile ~= '.pm';
-    #require $classfile;
-    eval("use $plugin"); # Evil hack to replace 'require'.
-    if defined $! && !$try { die "eval use failed: $!"; }
-    say "We got past require" if $.debug;
+    #require $classfile; ## Oh, how I wish.
+
+    my $eval = "use $plugin; ";
     if ($noload) {
-      eval('$plugin = '~$plugin); ## Convert string into Type object.
-      if defined $! && !$try { die "eval type assignment failed: $!"; }
-      return $plugin;
+      $eval ~= '$plugin = '~$plugin;
     }
     else {
-      my $plug = eval($plugin~".new()"); # More needed hackery.
-      if defined $! && !$try { die "eval new() failed: $!"; }
-
-      return $plug;
+      $eval ~= $plugin~'.new()';
     }
+    say "We're going to eval: $eval" if $.debug;
+    my $plug = eval($eval);
+    if defined $! && !$try { die "eval failed: $!"; }
+
+#    eval("use $plugin"); # Evil hack to replace 'require'.
+#    if defined $! && !$try { die "eval use failed: $!"; }
+#    say "We got past require" if $.debug;
+#    if ($noload) {
+#      eval('$plugin = '~$plugin); ## Convert string into Type object.
+#      if defined $! && !$try { die "eval type assignment failed: $!"; }
+#      return $plugin;
+#    }
+#    else {
+#      my $plug = eval($plugin~".new()"); # More needed hackery.
+#      if defined $! && !$try { die "eval new() failed: $!"; }
+#
+#      return $plug;
+#    }
+
+    return $plug;
+
 }
 
 ## Static plugins, loads by initialized object.

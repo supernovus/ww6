@@ -1,11 +1,5 @@
 {
   "plugins" : [ "Dispatch", "Content", "Metadata", "Headers", "Layout" ],
-  "content" : 
-  {
-    "index"       : "default",
-    "handler"     : "handler",
-    "ignore-keys" : [ "INDEX" ]
-  },
   "dispatch" : 
   [
     { "path" : "secure",    "redirect" : "https" },
@@ -17,5 +11,11 @@
       { "plugin" : "Autoroot", "opts" : { "nest" : 1 } }
     },
     { "file" : "redirect.json", "include" : "redirect.json" }
-  ]
+  ],
+  "content" : 
+  {
+    "index"       : "default",
+    "handler"     : "handler",
+    "ignore-keys" : [ "INDEX" ]
+  }
 }

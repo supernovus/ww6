@@ -12,7 +12,9 @@ has $.viewdir is rw = 'views';
 ## I may eventually move Views into Addons, that you can use load-addon to
 ## parse (addons are roles, whereas plugins are classes.)
 method view ($template, *@modifiers) {
-  my $viewfile = $.parent.findFile($!viewdir~'/'~$template);
+  #say "Looking for $template in {$.viewdir}";
+  my $viewfile = $.parent.findFile($.viewdir~'/'~$template);
+  #say "Found: $viewfile";
   my $find = sub ($file) { $.parent.findFile($file) };
   my $flower = Flower.new(:file($viewfile), :$find);
   if (@modifiers) {
