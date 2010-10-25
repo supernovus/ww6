@@ -1,0 +1,6 @@
+{
+  "+plugins" : [ "Flower" ],
+  "layout"  : "default-layout.xmls",
+  "index"   : { "page" : "/" }
+}
+

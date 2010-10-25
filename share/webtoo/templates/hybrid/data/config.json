@@ -1,0 +1,31 @@
+{
+  "plugins" : [ "Dispatch", "Lighter", "Dispatch=conditional" ],
+  "dispatch" : 
+  [
+    { "path" : "secure",    "redirect" : "https" },
+    { "path" : "^\\/author", "redirect" : "http://huri.net/" },
+    { "path" : "^\\/example", "set" :
+      { "plugins" : [ "Example" ], "example" : { "hello" : "world" } }
+    },
+    { "root" : ["sites"], "plugin" :
+      { "plugin" : "Autoroot", "opts" : { "nest" : 1 } }
+    },
+    { "file" : "redirect.json", "include" : "redirect.json" }
+  ],
+  "lighter" : { "fallthrough" : 1 },
+  "conditional" :
+  [ 
+    { "has-content" : 1, "set" : { "plugins" : [ "Flower" ] } },
+    { "no-content" : 1,  "set" : 
+      { 
+        "plugins" : [ "Content", "Metadata", "Headers", "Layout" ],
+        "content" : 
+        {
+          "index"       : "default",
+          "handler"     : "handler",
+          "ignore-keys" : [ "INDEX" ]
+        }
+      }
+    }
+  ]
+}

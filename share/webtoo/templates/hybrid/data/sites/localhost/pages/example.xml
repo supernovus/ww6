@@ -1,0 +1,47 @@
+<div a:note="the outermost element will be removed when the layout is parsed">
+<p>
+There's not much to see here yet.
+But, this page is being served by Webtoo Websight 6!
+</p>
+<p>
+The help tag is <span tal:replace="page/types/help"/>, which is really helpful.
+</p>
+<h2>Users</h2>
+<table>
+<tal:block tal:repeat="user page/users">
+<tr>
+<td>Name:</td>
+<td tal:content="user/name">user name</td>
+</tr>
+<tr>
+<td>Age:</td>
+<td tal:content="user/age">user age</td>
+</tr>
+</tal:block>
+</table>
+
+<div id="metadata" a:note="this will be removed when metadata is parsed">
+{
+  "INCLUDE" : "default-theme.json",
+  "page" :
+  {
+    "title"   : "A Test Page",
+    "author"  : "Timothy Totten",
+    "updated" : "October 4th, 2010",
+    "tags"    : [ "projects", "perl6" ],
+    "testif"  :
+    {
+      "first"  : "Ooga Booga",
+      "second" : "Something like that"
+    },
+    "types" : { "help" : "A help tag" },
+    "users" :
+    [
+      { "name" : "Bob",    "age" : 27 },
+      { "name" : "Susan",  "age" : 15 },
+      { "name" : "Kevin",  "age" : 42 }
+    ]
+  }
+}
+</div>
+</div>

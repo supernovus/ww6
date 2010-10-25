@@ -16,6 +16,8 @@ has $.modns     is rw = 'Models::';
 has $.viewdir   is rw = 'views';
 has $.classdir  is rw = 'classes';
 
+has $!fallthrough is rw = False;
+
 ## Controllers MUST start with a capital letter, and have NO OTHER capital
 ## letters in their name. Handler methods inside controllers MUST start with
 ## 'handle_' and MUST be in all lowercase.
@@ -49,6 +51,8 @@ method processPlugin ($default_opts) {
   self!set-opt($.viewdir,   'view-folder');
   self!set-opt($.classdir,  'class-folder');
 
+  self!set-opt($!fallthrough, 'fallthrough');
+
   ## First off, let's find the classes dir and add it to the @*INC;
   my $classdir = $.parent.findFile($.classdir, :dir);
   if (!$classdir) { return; } ## Cannot continue without a classdir.
@@ -76,11 +80,13 @@ method processPlugin ($default_opts) {
       $handler = $path.lc;
     }
     if ! $controller {
+      if ($!fallthrough) { return; }
       $controller = self!default-controller();
       $handler = $.errmethod;
     }
   }
   else {
+    if ($!fallthrough) { return; }
     $controller = self!default-controller();
   }
 
@@ -88,7 +94,6 @@ method processPlugin ($default_opts) {
 
   ## First off, run any prep stuff.
   if $controller.can($.premethod) {
-    say "Loading the premethod";
     $controller."{$.premethod}"();
   }
 
@@ -100,6 +105,7 @@ method processPlugin ($default_opts) {
     $content = $controller.call-handler($.errmethod);
   }
   else {
+    if ($!fallthrough) { return; }
     $controller = self!default-controller();
     $handler = $.errmethod;
     if $controller.can-handle($handler) {

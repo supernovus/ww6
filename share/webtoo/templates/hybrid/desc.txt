@@ -1,0 +1,1 @@
+An example of a complex configuration mixing many plugins.

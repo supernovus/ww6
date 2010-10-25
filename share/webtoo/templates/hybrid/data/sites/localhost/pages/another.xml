@@ -1,0 +1,25 @@
+<div>
+<p>
+Oh look, it's the list of Lighter-powered test pages.
+</p>
+<ul>
+<li><a href="../non-existant/controller">A non-existant controller</a></li>
+<li><a href="../page/">A specific controller's index</a></li>
+<li><a href="../page/invalid">An invalid page on a specific controller</a></li>
+<li><a href="../page/example/of/a/long/url">A specific controller with parameters</a></li>
+<li><a href="../ajax/user/bob">An example AJAX+JSON call</a></li>
+</ul>
+
+<div id="metadata">
+{
+  "INCLUDE" : "default-theme.json",
+  "page" :
+  {
+    "title" : "A boring page",
+    "author"  : "Timothy Totten",
+    "updated" : "Sept 14th, 2010",
+    "tags"    : [ "test", "perl6" ]
+  }
+}
+</div>
+</div>

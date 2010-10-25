@@ -10,10 +10,10 @@ use HashConfig::Magic;
 use Perlite::File;
 
 has %.env = %*ENV; # Override this if using SCGI or FastCGI.
-has %!headers = { Status => 200, 'Content-Type' => 'text/html' };
+has %.headers = { Status => 200, 'Content-Type' => 'text/html' };
 has $.content is rw = '';
 has $.req = WebRequest.new( :env(%.env) );
-has $.path = hash-has(%.env, 'PATH_INFO', :notempty, :return) 
+has $.path is rw = hash-has(%.env, 'PATH_INFO', :notempty, :return) 
     // hash-has(%.env, 'REQUEST_URI', :defined, :return) 
     // @*ARGS[0] // '';
 has $.uri = hash-has(%.env, 'REQUEST_URI', :defined, :return)
@@ -219,35 +219,35 @@ method err ($message) {
 
 method setStatus ($code?) {
     if $code {
-        %!headers<Status> = $code;
+        %.headers<Status> = $code;
     }
     else {
-        return %!headers<Status>;
+        return %.headers<Status>;
     }
 }
 
 method mimeType ($type?) {
     if $type {
-        %!headers<Content-Type> = $type;
+        %.headers<Content-Type> = $type;
     }
     else {
-        return %!headers<Content-Type>;
+        return %.headers<Content-Type>;
     }
 }
 
 method addHeader ($name, $value, Bool $append=False) {
-    if $append && %!headers{$name} {
-        if %!headers{$name} ~~ Array {
-            %!headers{$name}.push: $value;
+    if $append && %.headers{$name} {
+        if %.headers{$name} ~~ Array {
+            %.headers{$name}.push: $value;
         }
         else {
-            my @array = %!headers{$name};
+            my @array = %.headers{$name};
             @array.push: $value;
-            %!headers{$name} = @array;
+            %.headers{$name} = @array;
         }
     }
     else {
-        %!headers{$name} = $value;
+        %.headers{$name} = $value;
     }
 }
 
@@ -259,8 +259,8 @@ method addHeaders (%headers) {
 }
 
 method delHeader ($name) {
-    if %!headers.exists($name) {
-        return %!headers.delete($name);
+    if %.headers.exists($name) {
+        return %.headers.delete($name);
     }
     else {
         return;
@@ -320,10 +320,10 @@ method !callHooks($hook) {
 method !buildHeaders {
     say "Entered buildHeaders" if $.debug;
     my $eol = "\r\n";
-    my $status = %!headers.delete: 'Status';
+    my $status = %.headers.delete: 'Status';
     if $status == 204 | 304 { %!header.delete: 'Content-Type'; }
     my $headers = "Status: " ~ $status ~ $eol;
-    for %!headers.kv -> $key, $value {
+    for %.headers.kv -> $key, $value {
         if $value ~~ Array {
             for @($value) -> $header {
                 $headers ~= "$key: $header$eol";

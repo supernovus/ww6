@@ -1,17 +1,7 @@
 {
-  "plugins" : [ "Dispatch", "Content", "Metadata", "Headers", "Layout" ],
-  "dispatch" : 
-  [
-    { "path" : "secure",    "redirect" : "https" },
-    { "path" : "^\\/author", "redirect" : "http://huri.net/" },
-    { "path" : "^\\/example", "set" :
-      { "plugins" : [ "Example" ], "example" : { "hello" : "world" } }
-    },
-    { "root" : ["sites"], "plugin" :
-      { "plugin" : "Autoroot", "opts" : { "nest" : 1 } }
-    },
-    { "file" : "redirect.json", "include" : "redirect.json" }
-  ],
+  "plugins"  : [ "Autoroot", "Content", "Metadata", "Headers", "Layout" ],
+  "~root"    : [ "sites" ],
+  "autoroot" : { "nest" : 1 },
   "content" : 
   {
     "index"       : "default",

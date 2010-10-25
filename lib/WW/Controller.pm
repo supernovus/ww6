@@ -2,25 +2,21 @@ use WW::Plugin;
 
 role WW::Controller does WW::Plugin;
 
-use Flower;
-
 has $.viewdir is rw = 'views';
 
-## You don't have to use this, but it's a quick way to deal with 'views'.
-## Unlike CodeIgniter, you can't chain views, since we're using Flower.
-## Make sure your view statement is the last one in your Controller method.
-## I may eventually move Views into Addons, that you can use load-addon to
-## parse (addons are roles, whereas plugins are classes.)
-method view ($template, *@modifiers) {
-  #say "Looking for $template in {$.viewdir}";
+## load-view does NOT parse the template, it just loads it.
+## You will need to use another Websight Plugin such as Flower
+## to parse it. If you want to have parsing inside of Lighter,
+## you can add a role such as WW::Controller::Flower which adds
+## a flower-view() method which you would call INSTEAD of load-view().
+method load-view($template) {
   my $viewfile = $.parent.findFile($.viewdir~'/'~$template);
-  #say "Found: $viewfile";
-  my $find = sub ($file) { $.parent.findFile($file) };
-  my $flower = Flower.new(:file($viewfile), :$find);
-  if (@modifiers) {
-    $flower.load-modifiers(|@modifiers);
+  if $viewfile {
+    return slurp($viewfile);
   }
-  return $flower.parse(|$.parent.metadata);
+  else {
+    return;
+  }
 }
 
 ## can-handle: does this controller have a specific handler?

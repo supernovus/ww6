@@ -1,0 +1,15 @@
+{
+  "plugins" : [ "Dispatch" ],
+  "dispatch" : 
+  [
+    { "path" : "secure",    "redirect" : "https" },
+    { "path" : "morbid",    "rewrite"  : "/example" },
+    { "path" : "^\\/author", "redirect" : "http://huri.net/" },
+    { "path" : "^\\/example", "set" :
+      { "plugins" : [ "Example" ], "example" : { "hello" : "world" } }
+    },
+    { "classpath" : "classes" },
+    { "path" : "^\\/test", "set" : { "plugins" : [ "::MyTest" ] } },
+    { "set" : { "plugins" : [ "::MyDefault" ] } }
+  ]
+}

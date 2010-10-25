@@ -1,0 +1,25 @@
+<page>
+<div>
+A list of articles is below
+</div>
+
+<div id="metadata">
+{
+  "INCLUDE"  : "default-theme.json",
+  "~plugins" : [ "Index" ],
+  "page" :
+  {
+    "title"     : "Table of Contents",
+    "author"    : "Timothy Totten",
+    "updated"   : "Oct. 4th, 2010",
+    "tags"      : [ "index" ],
+    "noarticle" : 1
+  },
+  "index" :
+  {
+    "data" : "index.json",
+    "show" : 10
+  }
+}
+</div>
+</page>

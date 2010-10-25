@@ -96,7 +96,7 @@ This is the result.
   http://github.com/supernovus/temporal-utils
   Not used by the core or Example plugin, but it is used by a few of the
   CMS plugins (including Headers) and by Flower::Utils::Date which can be
-  loaded by the Petal plugin (see the utils option in the Petal plugin.)
+  loaded by the Flower plugin (see the modifiers option in the Flower plugin.)
 
 - If you want to run the SCGI process on a computer behind NAT,
   and have the publically accessible web server forward requests
