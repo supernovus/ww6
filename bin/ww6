@@ -32,13 +32,13 @@ sub show-types ($resdir) {
 }
 
 sub resdir {
-  return $*PROGRAM_NAME.subst('ww6', '../share/webtoo');
+  return $*PROGRAM_NAME.subst('ww6', '../share/ww6');
 }
 
 ## Create a new site, by default creates it in the current folder.
 ## The current hackish place for the resource directory is in ~/.perl6/share
 ## It finds it by looking where 'ww6' is (generally ~/.perl6/bin) and setting
-## the resdir to ../share/webtoo from that path.
+## the resdir to ../share/ww6 from that path.
 
 multi sub MAIN (:$create!, :$dir='.') {
   my $resdir = resdir();
