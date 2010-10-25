@@ -1,14 +1,29 @@
 - Make Content support "fallthrough" mode. Lighter already supports it.
 
-- Change how caching works with headers, and enable a separate rootdir 
-  for static site generation.
+- Completely refactor how Caching works. 
+  - Rip the Cache generation code out of Content, it can go into a new 
+    Cache plugin, that works by itself.
+  - Change Content so it no longer has cache-ext and page-ext, only extension.
+  - This means flags like 'cache-only' and 'use-cache: 2' are now obsolete.
+  - Now to use the cache, have a plugin "Content=cache" with settings like:
+    "cache" : { "extension" : ".cache", "fallthrough" : 1 },
+  - You can use "no-content" conditions if the Cache failed.
+    For instance a plugin spec: "Dispatch+cache"
+    "dispatch-cache" : [ { "no-content" : 1, "set" : 
+      { "~plugins" : ["Content"] } } ],
+  - Caching becomes more complex, but also becomes more flexible and
+    applies to non-Content paths (such as Lighter paths, or other plugins.)
+  - Oh, make sure Cache plugin uses $.parent.metadata.request.path to
+    generate the cache file, and not $.parent.path, as the latter can be
+    overridden using URI Rewriting, and we want to cache the real requests.
 
 - Finish porting Index::Update to the new infrastructure.
+
+- Replicate the functionality of the Linkage and Gallery plugins from ww5.
 
 - Make this use a proper resources folder once Module::Install and proto/pls
   support it, rather than maintaining a custom Makefile.
 
-- Replicate the functionality of the Linkage and Gallery plugins from ww5.
 - Port the Page Editor and Data Editor from ww5.
 - Port the File Manager from ww5.
 

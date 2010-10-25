@@ -1,5 +1,5 @@
 {
-  "plugins"  : [ "Autoroot", "Content", "Metadata", "Headers", "Layout" ],
+  "plugins"  : [ "Autoroot", "Content", "Metadata", "Headers", "Layout", "Flower" ],
   "~root"    : [ "sites" ],
   "autoroot" : { "nest" : 1 },
   "content" : 
