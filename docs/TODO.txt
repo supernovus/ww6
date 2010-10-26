@@ -1,3 +1,7 @@
+- Add FileExt plugin, strips an optional extension from the path.
+  Can also strip the extension from $.parent.metadata.request.path
+  Default extension to strip: .html
+
 - Completely refactor how Caching works. 
   x Rip the Cache generation code out of Content.
   x Change Content so it no longer has cache-ext and page-ext, only extension.
