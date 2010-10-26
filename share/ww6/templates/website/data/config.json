@@ -5,7 +5,7 @@
   "content" : 
   {
     "index"       : "default",
-    "handler"     : "handler",
-    "ignore-keys" : [ "INDEX" ]
-  }
+    "handler"     : "handler"
+  },
+  "cache" : { "ignore-keys" : [ "INDEX" ] }
 }

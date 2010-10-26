@@ -1,5 +1,4 @@
 *.pir
 *.pid
 *.html
-Makefile
 blib

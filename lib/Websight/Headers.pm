@@ -35,7 +35,7 @@ method processPlugin ($default_config?) {
           $unit = ~$1;
           $expires = +$0;
         }
-        my $expire = DateTime.now + to-seconds($expires, $unit);
+        my $expire = DateTime.now(:timezone(0)) + to-seconds($expires, $unit);
         my $expiry = rfc2822($expire);
         $.parent.addHeader('Expires', $expiry);
     }

@@ -1,12 +1,13 @@
-- Make Content support "fallthrough" mode. Lighter already supports it.
-
 - Completely refactor how Caching works. 
-  - Rip the Cache generation code out of Content, it can go into a new 
-    Cache plugin, that works by itself.
-  - Change Content so it no longer has cache-ext and page-ext, only extension.
-  - This means flags like 'cache-only' and 'use-cache: 2' are now obsolete.
+  x Rip the Cache generation code out of Content.
+  x Change Content so it no longer has cache-ext and page-ext, only extension.
+  x This means flags like 'cache-only' and 'use-cache: 2' are now obsolete.
+  xxx   The above bits are done, the following items aren't though.
+  - Write a new Cache plugin that actually generates the cache files.
+    This will probably be a lot more complex than the previous method.
+    We may pull in perl6-File-Utils as a new dependency.
   - Now to use the cache, have a plugin "Content=cache" with settings like:
-    "cache" : { "extension" : ".cache", "fallthrough" : 1 },
+    "cache" : { "cache" : 1, "extension" : ".cache" },
   - You can use "no-content" conditions if the Cache failed.
     For instance a plugin spec: "Dispatch+cache"
     "dispatch-cache" : [ { "no-content" : 1, "set" : 
