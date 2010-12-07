@@ -7,7 +7,7 @@ class Webtoo;
 use WebRequest;
 use Hash::Has;
 use HashConfig::Magic;
-use Perlite::File;
+use Webtoo::File;
 
 has %.env = %*ENV; # Override this if using SCGI or FastCGI.
 has %.headers = { Status => 200, 'Content-Type' => 'text/html' };

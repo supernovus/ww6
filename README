@@ -3,8 +3,9 @@ ww6: Web Application Framework and CMS Library-set for Perl 6
 Status: It works, but depending on features you use, can be pretty slow.
         The dynamic module loading can have some strange side effects if
         you are mixing pre-compiled libraries with plain .pm ones.
-        I recommend compiling everything first, if you use 'neutro' as
-        recommended below this will be done for you automatically.
+        I recommend compiling everything first, if you use 'neutro' or one
+        of the other Perl 6 package managers to install it, the compilation 
+        will be done for you. That is highly recommended.
 
 NOTE:   This now has it's own custom Makefile, that was originally created
         by 'ufo' but is now manually managed. The reason is, I have a folder
@@ -66,17 +67,12 @@ This is the result.
   http://rakudo.org/
   A version of Perl 6 for the Parrot Virtual Machine.
 
-- The Perlite library collection for Perl 6
-  http://github.com/supernovus/perlite6
-  This library collection was once included with ww6, but has been separated
-  out for use in other projects.
-
 - The Hash::Has, HashConfig and WebRequest libraries
   http://github.com/supernovus/hash-has
   http://github.com/supernovus/HashConfig
   http://github.com/supernovus/WebRequest
-  Used by the core, these used to be part of Perlite, but
-  where separated out into their own projects.
+  Used by the core, these used to be in a single library collection
+  called Perlite, but where separated out into their own projects.
 
 - The SCGI library for Perl 6
   http://github.com/supernovus/SCGI
@@ -95,15 +91,15 @@ This is the result.
 
 - The Temporal Utils library collection
   http://github.com/supernovus/temporal-utils
-  Not used by the core or Example plugin, but it is used by a few of the
+  Not used by the core, but it is used by a few of the
   CMS plugins (including Headers) and by Flower::Utils::Date which can be
   loaded by the Flower plugin (see the modifiers option in the Flower plugin.)
 
 - If you want to run the SCGI process on a computer behind NAT,
   and have the publically accessible web server forward requests
   to it, you can look into the reverse proxy functionality of OpenSSH.
-  The 'service.sh' included shows how I have it set up to run on my home
-  computer, and forward to my publically accessible VPS.
+  The 'extra/service.sh' and 'extra/svc/example.cfg' files show how I had 
+  it set up to run on my home computer, and forward to my VPS.
 
 === Future Plans ===
 

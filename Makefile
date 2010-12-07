@@ -13,7 +13,8 @@ SOURCES=lib/Websight.pm lib/Webtoo.pm lib/WW/Plugin.pm lib/WW/Cache.pm \
         lib/Websight/Index.pm lib/Websight/Content.pm \
         lib/Websight/Lighter.pm lib/Websight/Index/Update.pm \
         lib/Websight/Example.pm lib/Websight/Dispatch.pm \
-        lib/Websight/Metadata.pm lib/Websight/Flower.pm
+        lib/Websight/Metadata.pm lib/Websight/Flower.pm \
+        lib/Webtoo/File.pm
 SCRIPTS=bin/ww6
 RESOURCES=share/ww6/
 PIRS = $(patsubst %.pm6,%.pir,$(SOURCES:%.pm=%.pir))
