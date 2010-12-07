@@ -53,9 +53,10 @@ This is the result.
    $ ww6 --create webapp --dir new-app
    To get a list of available templates, type 'ww6 --list'.
 
- * The templates come with a pre-fab daemon.scgi script which you can do:
-     ./daemon.scgi
-   to run, and then connect an SCGI mount to port 8118 to see your app.
+ * The templates come with an example daemon.pl6 script (the default
+   uses SCGI on port 8118) which is really simple to use:
+     ./daemon.pl6
+   Then connect an SCGI mount to port 8118 to see your app.
 
 === Dependencies ===
 

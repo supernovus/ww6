@@ -18,16 +18,25 @@ sub chmod($file, $mode) {
   }
 }
 
-sub show-types ($resdir) {
-  my $tempdir = $resdir~'/templates';
-
-  say "List of currently available templates:";
-  my @temps = dir($tempdir);
+sub show-dir ($listdir) { 
+  my @temps = dir($listdir);
   for @temps -> $dir {
     my $space = ' ' x 11-$dir.chars;
     print ' '~$dir~$space;
-    say slurp($tempdir~'/'~$dir~'/desc.txt');
+    say slurp($listdir~'/'~$dir~'/desc.txt');
   }
+}
+
+
+sub show-types ($resdir) {
+  my $tempdir = $resdir~'/templates';
+  my $daemdir = $resdir~'/daemons';
+
+  say "List of currently available templates:";
+  show-dir($tempdir);
+  say "List of currently available daemon scripts:";
+  show-dir($daemdir);
+
   exit;
 }
 
@@ -40,10 +49,12 @@ sub resdir {
 ## It finds it by looking where 'ww6' is (generally ~/.perl6/bin) and setting
 ## the resdir to ../share/ww6 from that path.
 
-multi sub MAIN (:$create!, :$dir='.') {
+multi sub MAIN (:$create!, :$dir='.', :$daemon='default') {
   my $resdir = resdir();
-  my $tdir = $resdir~'/templates/'~$create;
-  if $create ne '' && $tdir.IO ~~ :d {
+  my $tdir   = $resdir~'/templates/'~$create;
+  my $dfile  = $resdir~'/daemons/'~$daemon~'/daemon.pl6';
+
+  if $create ne '' && $tdir.IO ~~ :d && $daemon ne '' && $dfile.IO ~~ :f {
     print "Creating a new '$create' in '$dir'... ";
     for find(dir => $tdir, type => 'file').list -> $file {
       my $target-dir = $file.dir.subst($tdir, $dir);
@@ -55,10 +66,16 @@ multi sub MAIN (:$create!, :$dir='.') {
         run "copy $file $target-dir/{$file.name}";
       }
     }
+    if not_win() {
+      run "cp $dfile $dir/";
+    }
+    else {
+      run "copy $dfile $dir/";
+    }
     say "done.";
   }
   else {
-    say "Invalid create type specified.";
+    say "Invalid 'create' or 'daemon' type specified.";
     show-types($resdir);
   }
 }
