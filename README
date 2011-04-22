@@ -3,23 +3,9 @@ ww6: Web Application Framework and CMS Library-set for Perl 6
 Status: It works, but depending on features you use, can be pretty slow.
         The dynamic module loading can have some strange side effects if
         you are mixing pre-compiled libraries with plain .pm ones.
-        I recommend compiling everything first, if you use 'neutro' or one
+        I recommend compiling everything first, if you use 'panda' or one
         of the other Perl 6 package managers to install it, the compilation 
         will be done for you. That is highly recommended.
-
-NOTE:   This now has it's own custom Makefile, that was originally created
-        by 'ufo' but is now manually managed. The reason is, I have a folder
-        that needs to be installed into a location findable by the 'ww6'
-        script, and until there is a library to use XDG folders on Unix and
-        common folders on Windows, and it gets integrated with neutro, pls
-        and proto, the custom Makefile will have to do.
-        DO NOT run 'ufo' in this folder.
-
-NOTE 2: This has only been tested on Linux, and due to using Makefiles and
-        utilities like 'rsync', it may not work on any other OS.
-        Feel free to try it with Cygwin or on MacOSX, and if are able to
-        patch it up and make it work, send me the patch and you'll get listed
-        in the credits.
 
 === Story ===
 

@@ -2,3 +2,4 @@
 *.pid
 *.html
 blib
+Makefile

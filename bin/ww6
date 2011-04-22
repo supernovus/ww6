@@ -41,7 +41,7 @@ sub show-types ($resdir) {
 }
 
 sub resdir {
-  return $*PROGRAM_NAME.subst('ww6', '../share/ww6');
+  return $*PROGRAM_NAME.subst('ww6', '../doc/ww6/share');
 }
 
 ## Create a new site, by default creates it in the current folder.
